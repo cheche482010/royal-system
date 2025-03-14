@@ -42,7 +42,7 @@ export default {
     
     const featuredSection = ref({
       title: 'Productos',
-      link: '/category/products'
+      link: '/Product'
     });
     
     const featuredProducts = ref([
