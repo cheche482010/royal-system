@@ -16,6 +16,9 @@ import 'vue-toastification/dist/index.css';
 import 'bootstrap/dist/css/bootstrap.css'; 
 import 'bootstrap'; 
 
+// Importa los estilos base
+import '@/assets/styles/style.scss';
+
 // Agrega los iconos de Font Awesome a la librería
 library.add(faUser, faHome);
 
