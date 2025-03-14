@@ -1,9 +1,642 @@
-.user {
-    color: red;
-    h1 {
-      font-size: 2rem;
+.user-container {
+  display: flex;
+  max-width: 1200px;
+  margin: 2rem auto;
+  gap: 2rem;
+  padding: 0 1rem;
+  
+  .user-sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    
+    .user-profile {
+      display: flex;
+      align-items: center;
+      padding-bottom: 1.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid #e9ecef;
+      
+      .avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin-right: 1rem;
+        
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+      }
+      
+      .user-info {
+        .user-name {
+          font-weight: 600;
+          margin-bottom: 0.25rem;
+        }
+        
+        .user-email {
+          font-size: 0.875rem;
+          color: #6c757d;
+        }
+      }
     }
-    p {
-      font-size: 1.2rem;
+    
+    .user-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      
+      .nav-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        border-radius: 0.25rem;
+        color: #212529;
+        background: none;
+        border: none;
+        cursor: pointer;
+        text-align: left;
+        
+        .nav-icon {
+          margin-right: 0.75rem;
+        }
+        
+        &:hover {
+          background-color: #f8f9fa;
+        }
+        
+        &.active {
+          background-color: #e9ecef;
+          font-weight: 600;
+        }
+      }
+    }
+    
+    .logout-button {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border-radius: 0.25rem;
+      color: #dc3545;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      
+      .logout-icon {
+        margin-right: 0.75rem;
+      }
+      
+      &:hover {
+        background-color: #f8d7da;
+      }
     }
   }
+  
+  .user-content {
+    flex: 1;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    
+    .content-section {
+      .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: #212529;
+      }
+      
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 1rem;
+        text-align: center;
+        
+        .empty-icon {
+          width: 64px;
+          height: 64px;
+          color: #6c757d;
+          margin-bottom: 1rem;
+        }
+        
+        h3 {
+          font-size: 1.25rem;
+          font-weight: 600;
+          margin-bottom: 0.5rem;
+          color: #212529;
+        }
+        
+        p {
+          color: #6c757d;
+          margin-bottom: 1.5rem;
+        }
+        
+        .shop-button {
+          display: inline-block;
+          padding: 0.75rem 1.5rem;
+          background-color: #00b2e3;
+          color: white;
+          border-radius: 0.25rem;
+          text-decoration: none;
+          font-weight: 600;
+          
+          &:hover {
+            background-color: darken(#00b2e3, 10%);
+          }
+        }
+      }
+      
+      // Estilos para la sección de pedidos
+      .orders-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        
+        .order-card {
+          border: 1px solid #e9ecef;
+          border-radius: 0.5rem;
+          overflow: hidden;
+          
+          .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            
+            .order-info {
+              .order-number {
+                font-weight: 600;
+                margin-bottom: 0.25rem;
+              }
+              
+              .order-date {
+                font-size: 0.875rem;
+                color: #6c757d;
+              }
+            }
+            
+            .order-status {
+              padding: 0.25rem 0.75rem;
+              border-radius: 9999px;
+              font-size: 0.875rem;
+              font-weight: 600;
+              
+              &.pending {
+                background-color: #fff3cd;
+                color: #856404;
+              }
+              
+              &.shipped {
+                background-color: #cce5ff;
+                color: #004085;
+              }
+              
+              &.delivered {
+                background-color: #d4edda;
+                color: #155724;
+              }
+              
+              &.cancelled {
+                background-color: #f8d7da;
+                color: #721c24;
+              }
+            }
+          }
+          
+          .order-products {
+            padding: 1rem;
+            
+            .product-item {
+              display: flex;
+              gap: 1rem;
+              padding: 0.75rem 0;
+              border-bottom: 1px solid #e9ecef;
+              
+              &:last-child {
+                border-bottom: none;
+              }
+              
+              .product-image {
+                width: 60px;
+                height: 60px;
+                flex-shrink: 0;
+                
+                img {
+                  width: 100%;
+                  height: 100%;
+                  object-fit: contain;
+                }
+              }
+              
+              .product-details {
+                flex: 1;
+                
+                .product-name {
+                  font-weight: 500;
+                  margin-bottom: 0.25rem;
+                }
+                
+                .product-price {
+                  font-weight: 600;
+                  margin-bottom: 0.25rem;
+                }
+                
+                .product-quantity {
+                  font-size: 0.875rem;
+                  color: #6c757d;
+                }
+              }
+            }
+          }
+          
+          .order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            
+            .order-total {
+              font-weight: 500;
+              
+              .total-amount {
+                font-weight: 700;
+                margin-left: 0.5rem;
+              }
+            }
+            
+            .details-button {
+              padding: 0.5rem 1rem;
+              background-color: #00b2e3;
+              color: white;
+              border: none;
+              border-radius: 0.25rem;
+              font-weight: 500;
+              cursor: pointer;
+              
+              &:hover {
+                background-color: darken(#00b2e3, 10%);
+              }
+            }
+          }
+        }
+      }
+      
+      // Estilos para la sección de direcciones
+      .addresses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        
+        .address-card, .add-address-card {
+          border: 1px solid #e9ecef;
+          border-radius: 0.5rem;
+          padding: 1.5rem;
+          position: relative;
+          height: 100%;
+          min-height: 200px;
+        }
+        
+        .address-card {
+          .address-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            
+            .address-title {
+              font-weight: 600;
+              font-size: 1.125rem;
+            }
+            
+            .address-actions {
+              display: flex;
+              gap: 0.5rem;
+              
+              button {
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 0.25rem;
+                
+                &.edit-button {
+                  color: #6c757d;
+                  
+                  &:hover {
+                    color: #00b2e3;
+                  }
+                }
+                
+                &.delete-button {
+                  color: #6c757d;
+                  
+                  &:hover {
+                    color: #dc3545;
+                  }
+                }
+              }
+            }
+          }
+          
+          .address-content {
+            .address-name {
+              font-weight: 500;
+              margin-bottom: 0.5rem;
+            }
+            
+            .address-line {
+              margin-bottom: 0.25rem;
+              color: #6c757d;
+            }
+            
+            .address-phone {
+              margin-top: 0.5rem;
+              color: #6c757d;
+            }
+          }
+          
+          .default-badge {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            background-color: #e9ecef;
+            color: #495057;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+          }
+        }
+        
+        .add-address-card {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-style: dashed;
+          
+          .add-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #6c757d;
+            
+            .plus-icon {
+              width: 32px;
+              height: 32px;
+              margin-bottom: 0.5rem;
+            }
+            
+            &:hover {
+              color: #00b2e3;
+            }
+          }
+        }
+      }
+      
+      // Estilos para la sección de mascotas
+      .pets-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+        
+        .pet-card, .add-pet-card {
+          border: 1px solid #e9ecef;
+          border-radius: 0.5rem;
+          overflow: hidden;
+          height: 100%;
+        }
+        
+        .pet-card {
+          position: relative;
+          
+          .pet-image {
+            height: 150px;
+            
+            img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+          }
+          
+          .pet-info {
+            padding: 1rem;
+            
+            .pet-name {
+              font-weight: 600;
+              margin-bottom: 0.25rem;
+            }
+            
+            .pet-breed, .pet-age {
+              font-size: 0.875rem;
+              color: #6c757d;
+            }
+          }
+          
+          .pet-actions {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            display: flex;
+            gap: 0.5rem;
+            
+            button {
+              background-color: rgba(255, 255, 255, 0.8);
+              border: none;
+              border-radius: 50%;
+              width: 32px;
+              height: 32px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              cursor: pointer;
+              
+              &.edit-button:hover {
+                background-color: white;
+                color: #00b2e3;
+              }
+              
+              &.delete-button:hover {
+                background-color: white;
+                color: #dc3545;
+              }
+            }
+          }
+        }
+        
+        .add-pet-card {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-style: dashed;
+          min-height: 250px;
+          
+          .add-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #6c757d;
+            
+            .plus-icon {
+              width: 32px;
+              height: 32px;
+              margin-bottom: 0.5rem;
+            }
+            
+            &:hover {
+              color: #00b2e3;
+            }
+          }
+        }
+      }
+      
+      // Estilos para la sección de perfil
+      .profile-form, .password-form {
+        max-width: 600px;
+        
+        .form-row {
+          display: flex;
+          gap: 1rem;
+          margin-bottom: 1.5rem;
+          
+          .form-group {
+            flex: 1;
+          }
+        }
+        
+        .form-group {
+          margin-bottom: 1.5rem;
+          
+          label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #212529;
+          }
+          
+          input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+            font-size: 1rem;
+            
+            &:focus {
+              outline: none;
+              border-color: #00b2e3;
+              box-shadow: 0 0 0 3px rgba(0, 178, 227, 0.25);
+            }
+            
+            &:disabled {
+              background-color: #e9ecef;
+              cursor: not-allowed;
+            }
+          }
+          
+          &.checkbox {
+            display: flex;
+            align-items: center;
+            
+            input {
+              width: auto;
+              margin-right: 0.75rem;
+            }
+            
+            label {
+              margin-bottom: 0;
+              font-weight: normal;
+            }
+          }
+        }
+        
+        .save-button {
+          padding: 0.75rem 1.5rem;
+          background-color: #00b2e3;
+          color: white;
+          border: none;
+          border-radius: 0.25rem;
+          font-weight: 600;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 150px;
+          
+          &:hover {
+            background-color: darken(#00b2e3, 10%);
+          }
+          
+          &:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+          }
+          
+          .spinner {
+            animation: spin 1s linear infinite;
+          }
+          
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        }
+      }
+      
+      .password-section {
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e9ecef;
+        
+        .subsection-title {
+          font-size: 1.25rem;
+          font-weight: 600;
+          margin-bottom: 1.5rem;
+          color: #212529;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .user-container {
+    flex-direction: column;
+    
+    .user-sidebar {
+      width: 100%;
+    }
+    
+    .addresses-grid, .pets-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .profile-form, .password-form {
+      .form-row {
+        flex-direction: column;
+        gap: 0;
+        margin-bottom: 0;
+      }
+    }
+  }
+}
