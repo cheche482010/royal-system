@@ -1,0 +1,21 @@
+.login {
+    color: green;
+    h1 {
+      font-size: 2rem;
+    }
+    form {
+      margin-top: 20px;
+      input {
+        display: block;
+        margin: 10px 0;
+        padding: 5px;
+      }
+      button {
+        padding: 10px 20px;
+        background-color: green;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+    }
+  }
