@@ -22,6 +22,11 @@ const routes = [
     component: () => import('@/views/User/User.vue'),
   },
   {
+    path: '/cart',
+    name: 'Cart',
+    component: () => import('@/views/Cart/Cart.vue'),
+  },
+  {
     path: '/:pathMatch(.*)*', 
     name: '404',
     component: () => import('@/views/error/404/404.vue'),

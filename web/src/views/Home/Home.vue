@@ -1,4 +1,5 @@
 <template>
+  <Header />
   <div class="home">
     <div class="banner-slider">
       <div class="banner-slide" :class="{ active: activeSlide === index }" v-for="(slide, index) in banners" :key="index">

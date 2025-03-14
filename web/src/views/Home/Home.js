@@ -1,15 +1,17 @@
 
 import { ref } from 'vue';
 import { StarIcon, ArrowRightIcon, DogIcon, CatIcon, ShoppingCartIcon } from 'lucide-vue-next';
+import Header from '../../components/Header/Header.vue';
 
-export default {
+export default { 
   name: 'Home',
   components: {
     StarIcon,
     ArrowRightIcon,
     DogIcon,
     CatIcon, 
-    ShoppingCartIcon
+    ShoppingCartIcon,
+    Header
   },
   setup() {
     const activeSlide = ref(0);

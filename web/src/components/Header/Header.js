@@ -14,11 +14,10 @@
     setup() {
       const cartCount = ref(0);
       const categories = ref([
-        { id: 'perros', name: 'Perros' },
-        { id: 'gatos', name: 'Gatos' },
-        { id: 'roedores', name: 'Roedores' },
-        { id: 'pajaros', name: 'Pájaros' },
-        { id: 'peces', name: 'Peces' }
+        { id: 1, name: 'Item I' },
+        { id: 2, name: 'Item II' },
+        { id: 3, name: 'Item III' },
+        { id: 4, name: 'Item IV' },
       ]);
 
       const logo = ref({
