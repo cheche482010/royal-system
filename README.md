@@ -7,17 +7,34 @@ Este proyecto es una aplicación web con un backend en Node.js utilizando Expres
 ```
 proyecto/
 │── api/               # Backend (Node.js, Express, Sequelize)
-│   ├── config/        # Configuración y conexión con la base de datos
-│   │   ├── .env       # Variables de entorno
-│   │   ├── db.js      # Configuración de Sequelize
-│   ├── src/
-│   │   ├── models/    # Modelos de la base de datos
-│   │   ├── routes/    # Rutas de la API
-│   │   ├── services/  # Lógica de negocio y autenticación
-│   │   ├── utils/     # Utilidades y funciones auxiliares
-│   ├── swagger.js     # Documentación con Swagger
-│   ├── server.js      # Configuración y ejecución del servidor
-│   ├── package.json   # Dependencias y scripts del backend
+│   ├── config/               # Configuration files
+│   │   ├── database.js       # Database connection config
+│   │   └── swagger.js        # Swagger configuration
+│   ├── controllers/          # Request handlers
+│   │   ├── userController.js # User CRUD operations
+│   │   └── exampleController.js # Example operations
+│   ├── middleware/           # Custom middleware
+│   │   ├── auth.js           # Authentication middleware
+│   │   └── errorHandler.js   # Global error handler
+│   ├── migrations/           # Database migrations
+│   │   ├── 20230101000000-create-users.js
+│   │   └── 20230101000001-create-examples.js
+│   ├── models/               # Database models
+│   │   ├── index.js          # Model loader
+│   │   ├── user.js           # User model
+│   │   └── example.js        # Example model
+│   ├── routes/               # API routes
+│   │   ├── index.js          # Route loader
+│   │   ├── userRoutes.js     # User routes
+│   │   └── exampleRoutes.js  # Example routes
+│   ├── utils/                # Utility functions
+│   │   ├── auth.js           # Authentication utilities
+│   │   └── validators.js     # Input validation
+│   ├── .env                  # Environment variables
+│   ├── .env.example          # Example environment file
+│   ├── .htaccess             # Apache configuration
+│   ├── app.js                # Application entry point
+│   └── package.json          # Project dependencies
 │── web/               # Frontend (JavaScript, Webpack, SASS)
 │   ├── src/
 │   │   ├── user/      # Módulo de usuario
@@ -34,6 +51,8 @@ proyecto/
 ```sh
 cd api
 npm install
+npm run migrate
+npm run dev
 ```
 
 ### **Variables de Entorno**
