@@ -7,21 +7,45 @@
             </div>
 
             <form @submit.prevent="handleRegister" class="register-form">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="firstName">Nombre</label>
-                        <input type="text" id="firstName" v-model="firstName" placeholder="Tu nombre" required />
-                    </div>
-
-                    <div class="form-group">
-                        <label for="lastName">Apellidos</label>
-                        <input type="text" id="lastName" v-model="lastName" placeholder="Tus apellidos" required />
-                    </div>
+                <div class="form-group">
+                    <label for="firstName">Nombre</label>
+                    <input type="text" id="firstName" v-model="firstName" placeholder="Nombre" required />
                 </div>
 
                 <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" v-model="email" placeholder="Tu email" required />
+                    <label for="address">Direccion</label>
+                    <input type="text" id="address" v-model="firstName" placeholder="Direccion" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Correo</label>
+                    <input type="email" id="email" v-model="email" placeholder="Correo" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Telefono</label>
+                    <input type="phone" id="phone" v-model="phone" placeholder="Telefono" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="registroM">Registro Mercantil</label>
+                    <div class="file-upload">
+                        <input type="file" id="registroM" @change="handleFileUpload" class="file-input"
+                            accept="image/*" />
+                        <div class="upload-button">
+                            <UploadIcon class="upload-icon" />
+                            <span>{{ fileSelected ? 'Archivo seleccionado' : 'Subir Registro Mercantil' }}</span>
+                        </div>
+                    </div>
+                    <div v-if="fileSelected" class="file-preview">
+                        <div class="file-info">
+                            <FileIcon class="file-icon" />
+                            <span class="file-name">{{ fileName }}</span>
+                        </div>
+                        <button class="remove-file" @click="removeFile">
+                            <XIcon class="remove-icon" />
+                        </button>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -64,6 +88,7 @@
                 </button>
             </form>
 
+<<<<<<< Updated upstream
             <div class="login-divider">
                 <span>o</span>
             </div>
@@ -74,6 +99,8 @@
                     Registrarse con Google
                 </button>
             </div>
+=======
+>>>>>>> Stashed changes
 
             <div class="login-link">
                 ¿Ya tienes cuenta? <router-link to="/login">Inicia sesión</router-link>
