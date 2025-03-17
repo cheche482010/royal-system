@@ -1,4 +1,5 @@
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import Header from '../../components/Header/Header.vue';
 import {
     MinusIcon,
@@ -19,6 +20,7 @@ export default {
         Header
     },
     setup() {
+        const router = useRouter();
         const cartItems = ref([
             {
                 id: 1,
@@ -140,8 +142,7 @@ export default {
         };
 
         const checkout = () => {
-            // Aquí iría la lógica para finalizar la compra
-            console.log('Finalizando compra...');
+            router.push('/payment');
         };
 
         return {
