@@ -117,35 +117,29 @@
       
       <!-- Sección de Mascotas -->
       <div v-if="activeSection === 'pets'" class="content-section">
-        <h2 class="section-title">Mis Mascotas</h2>
+        <h2 class="section-title">Pagos</h2>
         
-        <div class="pets-grid">
-          <div v-for="pet in pets" :key="pet.id" class="pet-card">
-            <div class="pet-image">
-              <img :src="pet.image" :alt="pet.name" />
-            </div>
-            <div class="pet-info">
-              <h3 class="pet-name">{{ pet.name }}</h3>
-              <p class="pet-breed">{{ pet.breed }}</p>
-              <p class="pet-age">{{ pet.age }} años</p>
-            </div>
-            <div class="pet-actions">
-              <button class="edit-button">
-                <EditIcon class="edit-icon" />
-              </button>
-              <button class="delete-button">
-                <TrashIcon class="delete-icon" />
-              </button>
-            </div>
-          </div>
-          
-          <div class="add-pet-card">
-            <button class="add-button">
-              <PlusIcon class="plus-icon" />
-              <span>Añadir mascota</span>
-            </button>
-          </div>
+        <div>
+          <ul class="user-list">
+            <li class="user-item">
+              <label>RIF/Cédula:</label>
+              <input type="text" v-model="documento" placeholder="Ingrese RIF o Cédula">
+            </li>
+            <li class="user-item">
+              <label>Nombre:</label>
+              <input type="text" v-model="nombre" placeholder="Ingrese nombre">
+            </li>
+            <li class="user-item">
+              <label>Monto:</label>
+              <input type="number" v-model="monto" placeholder="Ingrese monto">
+            </li>
+            <li class="user-item">
+              <label>Referencia:</label>
+              <input type="text" v-model="referencia" placeholder="Ingrese referencia">
+            </li>
+          </ul>
         </div>
+        
       </div>
       
       <!-- Sección de Perfil -->

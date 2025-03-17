@@ -39,7 +39,7 @@ export default {
     const navItems = ref([
       { id: 'orders', label: 'Mis Pedidos', icon: PackageIcon },
       { id: 'addresses', label: 'Mis Direcciones', icon: MapPinIcon },
-      { id: 'pets', label: 'Mis Mascotas', icon: PawPrintIcon },
+      { id: 'pets', label: 'Pagos', icon: PawPrintIcon },
       { id: 'profile', label: 'Mi Perfil', icon: UserIcon }
     ]);
     
