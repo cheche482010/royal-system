@@ -27,6 +27,27 @@ const swaggerOptions = {
         description: process.env.NODE_ENV === "production" ? "Production server" : "Development server",
       },
     ],
+    tags: [
+      {
+        name: "Usuarios",
+        description: "Modulo Usuarios"
+      },
+      {
+        name: "Productos",
+        description: "Modulo Productos"
+      },
+      {
+        name: "Precios",
+        description: "Modulo Precios"
+      },
+      {
+        name: "Pagos",
+        description: "Modulo Pagos"
+      },
+      {
+        name: "Precio Usuarios"
+      }
+    ],
     components: {
       securitySchemes: {
         bearerAuth: {

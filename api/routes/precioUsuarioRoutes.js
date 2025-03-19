@@ -20,6 +20,8 @@ const router = express.Router()
  *     description: Retrieve a list of all active precio-usuario relationships
  *     security:
  *       - bearerAuth: []
+ *     tags:
+ *       - Precio Usuarios
  *     responses:
  *       200:
  *         description: A list of precio-usuario relationships
@@ -36,6 +38,8 @@ router.get("/", protect, getAllPrecioUsuarios)
  *     description: Retrieve a single precio-usuario relationship by its ID
  *     security:
  *       - bearerAuth: []
+ *     tags:
+ *       - Precio Usuarios
  *     parameters:
  *       - in: path
  *         name: id
@@ -60,6 +64,8 @@ router.get("/:id", protect, getPrecioUsuarioById)
  *     description: Retrieve all precio-usuario relationships for a specific usuario
  *     security:
  *       - bearerAuth: []
+ *     tags:
+ *       - Precio Usuarios
  *     parameters:
  *       - in: path
  *         name: usuario_id
@@ -82,6 +88,8 @@ router.get("/usuario/:usuario_id", protect, getPrecioUsuarioByUsuarioId)
  *     description: Create a new relationship between a usuario and a precio
  *     security:
  *       - bearerAuth: []
+ *     tags:
+ *       - Precio Usuarios
  *     requestBody:
  *       required: true
  *       content:
@@ -113,6 +121,8 @@ router.post("/", protect, createPrecioUsuario)
  *     description: Update a relationship between a usuario and a precio
  *     security:
  *       - bearerAuth: []
+ *     tags:
+ *       - Precio Usuarios
  *     parameters:
  *       - in: path
  *         name: id
@@ -149,6 +159,8 @@ router.put("/:id", protect, updatePrecioUsuario)
  *     description: Soft delete a relationship by ID (sets is_delete to true)
  *     security:
  *       - bearerAuth: []
+ *     tags:
+ *       - Precio Usuarios
  *     parameters:
  *       - in: path
  *         name: id
@@ -173,6 +185,8 @@ router.delete("/:id", protect, deletePrecioUsuario)
  *     description: Hard delete a relationship by ID (admin only)
  *     security:
  *       - bearerAuth: []
+ *     tags:
+ *       - Precio Usuarios
  *     parameters:
  *       - in: path
  *         name: id

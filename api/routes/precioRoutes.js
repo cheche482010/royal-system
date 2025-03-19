@@ -19,6 +19,8 @@ const router = express.Router()
  *     description: Retrieve a list of all active precios
  *     security:
  *       - bearerAuth: []
+ *     tags:
+ *       - Precios
  *     responses:
  *       200:
  *         description: A list of precios
@@ -35,6 +37,8 @@ router.get("/", protect, getAllPrecios)
  *     description: Retrieve a single precio by its ID
  *     security:
  *       - bearerAuth: []
+ *     tags:
+ *       - Precios
  *     parameters:
  *       - in: path
  *         name: id
@@ -59,6 +63,8 @@ router.get("/:id", protect, getPrecioById)
  *     description: Create a new precio record
  *     security:
  *       - bearerAuth: []
+ *     tags:
+ *       - Precios
  *     requestBody:
  *       required: true
  *       content:
@@ -91,6 +97,8 @@ router.post("/", protect, createPrecio)
  *     description: Update precio details
  *     security:
  *       - bearerAuth: []
+ *     tags:
+ *       - Precios
  *     parameters:
  *       - in: path
  *         name: id
@@ -130,6 +138,8 @@ router.put("/:id", protect, updatePrecio)
  *     description: Soft delete a precio by ID (sets is_delete to true)
  *     security:
  *       - bearerAuth: []
+ *     tags:
+ *       - Precios
  *     parameters:
  *       - in: path
  *         name: id
@@ -154,6 +164,8 @@ router.delete("/:id", protect, deletePrecio)
  *     description: Hard delete a precio by ID (admin only)
  *     security:
  *       - bearerAuth: []
+ *     tags:
+ *       - Precios
  *     parameters:
  *       - in: path
  *         name: id

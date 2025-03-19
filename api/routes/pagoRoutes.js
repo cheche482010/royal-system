@@ -20,6 +20,8 @@ const router = express.Router()
  *     description: Retrieve a list of all active pagos
  *     security:
  *       - bearerAuth: []
+ *     tags:
+ *       - Pagos
  *     responses:
  *       200:
  *         description: A list of pagos
@@ -36,6 +38,8 @@ router.get("/", protect, getAllPagos)
  *     description: Retrieve a single pago by its ID
  *     security:
  *       - bearerAuth: []
+ *     tags:
+ *       - Pagos
  *     parameters:
  *       - in: path
  *         name: id
@@ -60,6 +64,8 @@ router.get("/:id", protect, getPagoById)
  *     description: Retrieve all pagos for a specific usuario
  *     security:
  *       - bearerAuth: []
+ *     tags:
+ *       - Pagos
  *     parameters:
  *       - in: path
  *         name: usuario_id
@@ -82,6 +88,8 @@ router.get("/usuario/:usuario_id", protect, getPagosByUsuarioId)
  *     description: Create a new pago record
  *     security:
  *       - bearerAuth: []
+ *     tags:
+ *       - Pagos
  *     requestBody:
  *       required: true
  *       content:
@@ -123,6 +131,8 @@ router.post("/", protect, createPago)
  *     description: Update pago details
  *     security:
  *       - bearerAuth: []
+ *     tags:
+ *       - Pagos
  *     parameters:
  *       - in: path
  *         name: id
@@ -167,6 +177,8 @@ router.put("/:id", protect, updatePago)
  *     description: Soft delete a pago by ID (sets is_delete to true)
  *     security:
  *       - bearerAuth: []
+ *     tags:
+ *       - Pagos
  *     parameters:
  *       - in: path
  *         name: id
@@ -191,6 +203,8 @@ router.delete("/:id", protect, deletePago)
  *     description: Hard delete a pago by ID (admin only)
  *     security:
  *       - bearerAuth: []
+ *     tags:
+ *       - Pagos
  *     parameters:
  *       - in: path
  *         name: id

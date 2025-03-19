@@ -19,6 +19,8 @@ const router = express.Router()
  *     description: Retrieve a list of all active usuarios
  *     security:
  *       - bearerAuth: []
+ *     tags:
+ *       - Usuarios
  *     responses:
  *       200:
  *         description: A list of usuarios
@@ -35,6 +37,8 @@ router.get("/", protect, getAllUsuarios)
  *     description: Retrieve a single usuario by their ID
  *     security:
  *       - bearerAuth: []
+ *     tags:
+ *       - Usuarios
  *     parameters:
  *       - in: path
  *         name: id
@@ -59,6 +63,8 @@ router.get("/:id", protect, getUsuarioById)
  *     description: Create a new usuario record
  *     security:
  *       - bearerAuth: []
+ *     tags:
+ *       - Usuarios
  *     requestBody:
  *       required: true
  *       content:
@@ -98,6 +104,8 @@ router.post("/", protect, createUsuario)
  *     description: Update usuario details
  *     security:
  *       - bearerAuth: []
+ *     tags:
+ *       - Usuarios
  *     parameters:
  *       - in: path
  *         name: id
@@ -144,6 +152,8 @@ router.put("/:id", protect, updateUsuario)
  *     description: Soft delete a usuario by ID (sets is_delete to true)
  *     security:
  *       - bearerAuth: []
+ *     tags:
+ *       - Usuarios
  *     parameters:
  *       - in: path
  *         name: id
@@ -168,6 +178,8 @@ router.delete("/:id", protect, deleteUsuario)
  *     description: Hard delete a usuario by ID (admin only)
  *     security:
  *       - bearerAuth: []
+ *     tags:
+ *       - Usuarios
  *     parameters:
  *       - in: path
  *         name: id
@@ -187,4 +199,3 @@ router.delete("/:id", protect, deleteUsuario)
 router.delete("/:id/hard", protect, hardDeleteUsuario)
 
 export default router
-
