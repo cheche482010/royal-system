@@ -5,7 +5,7 @@ import { sequelize } from "../config/database.js"
 export const getAllUsuarios = async (req, res, next) => {
   try {
     // Using raw SQL query with Sequelize
-    const [usuarios] = await sequelize.query("SELECT * FROM usuarios WHERE is_delete = false", {
+    const usuarios = await sequelize.query("SELECT * FROM usuarios WHERE is_delete = false", {
       type: sequelize.QueryTypes.SELECT,
     })
 
