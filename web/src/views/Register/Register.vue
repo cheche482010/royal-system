@@ -8,6 +8,32 @@
 
             <form @submit.prevent="handleRegister" class="register-form">
                 <div class="form-group">
+                    <label for="firstName">RIF</label>
+                    <input type="text" id="rif" v-model="firstName" placeholder="RIF/Cedula" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="registroM">Escaneo de Rif</label>
+                    <div class="file-upload">
+                        <input type="file" id="RifImg" @change="handleFileUpload" class="file-input"
+                            accept="image/*" />
+                        <div class="upload-button">
+                            <UploadIcon class="upload-icon" />
+                            <span>{{ fileSelected ? 'Archivo seleccionado' : 'Subir una foto del RIF' }}</span>
+                        </div>
+                    </div>
+                    <div v-if="fileSelected" class="file-preview">
+                        <div class="file-info">
+                            <FileIcon class="file-icon" />
+                            <span class="file-name">{{ fileName }}</span>
+                        </div>
+                        <button class="remove-file" @click="removeFile">
+                            <XIcon class="remove-icon" />
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label for="firstName">Nombre</label>
                     <input type="text" id="firstName" v-model="firstName" placeholder="Nombre" required />
                 </div>
@@ -34,7 +60,7 @@
                             accept="image/*" />
                         <div class="upload-button">
                             <UploadIcon class="upload-icon" />
-                            <span>{{ fileSelected ? 'Archivo seleccionado' : 'Subir Registro Mercantil' }}</span>
+                            <span>{{ fileSelected ? 'Archivo seleccionado' : 'Subir fotos del Registro Mercantil' }}</span>
                         </div>
                     </div>
                     <div v-if="fileSelected" class="file-preview">
@@ -72,13 +98,6 @@
                     <label for="terms">
                         Acepto los <a href="/terms" target="_blank">Términos y Condiciones</a> y la <a href="/privacy"
                             target="_blank">Política de Privacidad</a>
-                    </label>
-                </div>
-
-                <div class="form-group checkbox">
-                    <input type="checkbox" id="newsletter" v-model="subscribeNewsletter" />
-                    <label for="newsletter">
-                        Quiero recibir ofertas y novedades por email
                     </label>
                 </div>
 

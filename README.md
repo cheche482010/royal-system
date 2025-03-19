@@ -11,21 +11,15 @@ proyecto/
 │   │   ├── database.js       # Database connection config
 │   │   └── swagger.js        # Swagger configuration
 │   ├── controllers/          # Request handlers
-│   │   ├── userController.js # User CRUD operations
 │   │   └── exampleController.js # Example operations
 │   ├── middleware/           # Custom middleware
 │   │   ├── auth.js           # Authentication middleware
 │   │   └── errorHandler.js   # Global error handler
-│   ├── migrations/           # Database migrations
-│   │   ├── 20230101000000-create-users.js
-│   │   └── 20230101000001-create-examples.js
 │   ├── models/               # Database models
 │   │   ├── index.js          # Model loader
-│   │   ├── user.js           # User model
 │   │   └── example.js        # Example model
 │   ├── routes/               # API routes
 │   │   ├── index.js          # Route loader
-│   │   ├── userRoutes.js     # User routes
 │   │   └── exampleRoutes.js  # Example routes
 │   ├── utils/                # Utility functions
 │   │   ├── auth.js           # Authentication utilities
@@ -50,15 +44,14 @@ proyecto/
 ### **Instalación**
 ```sh
 cd api
-npm install
-npm run migrate
+npm install 
 npm run dev
 ```
 
 ### **Variables de Entorno**
 El archivo `.env` en `api/config/` debe contener:
 ```env
-PORT=5000
+PORT=3000
 DB_HOST=localhost
 DB_USER=root
 DB_PASS=yourpassword
@@ -71,7 +64,7 @@ JWT_SECRET=tu_secreto_seguro
 npm run dev
 ```
 
-La API estará disponible en: `http://localhost:5000`
+La API estará disponible en: `http://localhost:3000`
 
 ### **Rutas del Backend**
 | Método  | Ruta             | Descripción |
