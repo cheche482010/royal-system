@@ -18,14 +18,11 @@ export default {
     const togglePassword = () => {
       showPassword.value = !showPassword.value;
     };
-<<<<<<< Updated upstream
-=======
 
     const logo = ref({
       image: new URL('../../assets/img/logo2.png', import.meta.url).href,
       name: 'Pet Shop'
     });
->>>>>>> Stashed changes
     
     const handleLogin = async () => {
       isLoading.value = true;
@@ -49,10 +46,7 @@ export default {
       rememberMe,
       showPassword,
       isLoading,
-<<<<<<< Updated upstream
-=======
       logo,
->>>>>>> Stashed changes
       togglePassword,
       handleLogin
     };
