@@ -13,7 +13,7 @@ const router = express.Router()
 
 /**
  * @swagger
- * /api/usuarios:
+ * /usuarios:
  *   get:
  *     summary: Get all usuarios
  *     description: Retrieve a list of all active usuarios
@@ -29,7 +29,7 @@ router.get("/", protect, getAllUsuarios)
 
 /**
  * @swagger
- * /api/usuarios/{id}:
+ * /usuarios/{id}:
  *   get:
  *     summary: Get a usuario by ID
  *     description: Retrieve a single usuario by their ID
@@ -53,7 +53,7 @@ router.get("/:id", protect, getUsuarioById)
 
 /**
  * @swagger
- * /api/usuarios:
+ * /usuarios:
  *   post:
  *     summary: Create a new usuario
  *     description: Create a new usuario record
@@ -92,7 +92,7 @@ router.post("/", protect, createUsuario)
 
 /**
  * @swagger
- * /api/usuarios/{id}:
+ * /usuarios/{id}:
  *   put:
  *     summary: Update a usuario
  *     description: Update usuario details
@@ -138,7 +138,7 @@ router.put("/:id", protect, updateUsuario)
 
 /**
  * @swagger
- * /api/usuarios/{id}:
+ * /usuarios/{id}:
  *   delete:
  *     summary: Delete a usuario
  *     description: Soft delete a usuario by ID (sets is_delete to true)
@@ -162,7 +162,7 @@ router.delete("/:id", protect, deleteUsuario)
 
 /**
  * @swagger
- * /api/usuarios/{id}/hard:
+ * /usuarios/{id}/hard:
  *   delete:
  *     summary: Permanently delete a usuario
  *     description: Hard delete a usuario by ID (admin only)

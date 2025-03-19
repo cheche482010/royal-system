@@ -5,9 +5,10 @@ const swaggerOptions = {
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "Node MySQL API",
+      title: "Royal System API",
       version: "1.0.0",
-      description: "A simple CRUD API with Node.js and MySQL",
+      description: "API documentation for Royal System",
+      termsOfService: "https://example.com/terms/",
       contact: {
         name: "API Support",
         email: "support@example.com",
