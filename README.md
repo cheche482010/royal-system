@@ -50,15 +50,14 @@ proyecto/
 ### **Instalación**
 ```sh
 cd api
-npm install
-npm run migrate
+npm install 
 npm run dev
 ```
 
 ### **Variables de Entorno**
 El archivo `.env` en `api/config/` debe contener:
 ```env
-PORT=5000
+PORT=3000
 DB_HOST=localhost
 DB_USER=root
 DB_PASS=yourpassword
@@ -71,7 +70,7 @@ JWT_SECRET=tu_secreto_seguro
 npm run dev
 ```
 
-La API estará disponible en: `http://localhost:5000`
+La API estará disponible en: `http://localhost:3000`
 
 ### **Rutas del Backend**
 | Método  | Ruta             | Descripción |
