@@ -35,34 +35,6 @@ const swaggerOptions = {
         },
       },
       schemas: {
-        User: {
-          type: "object",
-          required: ["username", "password"],
-          properties: {
-            id: {
-              type: "integer",
-              description: "User ID",
-            },
-            username: {
-              type: "string",
-              description: "User username",
-            },
-            password: {
-              type: "string",
-              description: "User password (hashed)",
-            },
-            createdAt: {
-              type: "string",
-              format: "date-time",
-              description: "Creation timestamp",
-            },
-            updatedAt: {
-              type: "string",
-              format: "date-time",
-              description: "Last update timestamp",
-            },
-          },
-        },
         Example: {
           type: "object",
           required: ["name"],

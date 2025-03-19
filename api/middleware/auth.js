@@ -1,5 +1,4 @@
 import jwt from "jsonwebtoken"
-import { User } from "../models/index.js"
 
 export const protect = async (req, res, next) => {
   let token
@@ -13,9 +12,9 @@ export const protect = async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
       // Get user from the token
-      req.user = await User.findByPk(decoded.id, {
-        attributes: { exclude: ["password"] },
-      })
+      // req.user = await User.findByPk(decoded.id, {
+      //   attributes: { exclude: ["password"] },
+      // })
 
       next()
     } catch (error) {
