@@ -88,20 +88,6 @@
                 </button>
             </form>
 
-<<<<<<< Updated upstream
-            <div class="login-divider">
-                <span>o</span>
-            </div>
-
-            <div class="social-login">
-                <button class="social-button google">
-                    <img src="https://cdn-icons-png.flaticon.com/512/2504/2504739.png?height=20&width=20" alt="Google" />
-                    Registrarse con Google
-                </button>
-            </div>
-=======
->>>>>>> Stashed changes
-
             <div class="login-link">
                 ¿Ya tienes cuenta? <router-link to="/login">Inicia sesión</router-link>
             </div>
