@@ -11,8 +11,8 @@
 
       <form @submit.prevent="handleLogin" class="login-form">
         <div class="form-group">
-          <label for="rif">RIF/Cedula</label>
-          <input type="email" id="email" v-model="email" placeholder="Introduce tu Rif/Cedula" required />
+          <label for="rif">RIF</label>
+          <input type="rif" id="rif" v-model="rif" placeholder="Introduce tu Rif" required />
         </div>
 
         <div class="form-group">
