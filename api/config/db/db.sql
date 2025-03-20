@@ -186,7 +186,6 @@ CREATE TABLE `usuarios` (
   `nombre` varchar(100) COLLATE utf8mb3_spanish_ci NOT NULL,
   `direccion` varchar(200) COLLATE utf8mb3_spanish_ci NOT NULL,
   `registro_mercantil` varchar(255) COLLATE utf8mb3_spanish_ci NOT NULL,
-  `volumen_compra` int NOT NULL,
   `correo` varchar(100) COLLATE utf8mb3_spanish_ci NOT NULL,
   `telefono` varchar(20) COLLATE utf8mb3_spanish_ci NOT NULL,
   `is_active` tinyint(1) DEFAULT '1',
