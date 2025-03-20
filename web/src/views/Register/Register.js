@@ -32,7 +32,9 @@ export default {
       correo: '',
       telefono: '',
       is_active: 1,
-      is_delete: 0
+      is_delete: 0,
+      created_at: '',
+      updated_at: ''
     });
     
     // Estado de la contraseña
@@ -179,6 +181,11 @@ export default {
             formDataToSend.append(key, formData.value[key]);
           }
         }
+        
+        // Agregar fechas actuales
+        const now = new Date().toISOString();
+        formDataToSend.append('created_at', now);
+        formDataToSend.append('updated_at', now);
         
         formDataToSend.append('password', password.value);
         

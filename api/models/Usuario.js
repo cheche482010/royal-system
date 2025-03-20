@@ -30,10 +30,6 @@ const Usuario = sequelize.define(
       type: DataTypes.STRING(255),
       allowNull: false,
     },
-    volumen_compra: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
     correo: {
       type: DataTypes.STRING(100),
       allowNull: false,
