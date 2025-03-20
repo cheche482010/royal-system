@@ -180,7 +180,6 @@ export default {
           }
         }
         
-        // Agregar contraseña
         formDataToSend.append('password', password.value);
         
         // Enviar datos al servidor
@@ -195,10 +194,8 @@ export default {
           throw new Error(data.message || 'Error al registrar usuario');
         }
         
-        // Registro exitoso
         successMessage.value = 'Usuario registrado correctamente';
         
-        // Redireccionar después de un tiempo
         setTimeout(() => {
           router.push('/login');
         }, 2000);
