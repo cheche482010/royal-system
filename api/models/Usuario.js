@@ -14,6 +14,10 @@ const Usuario = sequelize.define(
       allowNull: false,
       unique: true,
     },
+    documento_rif: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+    },
     nombre: {
       type: DataTypes.STRING(100),
       allowNull: false,

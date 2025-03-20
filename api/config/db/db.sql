@@ -182,6 +182,7 @@ DROP TABLE IF EXISTS `usuarios`;
 CREATE TABLE `usuarios` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `rif_cedula` varchar(15) COLLATE utf8mb3_spanish_ci NOT NULL,
+  `documento_rif` VARCHAR(255) COLLATE utf8mb3_spanish_ci NOT NULL,
   `nombre` varchar(100) COLLATE utf8mb3_spanish_ci NOT NULL,
   `direccion` varchar(200) COLLATE utf8mb3_spanish_ci NOT NULL,
   `registro_mercantil` varchar(255) COLLATE utf8mb3_spanish_ci NOT NULL,
