@@ -1,9 +1,5 @@
 import express from "express"
-import usuarioRoutes from "./usuarioRoutes.js"
-import productoRoutes from "./productoRoutes.js"
-import precioRoutes from "./precioRoutes.js"
-import precioUsuarioRoutes from "./precioUsuarioRoutes.js"
-import pagoRoutes from "./pagoRoutes.js"
+import UsuarioRoutes from "./UsuarioRoutes.js"
 
 const router = express.Router()
 
@@ -13,10 +9,6 @@ router.get("/health", (req, res) => {
 })
 
 // Mount routes
-router.use("/usuarios", usuarioRoutes)
-router.use("/productos", productoRoutes)
-router.use("/precios", precioRoutes)
-router.use("/precio-usuarios", precioUsuarioRoutes)
-router.use("/pagos", pagoRoutes)
+router.use("/usuarios", UsuarioRoutes)
 
 export default router

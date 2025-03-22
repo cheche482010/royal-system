@@ -1,7 +1,6 @@
+// models/Pago.js
 import { DataTypes } from "sequelize"
 import { sequelize } from "../config/database.js"
-import PrecioUsuario from "./PrecioUsuario.js"
-import Producto from "./Producto.js"
 
 const Pago = sequelize.define(
   "Pago",
@@ -11,45 +10,52 @@ const Pago = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    precio_usuario_id: {
+    orden_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
+      comment: "ID de la orden asociada al pago",
       references: {
-        model: PrecioUsuario,
-        key: "id",
-      },
+        model: "Orden",
+        key: "id"
+      }
     },
-    producto_id: {
+    metodo_pago_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
+      comment: "ID del método de pago utilizado",
       references: {
-        model: Producto,
-        key: "id",
-      },
+        model: "MetodoPago",
+        key: "id"
+      }
     },
     fecha: {
       type: DataTypes.DATE,
       allowNull: false,
+      comment: "Fecha del pago",
     },
-    referencia: {
+    comprobante_img: {
       type: DataTypes.STRING(255),
-      allowNull: true,
+      allowNull: false,
+      comment: "Ruta de la imagen del comprobante de pago",
     },
     numero_referencia: {
       type: DataTypes.STRING(6),
-      allowNull: true,
+      comment: "Número de referencia del pago",
     },
     monto: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
+      comment: "Monto pagado",
     },
     is_active: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
+      comment: "Indica si el pago está activo",
     },
     is_delete: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
+      comment: "Indica si el registro ha sido marcado como eliminado",
     },
   },
   {
@@ -57,15 +63,7 @@ const Pago = sequelize.define(
     timestamps: true,
     createdAt: "created_at",
     updatedAt: "updated_at",
-  },
+  }
 )
 
-// Define associations
-PrecioUsuario.hasMany(Pago, { foreignKey: "precio_usuario_id" })
-Pago.belongsTo(PrecioUsuario, { foreignKey: "precio_usuario_id" })
-
-Producto.hasMany(Pago, { foreignKey: "producto_id" })
-Pago.belongsTo(Producto, { foreignKey: "producto_id" })
-
 export default Pago
-

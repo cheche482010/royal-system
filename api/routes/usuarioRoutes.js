@@ -7,7 +7,7 @@ import {
   deleteUsuario,
   hardDeleteUsuario,
   loginUsuario,
-} from "../controllers/usuarioController.js"
+} from "../controllers/UsuarioController.js"
 import { protect } from "../middleware/auth.js"
 import upload from "../middleware/upload.js"
 
