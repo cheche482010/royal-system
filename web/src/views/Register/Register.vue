@@ -8,9 +8,9 @@
 
             <form @submit.prevent="handleRegister" class="register-form">
                 <div class="form-group">
-                    <label for="rif_cedula">RIF/Cédula</label>
-                    <input type="text" id="rif_cedula" v-model="formData.rif_cedula"
-                        placeholder="Ingrese su RIF o Cédula" required />
+                    <label for="rif">RIF</label>
+                    <input type="text" id="rif" v-model="formData.rif"
+                        placeholder="Ingrese su RIF" required />
                 </div>
 
                 <div class="form-group">
