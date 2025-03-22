@@ -6,8 +6,10 @@ import {
   updateUsuario,
   deleteUsuario,
   hardDeleteUsuario,
+  loginUsuario,
 } from "../controllers/usuarioController.js"
 import { protect } from "../middleware/auth.js"
+import upload from "../middleware/upload.js"
 
 const router = express.Router()
 
@@ -68,24 +70,31 @@ router.get("/:id", protect, getUsuarioById)
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
- *               rif_cedula:
+ *               documento:
  *                 type: string
+ *               documento_img:
+ *                 type: string
+ *                 format: binary
  *               nombre:
  *                 type: string
  *               direccion:
  *                 type: string
- *               registro_mercantil:
+ *               registro_mercantil_img:
  *                 type: string
- *               volumen_compra:
- *                 type: integer
+ *                 format: binary
  *               correo:
  *                 type: string
  *               telefono:
  *                 type: string
+ *               user_password:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *                 enum: [Admin, Employee, Customer]
  *     responses:
  *       201:
  *         description: Usuario created successfully
@@ -94,7 +103,90 @@ router.get("/:id", protect, getUsuarioById)
  *       401:
  *         description: Unauthorized
  */
-router.post("/", protect, createUsuario)
+router.post(
+  "/",
+  protect,
+  upload.fields([
+    { name: "documento_img", maxCount: 1 },
+    { name: "registro_mercantil_img", maxCount: 1 },
+  ]),
+  createUsuario,
+)
+
+/**
+ * @swagger
+ * /usuarios/register:
+ *   post:
+ *     summary: Register a new usuario
+ *     description: Create a new usuario record (public route for registration)
+ *     tags:
+ *       - Usuarios
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               documento:
+ *                 type: string
+ *               documento_img:
+ *                 type: string
+ *                 format: binary
+ *               nombre:
+ *                 type: string
+ *               direccion:
+ *                 type: string
+ *               registro_mercantil_img:
+ *                 type: string
+ *                 format: binary
+ *               correo:
+ *                 type: string
+ *               telefono:
+ *                 type: string
+ *               user_password:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Usuario created successfully
+ *       400:
+ *         description: Invalid input or usuario already exists
+ */
+router.post(
+  "/register",
+  upload.fields([
+    { name: "documento_img", maxCount: 1 },
+    { name: "registro_mercantil_img", maxCount: 1 },
+  ]),
+  createUsuario,
+)
+
+/**
+ * @swagger
+ * /usuarios/login:
+ *   post:
+ *     summary: Login a usuario
+ *     description: Authenticate a usuario and return a token
+ *     tags:
+ *       - Usuarios
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               correo:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *       401:
+ *         description: Invalid credentials
+ */
+router.post("/login", loginUsuario)
 
 /**
  * @swagger
@@ -114,24 +206,31 @@ router.post("/", protect, createUsuario)
  *           type: integer
  *     requestBody:
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
- *               rif_cedula:
+ *               documento:
  *                 type: string
+ *               documento_img:
+ *                 type: string
+ *                 format: binary
  *               nombre:
  *                 type: string
  *               direccion:
  *                 type: string
- *               registro_mercantil:
+ *               registro_mercantil_img:
  *                 type: string
- *               volumen_compra:
- *                 type: integer
+ *                 format: binary
  *               correo:
  *                 type: string
  *               telefono:
  *                 type: string
+ *               user_password:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *                 enum: [Admin, Employee, Customer]
  *     responses:
  *       200:
  *         description: Usuario updated successfully
@@ -142,7 +241,15 @@ router.post("/", protect, createUsuario)
  *       401:
  *         description: Unauthorized
  */
-router.put("/:id", protect, updateUsuario)
+router.put(
+  "/:id",
+  protect,
+  upload.fields([
+    { name: "documento_img", maxCount: 1 },
+    { name: "registro_mercantil_img", maxCount: 1 },
+  ]),
+  updateUsuario,
+)
 
 /**
  * @swagger
@@ -199,3 +306,4 @@ router.delete("/:id", protect, deleteUsuario)
 router.delete("/:id/hard", protect, hardDeleteUsuario)
 
 export default router
+

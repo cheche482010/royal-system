@@ -1,121 +1,217 @@
-# Proyecto: API + Frontend Web
+### RoyalShop - Tienda Online
 
-Este proyecto es una aplicación web con un backend en Node.js utilizando Express y Sequelize, y un frontend en JavaScript con Webpack y SASS.
+Este proyecto es una aplicación de tienda online completa con un backend en Node.js utilizando Express y MySQL (Sequelize), y un frontend en Vue.js.
 
 ## **1. Estructura del Proyecto**
 
 ```
-proyecto/
-│── api/               # Backend (Node.js, Express, Sequelize)
-│   ├── config/               # Configuration files
-│   │   ├── database.js       # Database connection config
-│   │   └── swagger.js        # Swagger configuration
-│   ├── controllers/          # Request handlers
-│   │   └── exampleController.js # Example operations
-│   ├── middleware/           # Custom middleware
-│   │   ├── auth.js           # Authentication middleware
-│   │   └── errorHandler.js   # Global error handler
-│   ├── models/               # Database models
-│   │   ├── index.js          # Model loader
-│   │   └── example.js        # Example model
-│   ├── routes/               # API routes
-│   │   ├── index.js          # Route loader
-│   │   └── exampleRoutes.js  # Example routes
-│   ├── utils/                # Utility functions
-│   │   ├── auth.js           # Authentication utilities
-│   │   └── validators.js     # Input validation
-│   ├── .env                  # Environment variables
-│   ├── .env.example          # Example environment file
-│   ├── .htaccess             # Apache configuration
-│   ├── app.js                # Application entry point
-│   └── package.json          # Project dependencies
-│── web/               # Frontend (JavaScript, Webpack, SASS)
+royal-system/
+│
+├── api/                      # Backend (Node.js, Express, Sequelize)
+│   ├── config/               # Archivos de configuración
+│   │   ├── database.js       # Configuración de conexión a la base de datos
+│   │   ├── swagger.js        # Configuración de Swagger
+│   │   └── db/               # Scripts SQL
+│   │       ├── data.sql      # Datos iniciales
+│   │       └── db.sql        # Estructura de la base de datos
+│   │
+│   ├── controllers/          # Controladores de la API
+│   │   ├── exampleController.js
+│   │   ├── pagoController.js
+│   │   ├── precioController.js
+│   │   ├── precioUsuarioController.js
+│   │   ├── productoController.js
+│   │   └── usuarioController.js
+│   │
+│   ├── middleware/           # Middleware personalizado
+│   │   ├── auth.js           # Middleware de autenticación
+│   │   └── errorHandler.js   # Manejador global de errores
+│   │
+│   ├── models/               # Modelos de la base de datos
+│   │   ├── Pago.js
+│   │   ├── Precio.js
+│   │   ├── PrecioUsuario.js
+│   │   ├── Producto.js
+│   │   ├── Usuario.js
+│   │   ├── example.js
+│   │   └── index.js          # Exportación de modelos
+│   │
+│   ├── routes/               # Rutas de la API
+│   │   ├── exampleRoutes.js
+│   │   ├── index.js          # Cargador de rutas
+│   │   ├── pagoRoutes.js
+│   │   ├── precioRoutes.js
+│   │   ├── precioUsuarioRoutes.js
+│   │   ├── productoRoutes.js
+│   │   └── usuarioRoutes.js
+│   │
+│   ├── utils/                # Funciones de utilidad
+│   │   ├── auth.js           # Utilidades de autenticación
+│   │   └── validators.js     # Validación de entrada
+│   │
+│   ├── .env                  # Variables de entorno (no incluido en el repositorio)
+│   ├── .env.example          # Ejemplo de archivo de variables de entorno
+│   ├── .htaccess             # Configuración de Apache
+│   ├── app.js                # Punto de entrada de la aplicación
+│   └── package.json          # Dependencias del proyecto
+│
+├── web/                      # Frontend (Vue.js)
 │   ├── src/
-│   │   ├── user/      # Módulo de usuario
-│   │   ├── home/      
-│   ├── index.js   # Archivo principal
-│   ├── webpack.config.js  # Configuración de Webpack
-│   ├── package.json   # Dependencias y scripts del frontend
-│── README.md          # Documentación del proyecto
+│   │   ├── App.vue           # Componente principal
+│   │   ├── main.js           # Punto de entrada
+│   │   │
+│   │   ├── assets/           # Recursos estáticos
+│   │   │   ├── img/          # Imágenes
+│   │   │   └── styles/       # Estilos SCSS
+│   │   │
+│   │   ├── components/       # Componentes reutilizables
+│   │   │   └── Header/       # Componente de cabecera
+│   │   │
+│   │   ├── router/           # Configuración de rutas
+│   │   │   └── index.js      # Definición de rutas
+│   │   │
+│   │   └── views/            # Vistas/Páginas
+│   │       ├── Cart/         # Vista de carrito
+│   │       ├── Error/404/    # Página de error 404
+│   │       ├── Home/         # Página principal
+│   │       ├── Login/        # Página de inicio de sesión
+│   │       ├── Payment/      # Página de pago
+│   │       ├── Product/      # Página de producto
+│   │       ├── Register/     # Página de registro
+│   │       └── User/         # Página de perfil de usuario
+│   │
+│   ├── index.html            # Archivo HTML principal
+│   ├── package.json          # Dependencias del frontend
+│   └── vite.config.js        # Configuración de Vite
+│
+├── .gitignore                # Archivos ignorados por Git
+└── README.md                 # Documentación del proyecto
 ```
 
-## **2. Configuración del Backend**
+## **2. Cómo clonar el repositorio**
 
-### **Instalación**
+```sh
+git clone https://github.com/cheche482010/royal-system
+cd royalshop
+```
+
+## **3. Configuración del Backend**
+
+### **Instalación de dependencias**
+
 ```sh
 cd api
-npm install 
-npm run dev
+npm install
 ```
 
-### **Variables de Entorno**
-El archivo `.env` en `api/config/` debe contener:
+### **Configuración de variables de entorno**
+
+Crea un archivo `.env` en la carpeta `api/` basado en el archivo `.env.example`:
+
+```sh
+cp .env.example .env
+```
+
+Edita el archivo `.env` con tus configuraciones:
+
 ```env
+# Server configuration
 PORT=3000
+NODE_ENV=development
+TESTING=true
+
+# Database configuration
+DB_SERVER=mysql
 DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=royal-system
 DB_USER=root
-DB_PASS=yourpassword
-DB_NAME=proyecto
-JWT_SECRET=tu_secreto_seguro
+DB_PASSWORD=root
+
+# JWT Secret for Auth
+JWT_SECRET=token
+
+# MySQL Database URL for migrations
+DATABASE_URL=mysql://root:password@localhost:3306/royal-system
 ```
 
-### **Ejecutar el Servidor**
+### **Configuración de la base de datos**
+
+1. Crea una base de datos MySQL llamada `royal-system`
+2. Ejecuta los scripts SQL ubicados en `api/config/db/`
+
+
+### **Ejecutar el servidor backend**
+
 ```sh
 npm run dev
 ```
 
-La API estará disponible en: `http://localhost:3000`
+El backend estará disponible en: `http://localhost:3000`
 
-### **Rutas del Backend**
-| Método  | Ruta             | Descripción |
-|---------|-----------------|-------------|
-| POST    | /api/user/register  | Registrar usuario |
-| POST    | /api/user/login     | Iniciar sesión |
-| GET     | /api-docs         | Documentación Swagger |
+## **4. Configuración del Frontend**
 
-## **3. Configuración del Frontend**
+### **Instalación de dependencias**
 
-### **Instalación**
 ```sh
 cd web
 npm install
 ```
 
-### **Compilar el Frontend**
+### **Ejecutar el servidor de desarrollo**
+
 ```sh
-npm run build
+npm run dev
 ```
 
-### **Ejecutar el Frontend**
-```sh
-npm start
-```
-El frontend estará disponible en: `http://localhost:3000`
+El frontend estará disponible en: `http://localhost:5173`
 
-## **4. Swagger - Documentación de la API**
+## **5. Documentación de la API**
 
-La documentación de la API está disponible en:
+La documentación de la API (Swagger) está disponible en:
+
 ```
-http://localhost:5000/api-docs
+http://localhost:3000/api-docs
 ```
 
-## **5. Tecnologías Utilizadas**
+## **6. Principales endpoints de la API**
+
+| Método | Ruta | Descripción
+|--------|------|-----
+| POST   | /api/usuarios/create | Registrar usuario
+| POST   | /api/usuarios/login  | Iniciar sesión
+| GET    | /api/productos       | Obtener todos los productos
+| GET    | /api/productos/:id   | Obtener un producto por ID
+| POST   | /api/pagos           | Crear un nuevo pago
+| GET    | /api/precios         | Obtener todos los precios
+
+
+## **7. Tecnologías Utilizadas**
 
 ### **Backend:**
+
 - Node.js
 - Express
-- Sequelize (ORM para MySQL)
-- bcryptjs (Hash de contraseñas)
-- jsonwebtoken (Autenticación con JWT)
-- dotenv (Manejo de variables de entorno)
+- MySQL
+- Sequelize (ORM)
+- JWT (JSON Web Tokens)
 - Swagger (Documentación de API)
+- Multer (Manejo de archivos)
+
 
 ### **Frontend:**
-- JavaScript puro
-- Webpack
-- SASS
+
+- Vue.js
+- Vue Router
+- SCSS
+- Vite (Herramienta de construcción)
 - Fetch API para consumo de la API
 
-## **6. Contacto y Contribución**
+
+## **8. Contacto y Contribución**
+
 Si deseas contribuir, puedes hacer un fork del repositorio, crear una nueva rama y enviar un Pull Request.
 
+## **9. Licencia**
+
+Este proyecto está bajo la Licencia MIT.
