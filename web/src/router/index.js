@@ -42,6 +42,11 @@ const routes = [
     component: () => import('@/views/Payment/Payment.vue'),
   },
   {
+    path: '/terms',
+    name: 'Terms',
+    component: () => import('@/views/terms/terms.vue'),
+  },
+  {
     path: '/:pathMatch(.*)*', 
     name: '404',
     component: () => import('@/views/error/404/404.vue'),
