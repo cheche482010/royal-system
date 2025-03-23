@@ -11,6 +11,12 @@
       ShoppingCartIcon,
       TagIcon
     },
+    props: {
+      disableNav: {
+        type: Boolean,
+        default: false
+      }
+    },
     setup() {
       const cartCount = ref(0);
       const categories = ref([

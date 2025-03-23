@@ -32,7 +32,7 @@
             </div>
         </div>
 
-        <nav class="header__nav">
+        <nav class="header__nav" v-if="!disableNav">
             <ul class="nav-list">
                 <li v-for="category in categories" :key="category.id" class="nav-item">
                     <router-link :to="`/category/${category.id}`" class="nav-link">
