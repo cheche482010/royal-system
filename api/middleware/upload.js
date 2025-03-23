@@ -24,31 +24,33 @@ if (!fs.existsSync(userBaseDir)) {
 // Configure storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // Get the user's name or use a timestamp if not available
-    // Normalize the name to avoid spaces and special characters
-    const userName = req.body.nombre ? req.body.nombre.replace(/\s+/g, "_").toLowerCase() : Date.now().toString()
-
-    // Store the userName in the request object to ensure both files use the same directory
-    req.userUploadDir = req.userUploadDir || userName
-
-    // Create user directory
-    const userDir = path.join(userBaseDir, req.userUploadDir)
-
-    if (!fs.existsSync(userDir)) {
-      fs.mkdirSync(userDir, { recursive: true })
+    // Si ya tenemos el directorio del usuario en la request, usamos ese
+    if (req.userUploadDir) {
+      cb(null, path.join(userBaseDir, req.userUploadDir));
+      return;
     }
 
-    cb(null, userDir)
+    // Obtener el nombre del usuario y el documento del cuerpo de la solicitud
+    const userDocumento = req.body.documento;
+
+    // Crear el directorio con el formato deseado: nombre-documento
+    const userDir = path.join(userBaseDir, userDocumento);
+    
+    // Asegurarnos de que el directorio existe
+    if (!fs.existsSync(userDir)) {
+      fs.mkdirSync(userDir, { recursive: true });
+    }
+
+    // Almacenar el directorio en req para usarlo en archivos posteriores
+    req.userUploadDir = userDocumento;
+    cb(null, userDir);
   },
   filename: (req, file, cb) => {
-    // Use fieldname to determine file type
-    const fieldname = file.fieldname === "documento_img" ? "documento_img" : "registro_mercantil_img"
-
-    // Create unique filename with original extension
-    const ext = path.extname(file.originalname)
-    cb(null, `${fieldname}${ext}`)
-  },
-})
+    const fieldname = file.fieldname;
+    const ext = path.extname(file.originalname);
+    cb(null, `${fieldname}${ext}`);
+  }
+});
 
 // File filter to only allow images
 const fileFilter = (req, file, cb) => {
