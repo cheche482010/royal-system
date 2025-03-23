@@ -16,34 +16,18 @@ royal-system/
 │   │       └── db.sql        # Estructura de la base de datos
 │   │
 │   ├── controllers/          # Controladores de la API
-│   │   ├── exampleController.js
-│   │   ├── pagoController.js
-│   │   ├── precioController.js
-│   │   ├── precioUsuarioController.js
-│   │   ├── productoController.js
-│   │   └── usuarioController.js
-│   │
+│   │   └── UsuarioController.js
 │   ├── middleware/           # Middleware personalizado
 │   │   ├── auth.js           # Middleware de autenticación
 │   │   └── errorHandler.js   # Manejador global de errores
 │   │
 │   ├── models/               # Modelos de la base de datos
-│   │   ├── Pago.js
-│   │   ├── Precio.js
-│   │   ├── PrecioUsuario.js
-│   │   ├── Producto.js
 │   │   ├── Usuario.js
-│   │   ├── example.js
 │   │   └── index.js          # Exportación de modelos
 │   │
 │   ├── routes/               # Rutas de la API
-│   │   ├── exampleRoutes.js
 │   │   ├── index.js          # Cargador de rutas
-│   │   ├── pagoRoutes.js
-│   │   ├── precioRoutes.js
-│   │   ├── precioUsuarioRoutes.js
-│   │   ├── productoRoutes.js
-│   │   └── usuarioRoutes.js
+│   │   └── UsuarioRoutes.js
 │   │
 │   ├── utils/                # Funciones de utilidad
 │   │   ├── auth.js           # Utilidades de autenticación
