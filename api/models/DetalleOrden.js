@@ -1,4 +1,3 @@
-// models/DetalleOrden.js
 import { DataTypes } from "sequelize"
 import { sequelize } from "../config/database.js"
 
@@ -14,19 +13,11 @@ const DetalleOrden = sequelize.define(
       type: DataTypes.BIGINT,
       allowNull: false,
       comment: "ID de la orden a la que pertenece el detalle",
-      references: {
-        model: "Orden",
-        key: "id"
-      }
     },
     producto_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
       comment: "ID del producto incluido en la orden",
-      references: {
-        model: "Producto",
-        key: "id"
-      }
     },
     cantidad: {
       type: DataTypes.INTEGER,

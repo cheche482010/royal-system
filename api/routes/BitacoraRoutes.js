@@ -1,4 +1,3 @@
-// routes/BitacoraRoutes.js
 import express from "express"
 import {
   getAllBitacoras,
@@ -6,23 +5,25 @@ import {
   createBitacora,
   updateBitacora,
   deleteBitacora,
+  hardDeleteBitacora,
 } from "../controllers/BitacoraController.js"
 import { protect } from "../middleware/auth.js"
+
 const router = express.Router()
 
 /**
  * @swagger
- * /bitacoras:
+ * /bitacora:
  *   get:
- *     summary: Get all bitacoras
+ *     summary: Get all bitacora entries
  *     description: Retrieve a list of all bitacora entries
  *     security:
  *       - bearerAuth: []
  *     tags:
- *       - Bitacoras
+ *       - Bitacora
  *     responses:
  *       200:
- *         description: List of bitacoras
+ *         description: A list of bitacora entries
  *       401:
  *         description: Unauthorized
  */
@@ -30,14 +31,14 @@ router.get("/", protect, getAllBitacoras)
 
 /**
  * @swagger
- * /bitacoras/{id}:
+ * /bitacora/{id}:
  *   get:
- *     summary: Get a bitacora by ID
- *     description: Retrieve a specific bitacora entry
+ *     summary: Get a bitacora entry by ID
+ *     description: Retrieve a single bitacora entry by ID
  *     security:
  *       - bearerAuth: []
  *     tags:
- *       - Bitacoras
+ *       - Bitacora
  *     parameters:
  *       - in: path
  *         name: id
@@ -46,24 +47,24 @@ router.get("/", protect, getAllBitacoras)
  *           type: integer
  *     responses:
  *       200:
- *         description: Bitacora found
+ *         description: Bitacora entry details
+ *       404:
+ *         description: Bitacora entry not found
  *       401:
  *         description: Unauthorized
- *       404:
- *         description: Bitacora not found
  */
 router.get("/:id", protect, getBitacoraById)
 
 /**
  * @swagger
- * /bitacoras:
+ * /bitacora:
  *   post:
  *     summary: Create a new bitacora entry
- *     description: Create a new bitacora record
+ *     description: Create a new bitacora entry
  *     security:
  *       - bearerAuth: []
  *     tags:
- *       - Bitacoras
+ *       - Bitacora
  *     requestBody:
  *       required: true
  *       content:
@@ -73,17 +74,11 @@ router.get("/:id", protect, getBitacoraById)
  *             properties:
  *               usuario_id:
  *                 type: integer
- *               fecha:
- *                 type: string
- *                 format: date
- *               hora:
- *                 type: string
- *                 format: time
  *               accion:
  *                 type: string
  *     responses:
  *       201:
- *         description: Bitacora created successfully
+ *         description: Bitacora entry created successfully
  *       400:
  *         description: Invalid input
  *       401:
@@ -93,14 +88,14 @@ router.post("/", protect, createBitacora)
 
 /**
  * @swagger
- * /bitacoras/{id}:
+ * /bitacora/{id}:
  *   put:
  *     summary: Update a bitacora entry
- *     description: Update an existing bitacora record
+ *     description: Update a bitacora entry by ID
  *     security:
  *       - bearerAuth: []
  *     tags:
- *       - Bitacoras
+ *       - Bitacora
  *     parameters:
  *       - in: path
  *         name: id
@@ -108,42 +103,35 @@ router.post("/", protect, createBitacora)
  *         schema:
  *           type: integer
  *     requestBody:
- *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
  *             properties:
- *               fecha:
- *                 type: string
- *                 format: date
- *               hora:
- *                 type: string
- *                 format: time
+ *               usuario_id:
+ *                 type: integer
  *               accion:
  *                 type: string
  *     responses:
  *       200:
- *         description: Bitacora updated successfully
- *       400:
- *         description: Invalid input
+ *         description: Bitacora entry updated successfully
+ *       404:
+ *         description: Bitacora entry not found
  *       401:
  *         description: Unauthorized
- *       404:
- *         description: Bitacora not found
  */
 router.put("/:id", protect, updateBitacora)
 
 /**
  * @swagger
- * /bitacoras/{id}:
+ * /bitacora/{id}:
  *   delete:
  *     summary: Delete a bitacora entry
- *     description: Soft delete a bitacora record
+ *     description: Soft delete a bitacora entry by ID
  *     security:
  *       - bearerAuth: []
  *     tags:
- *       - Bitacoras
+ *       - Bitacora
  *     parameters:
  *       - in: path
  *         name: id
@@ -152,12 +140,38 @@ router.put("/:id", protect, updateBitacora)
  *           type: integer
  *     responses:
  *       200:
- *         description: Bitacora deleted successfully
+ *         description: Bitacora entry deleted successfully
+ *       404:
+ *         description: Bitacora entry not found
  *       401:
  *         description: Unauthorized
- *       404:
- *         description: Bitacora not found
  */
 router.delete("/:id", protect, deleteBitacora)
+
+/**
+ * @swagger
+ * /bitacora/{id}/hard:
+ *   delete:
+ *     summary: Permanently delete a bitacora entry
+ *     description: Hard delete a bitacora entry by ID (admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     tags:
+ *       - Bitacora
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Bitacora entry permanently deleted
+ *       404:
+ *         description: Bitacora entry not found
+ *       401:
+ *         description: Unauthorized
+ */
+router.delete("/:id/hard", protect, hardDeleteBitacora)
 
 export default router

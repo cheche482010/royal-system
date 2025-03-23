@@ -1,93 +1,164 @@
-// controllers/SesionController.js
-import { Sesion } from "../models/index.js"
-import { Op } from "sequelize"
+import { Sesion, Usuario } from "../models/index.js"
+import { sequelize } from "../config/database.js"
+import jwt from "jsonwebtoken"
 
+// Obtener todas las sesiones
 export const getAllSesiones = async (req, res, next) => {
   try {
     const sesiones = await Sesion.findAll({
-      where: { is_active: true },
-      include: [{ model: req.models.Usuario, as: 'usuario' }]
+      include: [
+        {
+          model: Usuario,
+          attributes: ["id", "nombre", "correo", "role"],
+        },
+      ],
+      order: [["created_at", "DESC"]],
     })
+
     return res.status(200).json({ success: true, data: sesiones })
   } catch (error) {
     next(error)
   }
 }
 
-export const getSesionById = async (req, res, next) => {
+// Obtener sesiones por usuario
+export const getSesionesByUsuario = async (req, res, next) => {
   try {
-    const { id } = req.params
-    const sesion = await Sesion.findByPk(id, {
-      where: { is_active: true },
-      include: [{ model: req.models.Usuario, as: 'usuario' }]
-    })
-    if (!sesion) {
-      return res.status(404).json({ success: false, message: "Sesion not found" })
+    const { usuario_id } = req.params
+
+    // Verificar si el usuario existe
+    const usuario = await Usuario.findByPk(usuario_id)
+    if (!usuario) {
+      return res.status(404).json({ success: false, message: "Usuario not found" })
     }
-    return res.status(200).json({ success: true, data: sesion })
+
+    const sesiones = await Sesion.findAll({
+      where: { usuario_id },
+      order: [["created_at", "DESC"]],
+    })
+
+    return res.status(200).json({ success: true, data: sesiones })
   } catch (error) {
     next(error)
   }
 }
 
+// Crear una nueva sesión
 export const createSesion = async (req, res, next) => {
   try {
-    const { usuario_id, token, ip, expiracion, agente_usuario } = req.body
-    const existingSesion = await Sesion.findOne({
-      where: {
-        usuario_id,
-        token,
-        is_active: true
-      }
-    })
-    if (existingSesion) {
-      return res.status(400).json({
-        success: false,
-        message: "Session already exists"
-      })
+    const { usuario_id, ip, agente_usuario } = req.body
+
+    // Verificar si el usuario existe
+    const usuario = await Usuario.findByPk(usuario_id)
+    if (!usuario) {
+      return res.status(404).json({ success: false, message: "Usuario not found" })
     }
+
+    // Generar token JWT
+    const token = jwt.sign({ id: usuario.id }, process.env.JWT_SECRET, {
+      expiresIn: "30d",
+    })
+
+    // Calcular fecha de expiración
+    const expiracion = new Date()
+    expiracion.setDate(expiracion.getDate() + 30)
+
     const sesion = await Sesion.create({
       usuario_id,
       token,
       ip,
       expiracion,
       agente_usuario,
-      is_active: true
+      is_active: true,
     })
+
     return res.status(201).json({ success: true, data: sesion })
   } catch (error) {
     next(error)
   }
 }
 
-export const updateSesion = async (req, res, next) => {
+// Cerrar sesión
+export const closeSesion = async (req, res, next) => {
   try {
     const { id } = req.params
-    const { ip, expiracion, agente_usuario } = req.body
+
     const sesion = await Sesion.findByPk(id)
-    if (!sesion || !sesion.is_active) {
-      return res.status(404).json({ success: false, message: "Sesion not found" })
+
+    if (!sesion) {
+      return res.status(404).json({ success: false, message: "Sesión not found" })
     }
-    await sesion.update({
-      ip: ip || sesion.ip,
-      expiracion: expiracion || sesion.expiracion,
-      agente_usuario: agente_usuario || sesion.agente_usuario
-    })
-    return res.status(200).json({ success: true, data: sesion })
+
+    await sesion.update({ is_active: false })
+
+    return res.status(200).json({ success: true, message: "Sesión closed successfully" })
   } catch (error) {
     next(error)
   }
 }
 
-export const deleteSesion = async (req, res, next) => {
+// Cerrar todas las sesiones de un usuario
+export const closeAllSesiones = async (req, res, next) => {
   try {
-    const { id } = req.params
-    const sesion = await Sesion.findByPk(id)
-    if (!sesion || !sesion.is_active) {
-      return res.status(404).json({ success: false, message: "Sesion not found" })
+    const { usuario_id } = req.params
+
+    // Verificar si el usuario existe
+    const usuario = await Usuario.findByPk(usuario_id)
+    if (!usuario) {
+      return res.status(404).json({ success: false, message: "Usuario not found" })
     }
-    await sesion.update({ is_active: false })
-    return res.status(200).json({ success: true, message: "Sesion deleted successfully" })
+
+    await Sesion.update(
+      { is_active: false },
+      {
+        where: { usuario_id, is_active: true },
+      }
+    )
+
+    return res.status(200).json({ success: true, message: "All sessions closed successfully" })
+  } catch (error) {
+    next(error)
+  }
+}
+
+// Verificar token
+export const verifyToken = async (req, res, next) => {
+  try {
+    const { token } = req.body
+
+    if (!token) {
+      return res.status(400).json({ success: false, message: "Token is required" })
+    }
+
+    // Verificar si el token existe en la base de datos
+    const sesion = await Sesion.findOne({
+      where: { token, is_active: true },
+      include: [
+        {
+          model: Usuario,
+          attributes: ["id", "nombre", "correo", "role"],
+        },
+      ],
+    })
+
+    if (!sesion) {
+      return res.status(401).json({ success: false, message: "Invalid or expired token" })
+    }
+
+    // Verificar si el token ha expirado
+    if (new Date() > new Date(sesion.expiracion)) {
+      await sesion.update({ is_active: false })
+      return res.status(401).json({ success: false, message: "Token has expired" })
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        sesion_id: sesion.id,
+        usuario: sesion.Usuario,
+        expiracion: sesion.expiracion,
+      },
+    })
   } catch (error) {
     next(error)
   }

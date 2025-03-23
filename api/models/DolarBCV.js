@@ -1,4 +1,3 @@
-// models/DolarBCV.js
 import { DataTypes } from "sequelize"
 import { sequelize } from "../config/database.js"
 
@@ -22,6 +21,7 @@ const DolarBCV = sequelize.define(
     },
     fecha_fin: {
       type: DataTypes.DATE,
+      allowNull: true,
       comment: "Fecha fin de vigencia",
     },
     is_active: {

@@ -1,96 +1,188 @@
-// controllers/CarritoController.js
-import { Carrito } from "../models/index.js"
-import { Op } from "sequelize"
+import { Carrito, Usuario, Producto, Inventario } from "../models/index.js"
+import { sequelize } from "../config/database.js"
 
-export const getAllCarritos = async (req, res, next) => {
+// Obtener todos los items del carrito
+export const getAllCarritoItems = async (req, res, next) => {
   try {
-    const carritos = await Carrito.findAll({
-      where: { is_delete: false },
+    const carritoItems = await Carrito.findAll({
+      where: { is_delete: false, is_active: true },
       include: [
-        { model: req.models.Usuario, as: 'usuario' },
-        { model: req.models.Producto, as: 'producto' }
-      ]
+        {
+          model: Usuario,
+          attributes: ["id", "nombre", "correo"],
+        },
+        {
+          model: Producto,
+          attributes: ["id", "codigo", "nombre", "descripcion", "precio_unidad", "producto_img"],
+        },
+      ],
     })
-    return res.status(200).json({ success: true, data: carritos })
+
+    return res.status(200).json({ success: true, data: carritoItems })
   } catch (error) {
     next(error)
   }
 }
 
-export const getCarritoById = async (req, res, next) => {
+// Obtener carrito por usuario
+export const getCarritoByUsuario = async (req, res, next) => {
   try {
-    const { id } = req.params
-    const carrito = await Carrito.findByPk(id, {
-      where: { is_delete: false },
-      include: [
-        { model: req.models.Usuario, as: 'usuario' },
-        { model: req.models.Producto, as: 'producto' }
-      ]
-    })
-    if (!carrito) {
-      return res.status(404).json({ success: false, message: "Carrito not found" })
+    const { usuario_id } = req.params
+
+    // Verificar si el usuario existe
+    const usuario = await Usuario.findByPk(usuario_id)
+    if (!usuario) {
+      return res.status(404).json({ success: false, message: "Usuario not found" })
     }
-    return res.status(200).json({ success: true, data: carrito })
+
+    const carritoItems = await Carrito.findAll({
+      where: { usuario_id, is_delete: false, is_active: true },
+      include: [
+        {
+          model: Producto,
+          attributes: ["id", "codigo", "nombre", "descripcion", "precio_unidad", "producto_img"],
+        },
+      ],
+    })
+
+    return res.status(200).json({ success: true, data: carritoItems })
   } catch (error) {
     next(error)
   }
 }
 
-export const createCarrito = async (req, res, next) => {
+// Agregar item al carrito
+export const addToCarrito = async (req, res, next) => {
   try {
     const { usuario_id, producto_id, cantidad } = req.body
-    const existingCarrito = await Carrito.findOne({
-      where: {
-        usuario_id,
-        producto_id,
-        is_delete: false
-      }
+
+    // Verificar si el usuario existe
+    const usuario = await Usuario.findByPk(usuario_id)
+    if (!usuario) {
+      return res.status(404).json({ success: false, message: "Usuario not found" })
+    }
+
+    // Verificar si el producto existe
+    const producto = await Producto.findOne({
+      where: { id: producto_id, is_delete: false, is_active: true },
+      include: [{ model: Inventario }],
     })
-    if (existingCarrito) {
+
+    if (!producto) {
+      return res.status(404).json({ success: false, message: "Producto not found" })
+    }
+
+    // Verificar si hay suficiente stock
+    if (producto.Inventario.cantidad_actual < cantidad) {
       return res.status(400).json({
         success: false,
-        message: "Product already exists in cart"
+        message: "Insufficient stock. Available: " + producto.Inventario.cantidad_actual,
       })
     }
-    const carrito = await Carrito.create({
+
+    // Verificar si el producto ya está en el carrito
+    const existingItem = await Carrito.findOne({
+      where: { usuario_id, producto_id, is_delete: false, is_active: true },
+    })
+
+    if (existingItem) {
+      // Actualizar cantidad
+      await existingItem.update({
+        cantidad: existingItem.cantidad + cantidad,
+      })
+
+      return res.status(200).json({ success: true, data: existingItem })
+    }
+
+    // Crear nuevo item en el carrito
+    const carritoItem = await Carrito.create({
       usuario_id,
       producto_id,
       cantidad,
-      is_active: true,
-      is_delete: false
     })
-    return res.status(201).json({ success: true, data: carrito })
+
+    return res.status(201).json({ success: true, data: carritoItem })
   } catch (error) {
     next(error)
   }
 }
 
-export const updateCarrito = async (req, res, next) => {
+// Actualizar item del carrito
+export const updateCarritoItem = async (req, res, next) => {
   try {
     const { id } = req.params
     const { cantidad } = req.body
-    const carrito = await Carrito.findByPk(id)
-    if (!carrito || carrito.is_delete) {
-      return res.status(404).json({ success: false, message: "Carrito not found" })
-    }
-    await carrito.update({
-      cantidad: cantidad || carrito.cantidad
+
+    const carritoItem = await Carrito.findOne({
+      where: { id, is_delete: false, is_active: true },
+      include: [
+        {
+          model: Producto,
+          include: [{ model: Inventario }],
+        },
+      ],
     })
-    return res.status(200).json({ success: true, data: carrito })
+
+    if (!carritoItem) {
+      return res.status(404).json({ success: false, message: "Carrito item not found" })
+    }
+
+    // Verificar si hay suficiente stock
+    if (carritoItem.Producto.Inventario.cantidad_actual < cantidad) {
+      return res.status(400).json({
+        success: false,
+        message: "Insufficient stock. Available: " + carritoItem.Producto.Inventario.cantidad_actual,
+      })
+    }
+
+    await carritoItem.update({ cantidad })
+
+    return res.status(200).json({ success: true, data: carritoItem })
   } catch (error) {
     next(error)
   }
 }
 
-export const deleteCarrito = async (req, res, next) => {
+// Eliminar item del carrito (soft delete)
+export const removeFromCarrito = async (req, res, next) => {
   try {
     const { id } = req.params
-    const carrito = await Carrito.findByPk(id)
-    if (!carrito || carrito.is_delete) {
-      return res.status(404).json({ success: false, message: "Carrito not found" })
+
+    const carritoItem = await Carrito.findOne({
+      where: { id, is_delete: false, is_active: true },
+    })
+
+    if (!carritoItem) {
+      return res.status(404).json({ success: false, message: "Carrito item not found" })
     }
-    await carrito.update({ is_delete: true })
-    return res.status(200).json({ success: true, message: "Carrito deleted successfully" })
+
+    await carritoItem.update({ is_delete: true, is_active: false })
+
+    return res.status(200).json({ success: true, message: "Item removed from carrito" })
+  } catch (error) {
+    next(error)
+  }
+}
+
+// Vaciar carrito de un usuario
+export const clearCarrito = async (req, res, next) => {
+  try {
+    const { usuario_id } = req.params
+
+    // Verificar si el usuario existe
+    const usuario = await Usuario.findByPk(usuario_id)
+    if (!usuario) {
+      return res.status(404).json({ success: false, message: "Usuario not found" })
+    }
+
+    await Carrito.update(
+      { is_delete: true, is_active: false },
+      {
+        where: { usuario_id, is_delete: false, is_active: true },
+      }
+    )
+
+    return res.status(200).json({ success: true, message: "Carrito cleared successfully" })
   } catch (error) {
     next(error)
   }

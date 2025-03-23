@@ -1,4 +1,3 @@
-// models/Factura.js
 import { DataTypes } from "sequelize"
 import { sequelize } from "../config/database.js"
 
@@ -14,10 +13,6 @@ const Factura = sequelize.define(
       type: DataTypes.BIGINT,
       allowNull: false,
       comment: "ID de la orden asociada a la factura",
-      references: {
-        model: "Orden",
-        key: "id"
-      }
     },
     numero_factura: {
       type: DataTypes.STRING(50),
@@ -43,7 +38,7 @@ const Factura = sequelize.define(
     is_delete: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
-      comment: "Indica si el registro ha sido marcado como eliminado",
+      comment: "Indica si la factura ha sido marcada como eliminada",
     },
   },
   {

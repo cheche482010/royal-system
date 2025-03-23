@@ -1,4 +1,3 @@
-// models/Carrito.js
 import { DataTypes } from "sequelize"
 import { sequelize } from "../config/database.js"
 
@@ -14,19 +13,11 @@ const Carrito = sequelize.define(
       type: DataTypes.BIGINT,
       allowNull: false,
       comment: "ID del usuario que agregó el producto",
-      references: {
-        model: "Usuario",
-        key: "id"
-      }
     },
     producto_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
       comment: "ID del producto agregado",
-      references: {
-        model: "Producto",
-        key: "id"
-      }
     },
     cantidad: {
       type: DataTypes.INTEGER,
@@ -35,6 +26,7 @@ const Carrito = sequelize.define(
     },
     fecha_ingreso: {
       type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
       comment: "Fecha en que se agregó al carrito",
     },
     is_active: {

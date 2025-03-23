@@ -1,4 +1,3 @@
-// models/Sesion.js
 import { DataTypes } from "sequelize"
 import { sequelize } from "../config/database.js"
 
@@ -14,10 +13,6 @@ const Sesion = sequelize.define(
       type: DataTypes.BIGINT,
       allowNull: false,
       comment: "ID del usuario que inició sesión",
-      references: {
-        model: "Usuario",
-        key: "id"
-      }
     },
     token: {
       type: DataTypes.STRING(255),
@@ -37,6 +32,7 @@ const Sesion = sequelize.define(
     },
     agente_usuario: {
       type: DataTypes.TEXT,
+      allowNull: true,
       comment: "Información del navegador y sistema operativo",
     },
     is_active: {
@@ -49,6 +45,7 @@ const Sesion = sequelize.define(
     tableName: "sesiones",
     timestamps: true,
     createdAt: "created_at",
+    updatedAt: false,
   }
 )
 

@@ -1,4 +1,3 @@
-// routes/CategoriaRoutes.js
 import express from "express"
 import {
   getAllCategorias,
@@ -6,8 +5,10 @@ import {
   createCategoria,
   updateCategoria,
   deleteCategoria,
+  getProductosByCategoria,
 } from "../controllers/CategoriaController.js"
 import { protect } from "../middleware/auth.js"
+
 const router = express.Router()
 
 /**
@@ -16,26 +17,20 @@ const router = express.Router()
  *   get:
  *     summary: Get all categorias
  *     description: Retrieve a list of all categorias
- *     security:
- *       - bearerAuth: []
  *     tags:
  *       - Categorias
  *     responses:
  *       200:
- *         description: List of categorias
- *       401:
- *         description: Unauthorized
+ *         description: A list of categorias
  */
-router.get("/", protect, getAllCategorias)
+router.get("/", getAllCategorias)
 
 /**
  * @swagger
  * /categorias/{id}:
  *   get:
  *     summary: Get a categoria by ID
- *     description: Retrieve a specific categoria
- *     security:
- *       - bearerAuth: []
+ *     description: Retrieve a single categoria by ID
  *     tags:
  *       - Categorias
  *     parameters:
@@ -46,20 +41,41 @@ router.get("/", protect, getAllCategorias)
  *           type: integer
  *     responses:
  *       200:
- *         description: Categoria found
- *       401:
- *         description: Unauthorized
+ *         description: Categoria details
  *       404:
  *         description: Categoria not found
  */
-router.get("/:id", protect, getCategoriaById)
+router.get("/:id", getCategoriaById)
+
+/**
+ * @swagger
+ * /categorias/{id}/productos:
+ *   get:
+ *     summary: Get productos by categoria
+ *     description: Retrieve all productos for a specific categoria
+ *     tags:
+ *       - Categorias
+ *       - Productos
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: List of productos in the categoria
+ *       404:
+ *         description: Categoria not found
+ */
+router.get("/:id/productos", getProductosByCategoria)
 
 /**
  * @swagger
  * /categorias:
  *   post:
  *     summary: Create a new categoria
- *     description: Create a new categoria record
+ *     description: Create a new categoria
  *     security:
  *       - bearerAuth: []
  *     tags:
@@ -75,13 +91,11 @@ router.get("/:id", protect, getCategoriaById)
  *                 type: string
  *               codigo:
  *                 type: string
- *               descripcion:
- *                 type: string
  *     responses:
  *       201:
  *         description: Categoria created successfully
  *       400:
- *         description: Invalid input
+ *         description: Invalid input or categoria already exists
  *       401:
  *         description: Unauthorized
  */
@@ -92,7 +106,7 @@ router.post("/", protect, createCategoria)
  * /categorias/{id}:
  *   put:
  *     summary: Update a categoria
- *     description: Update an existing categoria record
+ *     description: Update a categoria by ID
  *     security:
  *       - bearerAuth: []
  *     tags:
@@ -104,7 +118,6 @@ router.post("/", protect, createCategoria)
  *         schema:
  *           type: integer
  *     requestBody:
- *       required: true
  *       content:
  *         application/json:
  *           schema:
@@ -114,17 +127,17 @@ router.post("/", protect, createCategoria)
  *                 type: string
  *               codigo:
  *                 type: string
- *               descripcion:
- *                 type: string
+ *               is_active:
+ *                 type: boolean
  *     responses:
  *       200:
  *         description: Categoria updated successfully
  *       400:
- *         description: Invalid input
- *       401:
- *         description: Unauthorized
+ *         description: Invalid input or categoria already exists
  *       404:
  *         description: Categoria not found
+ *       401:
+ *         description: Unauthorized
  */
 router.put("/:id", protect, updateCategoria)
 
@@ -133,7 +146,7 @@ router.put("/:id", protect, updateCategoria)
  * /categorias/{id}:
  *   delete:
  *     summary: Delete a categoria
- *     description: Soft delete a categoria record
+ *     description: Soft delete a categoria by ID
  *     security:
  *       - bearerAuth: []
  *     tags:
@@ -147,10 +160,12 @@ router.put("/:id", protect, updateCategoria)
  *     responses:
  *       200:
  *         description: Categoria deleted successfully
- *       401:
- *         description: Unauthorized
+ *       400:
+ *         description: Cannot delete categoria with associated productos
  *       404:
  *         description: Categoria not found
+ *       401:
+ *         description: Unauthorized
  */
 router.delete("/:id", protect, deleteCategoria)
 

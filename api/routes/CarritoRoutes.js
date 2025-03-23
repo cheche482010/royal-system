@@ -1,69 +1,70 @@
-// routes/CarritoRoutes.js
 import express from "express"
 import {
-  getAllCarritos,
-  getCarritoById,
-  createCarrito,
-  updateCarrito,
-  deleteCarrito,
+  getAllCarritoItems,
+  getCarritoByUsuario,
+  addToCarrito,
+  updateCarritoItem,
+  removeFromCarrito,
+  clearCarrito,
 } from "../controllers/CarritoController.js"
 import { protect } from "../middleware/auth.js"
+
 const router = express.Router()
 
 /**
  * @swagger
- * /carritos:
+ * /carrito:
  *   get:
- *     summary: Get all carritos
- *     description: Retrieve a list of all carrito entries
+ *     summary: Get all carrito items
+ *     description: Retrieve a list of all carrito items
  *     security:
  *       - bearerAuth: []
  *     tags:
- *       - Carritos
+ *       - Carrito
  *     responses:
  *       200:
- *         description: List of carritos
+ *         description: A list of carrito items
  *       401:
  *         description: Unauthorized
  */
-router.get("/", protect, getAllCarritos)
+router.get("/", protect, getAllCarritoItems)
 
 /**
  * @swagger
- * /carritos/{id}:
+ * /carrito/usuario/{usuario_id}:
  *   get:
- *     summary: Get a carrito by ID
- *     description: Retrieve a specific carrito entry
+ *     summary: Get carrito items by usuario
+ *     description: Retrieve carrito items for a specific usuario
  *     security:
  *       - bearerAuth: []
  *     tags:
- *       - Carritos
+ *       - Carrito
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: usuario_id
  *         required: true
  *         schema:
  *           type: integer
  *     responses:
  *       200:
- *         description: Carrito found
+ *         description: Carrito items for the usuario
+ *       404:
+ *         description: Usuario not found
  *       401:
  *         description: Unauthorized
- *       404:
- *         description: Carrito not found
  */
-router.get("/:id", protect, getCarritoById)
+router.get("/usuario/:usuario_id", protect, getCarritoByUsuario)
 
 /**
  * @swagger
- * /carritos:
+ * /carrito:
  *   post:
- *     summary: Create a new carrito entry
- *     description: Create a new carrito record
+ *     summary: Add item to carrito
+ *     description: Add a product to the carrito
  *     security:
  *       - bearerAuth: []
  *     tags:
- *       - Carritos
+ *       - Carrito
  *     requestBody:
  *       required: true
  *       content:
@@ -79,24 +80,24 @@ router.get("/:id", protect, getCarritoById)
  *                 type: integer
  *     responses:
  *       201:
- *         description: Carrito created successfully
+ *         description: Item added to carrito successfully
  *       400:
- *         description: Invalid input
+ *         description: Invalid input or insufficient stock
  *       401:
  *         description: Unauthorized
  */
-router.post("/", protect, createCarrito)
+router.post("/", protect, addToCarrito)
 
 /**
  * @swagger
- * /carritos/{id}:
+ * /carrito/{id}:
  *   put:
- *     summary: Update a carrito entry
- *     description: Update an existing carrito record
+ *     summary: Update carrito item
+ *     description: Update the quantity of a carrito item
  *     security:
  *       - bearerAuth: []
  *     tags:
- *       - Carritos
+ *       - Carrito
  *     parameters:
  *       - in: path
  *         name: id
@@ -114,26 +115,26 @@ router.post("/", protect, createCarrito)
  *                 type: integer
  *     responses:
  *       200:
- *         description: Carrito updated successfully
+ *         description: Carrito item updated successfully
  *       400:
- *         description: Invalid input
+ *         description: Invalid input or insufficient stock
+ *       404:
+ *         description: Carrito item not found
  *       401:
  *         description: Unauthorized
- *       404:
- *         description: Carrito not found
  */
-router.put("/:id", protect, updateCarrito)
+router.put("/:id", protect, updateCarritoItem)
 
 /**
  * @swagger
- * /carritos/{id}:
+ * /carrito/{id}:
  *   delete:
- *     summary: Delete a carrito entry
- *     description: Soft delete a carrito record
+ *     summary: Remove item from carrito
+ *     description: Remove an item from the carrito
  *     security:
  *       - bearerAuth: []
  *     tags:
- *       - Carritos
+ *       - Carrito
  *     parameters:
  *       - in: path
  *         name: id
@@ -142,12 +143,38 @@ router.put("/:id", protect, updateCarrito)
  *           type: integer
  *     responses:
  *       200:
- *         description: Carrito deleted successfully
+ *         description: Item removed from carrito successfully
+ *       404:
+ *         description: Carrito item not found
  *       401:
  *         description: Unauthorized
- *       404:
- *         description: Carrito not found
  */
-router.delete("/:id", protect, deleteCarrito)
+router.delete("/:id", protect, removeFromCarrito)
+
+/**
+ * @swagger
+ * /carrito/clear/{usuario_id}:
+ *   delete:
+ *     summary: Clear carrito
+ *     description: Remove all items from a usuario's carrito
+ *     security:
+ *       - bearerAuth: []
+ *     tags:
+ *       - Carrito
+ *     parameters:
+ *       - in: path
+ *         name: usuario_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Carrito cleared successfully
+ *       404:
+ *         description: Usuario not found
+ *       401:
+ *         description: Unauthorized
+ */
+router.delete("/clear/:usuario_id", protect, clearCarrito)
 
 export default router

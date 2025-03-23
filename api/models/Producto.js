@@ -1,4 +1,3 @@
-// models/Producto.js
 import { DataTypes } from "sequelize"
 import { sequelize } from "../config/database.js"
 
@@ -50,28 +49,16 @@ const Producto = sequelize.define(
       type: DataTypes.BIGINT,
       allowNull: false,
       comment: "ID del inventario asociado al producto",
-      references: {
-        model: "Inventario",
-        key: "id"
-      }
     },
     marca_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
       comment: "ID de la marca del producto",
-      references: {
-        model: "Marca",
-        key: "id"
-      }
     },
     categoria_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
       comment: "ID de la categoría del producto",
-      references: {
-        model: "Categoria",
-        key: "id"
-      }
     },
     is_active: {
       type: DataTypes.BOOLEAN,
@@ -81,7 +68,7 @@ const Producto = sequelize.define(
     is_delete: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
-      comment: "Indica si el registro ha sido marcado como eliminado",
+      comment: "Indica si el producto ha sido marcado como eliminado",
     },
   },
   {

@@ -1,4 +1,3 @@
-// models/Marca.js
 import { DataTypes } from "sequelize"
 import { sequelize } from "../config/database.js"
 
@@ -17,10 +16,12 @@ const Marca = sequelize.define(
     },
     descripcion: {
       type: DataTypes.TEXT,
+      allowNull: true,
       comment: "Descripción de la marca",
     },
     logo_img: {
       type: DataTypes.STRING(255),
+      allowNull: true,
       comment: "Ruta de la imagen del logo",
     },
     is_active: {
@@ -31,7 +32,7 @@ const Marca = sequelize.define(
     is_delete: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
-      comment: "Indica si el registro ha sido marcado como eliminado",
+      comment: "Indica si la marca ha sido marcada como eliminada",
     },
   },
   {

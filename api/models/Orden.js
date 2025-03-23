@@ -1,4 +1,3 @@
-// models/Orden.js
 import { DataTypes } from "sequelize"
 import { sequelize } from "../config/database.js"
 
@@ -14,10 +13,6 @@ const Orden = sequelize.define(
       type: DataTypes.BIGINT,
       allowNull: false,
       comment: "ID del usuario que realizó la orden",
-      references: {
-        model: "Usuario",
-        key: "id"
-      }
     },
     monto_total: {
       type: DataTypes.DECIMAL(10, 2),

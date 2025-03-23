@@ -1,4 +1,3 @@
-// models/Categoria.js
 import { DataTypes } from "sequelize"
 import { sequelize } from "../config/database.js"
 
@@ -19,7 +18,7 @@ const Categoria = sequelize.define(
       type: DataTypes.STRING(50),
       allowNull: false,
       unique: true,
-      comment: "Código único para cada categoría",
+      comment: "Código único para cada categoría (0001, 0002, etc.)",
     },
     is_active: {
       type: DataTypes.BOOLEAN,
@@ -29,7 +28,7 @@ const Categoria = sequelize.define(
     is_delete: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
-      comment: "Indica si el registro ha sido marcado como eliminado",
+      comment: "Indica si la categoría ha sido marcada como eliminada",
     },
   },
   {

@@ -1,4 +1,3 @@
-// models/MetodoPago.js
 import { DataTypes } from "sequelize"
 import { sequelize } from "../config/database.js"
 
@@ -17,6 +16,7 @@ const MetodoPago = sequelize.define(
     },
     descripcion: {
       type: DataTypes.TEXT,
+      allowNull: true,
       comment: "Descripción del método de pago",
     },
     is_active: {
@@ -27,7 +27,7 @@ const MetodoPago = sequelize.define(
     is_delete: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
-      comment: "Indica si el registro ha sido marcado como eliminado",
+      comment: "Indica si el método de pago ha sido marcado como eliminado",
     },
   },
   {

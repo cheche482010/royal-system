@@ -1,4 +1,3 @@
-// models/Bitacora.js
 import { DataTypes } from "sequelize"
 import { sequelize } from "../config/database.js"
 
@@ -14,10 +13,6 @@ const Bitacora = sequelize.define(
       type: DataTypes.BIGINT,
       allowNull: false,
       comment: "ID del usuario que realizó la acción",
-      references: {
-        model: "Usuario",
-        key: "id"
-      }
     },
     fecha: {
       type: DataTypes.DATEONLY,
@@ -42,9 +37,7 @@ const Bitacora = sequelize.define(
   },
   {
     tableName: "bitacora",
-    timestamps: true,
-    createdAt: "created_at",
-    updatedAt: "updated_at",
+    timestamps: false,
   }
 )
 

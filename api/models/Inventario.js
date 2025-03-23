@@ -1,4 +1,3 @@
-// models/Inventario.js
 import { DataTypes } from "sequelize"
 import { sequelize } from "../config/database.js"
 
@@ -12,11 +11,7 @@ const Inventario = sequelize.define(
     },
     producto_id: {
       type: DataTypes.BIGINT,
-      comment: "ID del producto",
-      references: {
-        model: "Producto",
-        key: "id"
-      }
+      allowNull: true,
     },
     cantidad_inicial: {
       type: DataTypes.INTEGER,
@@ -30,6 +25,7 @@ const Inventario = sequelize.define(
     },
     lote: {
       type: DataTypes.STRING(50),
+      allowNull: true,
       comment: "Número de lote",
     },
     estado: {

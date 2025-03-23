@@ -1,4 +1,3 @@
-// models/Pago.js
 import { DataTypes } from "sequelize"
 import { sequelize } from "../config/database.js"
 
@@ -14,19 +13,11 @@ const Pago = sequelize.define(
       type: DataTypes.BIGINT,
       allowNull: false,
       comment: "ID de la orden asociada al pago",
-      references: {
-        model: "Orden",
-        key: "id"
-      }
     },
     metodo_pago_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
       comment: "ID del método de pago utilizado",
-      references: {
-        model: "MetodoPago",
-        key: "id"
-      }
     },
     fecha: {
       type: DataTypes.DATE,
@@ -40,6 +31,7 @@ const Pago = sequelize.define(
     },
     numero_referencia: {
       type: DataTypes.STRING(6),
+      allowNull: true,
       comment: "Número de referencia del pago",
     },
     monto: {
@@ -55,7 +47,7 @@ const Pago = sequelize.define(
     is_delete: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
-      comment: "Indica si el registro ha sido marcado como eliminado",
+      comment: "Indica si el pago ha sido marcado como eliminado",
     },
   },
   {

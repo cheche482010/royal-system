@@ -1,4 +1,3 @@
-// models/HistorialPrecio.js
 import { DataTypes } from "sequelize"
 import { sequelize } from "../config/database.js"
 
@@ -14,10 +13,6 @@ const HistorialPrecio = sequelize.define(
       type: DataTypes.BIGINT,
       allowNull: false,
       comment: "ID del producto",
-      references: {
-        model: "Producto",
-        key: "id"
-      }
     },
     precio_unidad: {
       type: DataTypes.DECIMAL(10, 2),

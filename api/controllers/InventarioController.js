@@ -1,94 +1,151 @@
-// controllers/InventarioController.js
-import { Inventario } from "../models/index.js"
+import { Inventario, Producto } from "../models/index.js"
+import { sequelize } from "../config/database.js"
 import { Op } from "sequelize"
 
-export const getAllInventarios = async (req, res, next) => {
+// Obtener todo el inventario
+export const getAllInventario = async (req, res, next) => {
   try {
-    const inventarios = await Inventario.findAll({
+    const inventario = await Inventario.findAll({
       where: { is_delete: false },
-      include: [{ model: req.models.Producto, as: 'producto' }]
+      include: [
+        {
+          model: Producto,
+          attributes: ["id", "codigo", "nombre"],
+        },
+      ],
+      order: [["fecha_ingreso", "DESC"]],
     })
-    return res.status(200).json({ success: true, data: inventarios })
-  } catch (error) {
-    next(error)
-  }
-}
 
-export const getInventarioById = async (req, res, next) => {
-  try {
-    const { id } = req.params
-    const inventario = await Inventario.findByPk(id, {
-      where: { is_delete: false },
-      include: [{ model: req.models.Producto, as: 'producto' }]
-    })
-    if (!inventario) {
-      return res.status(404).json({ success: false, message: "Inventario not found" })
-    }
     return res.status(200).json({ success: true, data: inventario })
   } catch (error) {
     next(error)
   }
 }
 
+// Obtener inventario por ID
+export const getInventarioById = async (req, res, next) => {
+  try {
+    const { id } = req.params
+
+    const inventario = await Inventario.findOne({
+      where: { id, is_delete: false },
+      include: [
+        {
+          model: Producto,
+          attributes: ["id", "codigo", "nombre", "descripcion"],
+        },
+      ],
+    })
+
+    if (!inventario) {
+      return res.status(404).json({ success: false, message: "Inventario not found" })
+    }
+
+    return res.status(200).json({ success: true, data: inventario })
+  } catch (error) {
+    next(error)
+  }
+}
+
+// Crear un nuevo registro de inventario
 export const createInventario = async (req, res, next) => {
   try {
-    const { producto_id, cantidad_inicial, cantidad_actual, lote, estado } = req.body
-    const existingInventario = await Inventario.findOne({
-      where: {
-        producto_id,
-        is_delete: false
-      }
-    })
-    if (existingInventario) {
-      return res.status(400).json({
-        success: false,
-        message: "Inventory for this product already exists"
-      })
-    }
+    const { cantidad_inicial, lote, estado, fecha_ingreso } = req.body
+
     const inventario = await Inventario.create({
-      producto_id,
       cantidad_inicial,
-      cantidad_actual,
+      cantidad_actual: cantidad_inicial,
       lote,
-      estado,
-      is_active: true,
-      is_delete: false
+      estado: estado || "Disponible",
+      fecha_ingreso: fecha_ingreso || new Date(),
     })
+
     return res.status(201).json({ success: true, data: inventario })
   } catch (error) {
     next(error)
   }
 }
 
+// Actualizar inventario
 export const updateInventario = async (req, res, next) => {
   try {
     const { id } = req.params
-    const { cantidad_inicial, cantidad_actual, lote, estado } = req.body
-    const inventario = await Inventario.findByPk(id)
-    if (!inventario || inventario.is_delete) {
+    const { cantidad_actual, estado, is_active } = req.body
+
+    const inventario = await Inventario.findOne({
+      where: { id, is_delete: false },
+    })
+
+    if (!inventario) {
       return res.status(404).json({ success: false, message: "Inventario not found" })
     }
+
     await inventario.update({
-      cantidad_inicial: cantidad_inicial || inventario.cantidad_inicial,
-      cantidad_actual: cantidad_actual || inventario.cantidad_actual,
-      lote: lote || inventario.lote,
-      estado: estado || inventario.estado
+      cantidad_actual: cantidad_actual !== undefined ? cantidad_actual : inventario.cantidad_actual,
+      estado: estado || inventario.estado,
+      is_active: is_active !== undefined ? is_active : inventario.is_active,
     })
+
     return res.status(200).json({ success: true, data: inventario })
   } catch (error) {
     next(error)
   }
 }
 
+// Eliminar inventario (soft delete)
 export const deleteInventario = async (req, res, next) => {
   try {
     const { id } = req.params
-    const inventario = await Inventario.findByPk(id)
-    if (!inventario || inventario.is_delete) {
+
+    const inventario = await Inventario.findOne({
+      where: { id, is_delete: false },
+    })
+
+    if (!inventario) {
       return res.status(404).json({ success: false, message: "Inventario not found" })
     }
-    await inventario.update({ is_delete: true })
+
+    // Verificar si hay productos asociados a este inventario
+    const producto = await Producto.findOne({
+      where: { inventario_id: id, is_delete: false },
+    })
+
+    if (producto) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot delete inventory with associated products",
+      })
+    }
+
+    await inventario.update({ is_delete: true, is_active: false })
+
     return res.status(200).json({ success: true, message: "Inventario deleted successfully" })
+  } catch (error) {
+    next(error)
+  }
+}
+
+// Obtener inventario con bajo stock
+export const getLowStock = async (req, res, next) => {
+  try {
+    const { threshold = 10 } = req.query
+
+    const inventario = await Inventario.findAll({
+      where: {
+        cantidad_actual: { [Op.lt]: threshold },
+        is_delete: false,
+        is_active: true,
+      },
+      include: [
+        {
+          model: Producto,
+          attributes: ["id", "codigo", "nombre"],
+        },
+      ],
+      order: [["cantidad_actual", "ASC"]],
+    })
+
+    return res.status(200).json({ success: true, data: inventario })
   } catch (error) {
     next(error)
   }

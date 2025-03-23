@@ -1,8 +1,8 @@
 -- Insertar datos de prueba en la tabla usuarios
 INSERT INTO usuarios (documento, documento_img, nombre, direccion, registro_mercantil_img, correo, telefono, user_password, role, token) VALUES
-('V-12345678', '/images/documentos/doc1.jpg', 'Juan Pérez', 'Calle Principal 123, Caracas', '/images/registros/reg1.jpg', 'juan@example.com', '+584141234567', '$2a$10$abcdefghijklmnopqrstuv', 'Admin', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'),
-('J-87654321', '/images/documentos/doc2.jpg', 'María Rodríguez', 'Avenida Libertador 456, Maracaibo', '/images/registros/reg2.jpg', 'maria@example.com', '+584261234567', '$2a$10$vwxyzabcdefghijklmnopq', 'Employee', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ0'),
-('V-98765432', '/images/documentos/doc3.jpg', 'Carlos Gómez', 'Urbanización El Paraíso 789, Valencia', '/images/registros/reg3.jpg', 'carlos@example.com', '+584161234567', '$2a$10$rstuvwxyzabcdefghijklm', 'Customer', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ1');
+('V-12345678', '/uploads/user/doc1.jpg', 'Juan Pérez', 'Calle Principal 123, Caracas', '/images/registros/reg1.jpg', 'juan@example.com', '+584141234567', '$2a$10$abcdefghijklmnopqrstuv', 'Admin', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'),
+('J-87654321', '/uploads/user/doc2.jpg', 'María Rodríguez', 'Avenida Libertador 456, Maracaibo', '/images/registros/reg2.jpg', 'maria@example.com', '+584261234567', '$2a$10$vwxyzabcdefghijklmnopq', 'Employee', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ0'),
+('V-98765432', '/uploads/user/doc3.jpg', 'Carlos Gómez', 'Urbanización El Paraíso 789, Valencia', '/images/registros/reg3.jpg', 'carlos@example.com', '+584161234567', '$2a$10$rstuvwxyzabcdefghijklm', 'Customer', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ1');
 
 -- Insertar datos de prueba en la tabla sesiones
 INSERT INTO sesiones (usuario_id, token, ip, expiracion, agente_usuario) VALUES
