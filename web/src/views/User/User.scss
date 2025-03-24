@@ -160,6 +160,33 @@
         }
       }
 
+      // Añadir estilos para las pestañas de pedidos
+      .orders-tabs {
+        display: flex;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid #e9ecef;
+        
+        .tab-button {
+          padding: 0.75rem 1.5rem;
+          background: none;
+          border: none;
+          border-bottom: 2px solid transparent;
+          font-weight: 500;
+          color: #6c757d;
+          cursor: pointer;
+          
+          &:hover {
+            color: #00b2e3;
+          }
+          
+          &.active {
+            color: #00b2e3;
+            border-bottom-color: #00b2e3;
+            font-weight: 600;
+          }
+        }
+      }
+
       // Estilos para la sección de pedidos
       .orders-list {
         display: flex;
@@ -650,6 +677,15 @@
         gap: 0;
         margin-bottom: 0;
       }
+    }
+  }
+
+  // Asegurar que los estilos sean responsivos
+  .orders-tabs {
+    .tab-button {
+      flex: 1;
+      text-align: center;
+      padding: 0.75rem 0.5rem;
     }
   }
 }

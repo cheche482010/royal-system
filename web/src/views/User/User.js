@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import Header from '../../components/Header/Header.vue';
 import { 
   PackageIcon, 
@@ -39,10 +39,13 @@ export default {
     const navItems = ref([
       { id: 'orders', label: 'Mis Pedidos', icon: PackageIcon },
       { id: 'addresses', label: 'Mis Direcciones', icon: MapPinIcon },
-      { id: 'pets', label: 'Pagos', icon: PawPrintIcon },
       { id: 'profile', label: 'Mi Perfil', icon: UserIcon }
     ]);
+
+    // Añadir una nueva propiedad para controlar la pestaña activa de pedidos
+    const activeOrdersTab = ref('active');
     
+    // Modificar la estructura de orders para incluir un campo que indique si están finalizados o no
     const orders = ref([
       {
         id: 1,
@@ -51,6 +54,7 @@ export default {
         status: 'delivered',
         statusText: 'Entregado',
         total: '45,90€',
+        isCompleted: true,
         products: [
           {
             id: 1,
@@ -68,6 +72,7 @@ export default {
         status: 'shipped',
         statusText: 'Enviado',
         total: '78,35€',
+        isCompleted: false,
         products: [
           {
             id: 2,
@@ -81,6 +86,42 @@ export default {
             name: 'Pienso para perros adultos Royal Canin Medium Adult',
             price: '47,46€',
             quantity: 1,
+            image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=80&width=80'
+          }
+        ]
+      },
+      {
+        id: 3,
+        number: '10023450',
+        date: '28/02/2023',
+        status: 'delivered',
+        statusText: 'Entregado',
+        total: '22,95€',
+        isCompleted: true,
+        products: [
+          {
+            id: 4,
+            name: 'Arena para Gatos Premium 10kg',
+            price: '22,95€',
+            quantity: 1,
+            image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=80&width=80'
+          }
+        ]
+      },
+      {
+        id: 4,
+        number: '10023458',
+        date: '20/03/2023',
+        status: 'processing',
+        statusText: 'En Proceso',
+        total: '31,98€',
+        isCompleted: false,
+        products: [
+          {
+            id: 5,
+            name: 'Juguete Interactivo para Gatos',
+            price: '15,99€',
+            quantity: 2,
             image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=80&width=80'
           }
         ]
@@ -146,6 +187,20 @@ export default {
     const setActiveSection = (section) => {
       activeSection.value = section;
     };
+
+    // Añadir método para cambiar entre pestañas de pedidos
+    const setActiveOrdersTab = (tab) => {
+      activeOrdersTab.value = tab;
+    };
+
+    // Añadir computed properties para filtrar los pedidos
+    const activeOrders = computed(() => {
+      return orders.value.filter(order => !order.isCompleted);
+    });
+
+    const completedOrders = computed(() => {
+      return orders.value.filter(order => order.isCompleted);
+    });
     
     const handleLogout = () => {
       // Lógica para cerrar sesión
@@ -187,11 +242,15 @@ export default {
       }
     };
     
+    // Añadir las nuevas propiedades y métodos al return
     return {
       activeSection,
+      activeOrdersTab,
       user,
       navItems,
       orders,
+      activeOrders,
+      completedOrders,
       addresses,
       pets,
       profileForm,
@@ -199,6 +258,7 @@ export default {
       isUpdating,
       isUpdatingPassword,
       setActiveSection,
+      setActiveOrdersTab,
       handleLogout,
       updateProfile,
       updatePassword
