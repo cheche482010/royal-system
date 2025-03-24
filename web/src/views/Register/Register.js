@@ -263,7 +263,7 @@ export default {
         formDataToSend.append('updated_at', now);
         
         // Enviar datos al servidor
-        const response = await fetch('http://localhost:3000/api/usuarios/create', {
+        const response = await fetch('http://localhost:3000/api/usuarios/register', {
           method: 'POST',
           body: formDataToSend
         });
