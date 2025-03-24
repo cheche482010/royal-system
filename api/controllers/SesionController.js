@@ -78,6 +78,39 @@ export const createSesion = async (req, res, next) => {
   }
 }
 
+export const createSesionInternal = async (usuario_id, ip, agente_usuario) => {
+  try {
+    // Verificar si el usuario existe
+    const usuario = await Usuario.findByPk(usuario_id)
+    if (!usuario) {
+      throw new Error("Usuario not found")
+    }
+
+    // Generar token JWT para la sesión
+    const token = jwt.sign({ id: usuario.id }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRES_IN || "30d",
+    })
+
+    // Calcular fecha de expiración
+    const expiracion = new Date()
+    expiracion.setDate(expiracion.getDate() + 30)
+
+    // Crear la sesión
+    const sesion = await Sesion.create({
+      usuario_id,
+      token,
+      ip,
+      agente_usuario: agente_usuario,
+      expiracion: expiracion,
+      is_active: true,
+    })
+
+    return sesion
+  } catch (error) {
+    throw error
+  }
+}
+
 // Cerrar sesión
 export const closeSesion = async (req, res, next) => {
   try {

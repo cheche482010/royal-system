@@ -6,6 +6,7 @@ import fs from "fs"
 import path from "path"
 import { fileURLToPath } from "url"
 import { cleanupEmptyDir } from "../middleware/upload.js"
+import { createSesionInternal } from "./SesionController.js"
 
 // Get current directory name (for ES modules)
 const __filename = fileURLToPath(import.meta.url)
@@ -373,12 +374,12 @@ export const hardDeleteUsuario = async (req, res, next) => {
 // Login usuario
 export const loginUsuario = async (req, res, next) => {
   try {
-    const { correo, password } = req.body
+    const { documento, user_password } = req.body
 
-    // Find user by email
+    // Find user by documento
     const usuario = await Usuario.findOne({
       where: {
-        correo,
+        documento,
         is_delete: false,
         is_active: true,
       },
@@ -388,30 +389,52 @@ export const loginUsuario = async (req, res, next) => {
       return res.status(401).json({ success: false, message: "Invalid credentials" })
     }
 
-    // Check if password matches
-    const isMatch = await usuario.comparePassword(password)
+    // Check if user_password matches
+    const isMatch = await usuario.comparePassword(user_password)
 
     if (!isMatch) {
       return res.status(401).json({ success: false, message: "Invalid credentials" })
     }
 
-    // Generate JWT token
-    const token = jwt.sign({ id: usuario.id }, process.env.JWT_SECRET, {
-      expiresIn: "30d",
-    })
-
-    return res.status(200).json({
-      success: true,
-      data: {
-        id: usuario.id,
-        documento: usuario.documento,
-        nombre: usuario.nombre,
-        correo: usuario.correo,
-        role: usuario.role,
-      },
-      token,
-    })
+    // Crear sesión usando la función interna
+    try {
+      const ip = req.ip || req.connection.remoteAddress
+      const agente_usuario = req.headers['user-agent']
+      
+      const sesion = await createSesionInternal(usuario.id, ip, agente_usuario)
+      
+      // Devolver respuesta con ambos tokens
+      return res.status(200).json({
+        success: true,
+        data: {
+          id: usuario.id,
+          documento: usuario.documento,
+          nombre: usuario.nombre,
+          role: usuario.role,
+          user_token: usuario.token,
+          session: {
+            session_token: sesion.token,
+            is_active: sesion.is_active,
+          },
+        }
+      })
+    } catch (sesionError) {
+      console.error("Error al crear sesión:", sesionError)
+      
+      return res.status(200).json({
+        success: true,
+        data: {
+          id: usuario.id,
+          documento: usuario.documento,
+          nombre: usuario.nombre,
+          role: usuario.role,
+          user_token: usuario.token,
+        },
+        warning: "No se pudo crear la sesión"
+      })
+    }
   } catch (error) {
+    console.error("Error en login:", error)
     next(error)
   }
 }
