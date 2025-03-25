@@ -35,6 +35,37 @@ export default {
       },
     ]);
 
+    const relatedProductsdetails = ref([
+      {
+          id: 3,
+          name: 'Producto I',
+          brand: 'Marca',
+          price: 47.46,
+          image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=150&width=150'
+      },
+      {
+          id: 4,
+          name: 'Producto II',
+          brand: 'Marca',
+          price: 12.99,
+          image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=150&width=150'
+      },
+      {
+          id: 5,
+          name: 'Producto III',
+          brand: 'Marca',
+          price: 39.95,
+          image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=150&width=150'
+      },
+      {
+          id: 6,
+          name: 'Producto IV',
+          brand: 'Marca',
+          price: 14.50,
+          image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=150&width=150'
+      }
+  ]);
+
     const updateQuantity = (productId, newQuantity) => {
       if (newQuantity < 1) return;
 
@@ -62,6 +93,7 @@ export default {
     
     return {
       productItems,
+      relatedProductsdetails,
       quantity,
       increaseQuantity,
       decreaseQuantity,
