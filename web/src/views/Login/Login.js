@@ -1,6 +1,8 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { EyeIcon, EyeOffIcon, LoaderIcon } from 'lucide-vue-next'; 
+import { EyeIcon, EyeOffIcon, LoaderIcon } from 'lucide-vue-next';
+import { authService } from '../../services/auth.service';
+import { useAuth } from '../../composables/useAuth';
 
 export default {
   name: 'Login',
@@ -11,6 +13,7 @@ export default {
   },
   setup() {
     const router = useRouter();
+    const auth = useAuth();
     const documento = ref('');
     const password = ref('');
     const rememberMe = ref(false);
@@ -43,38 +46,17 @@ export default {
           return;
         }
         
-        // Crear objeto con datos de inicio de sesión
-        const loginData = {
-          documento: documento.value,
-          user_password: password.value
-        };
+        // Llamar al servicio de autenticación
+        const response = await authService.login(documento.value, password.value);
         
-        // Enviar solicitud al servidor
-        const response = await fetch(`http://localhost:3000/api/usuarios/login`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(loginData)
-        });
-        
-        const data = await response.json();
-        
-        if (!response.ok) {
-          throw new Error(data.message || 'Error al iniciar sesión');
-        }
+        // Guardar datos en el estado de autenticación
+        auth.setUser(response.data);
         
         // Si remember está activado, guardar el documento en localStorage
         if (rememberMe.value) {
           localStorage.setItem('remembered_documento', documento.value);
         } else {
           localStorage.removeItem('remembered_documento');
-        }
-        
-        // Guardar token en localStorage
-        if (data.data.session) {
-          localStorage.setItem('session_token', data.data.session.session_token);
-          localStorage.setItem('session_active', data.data.session.is_active);
         }
         
         // Redirección después del login exitoso

@@ -15,20 +15,86 @@
             </div>
 
             <div class="header__actions">
-                <div class="header__shipping">
-                    <TruckIcon class="shipping-icon" />
-                    <span>Envíos</span>
+                <!-- Notificaciones -->
+                <div v-if="isAuthenticated" class="action-item notification-container">
+                    <button class="notification-icon" @click.stop="showNotifications = !showNotifications">
+                        <BellIcon />
+                        <span v-if="unreadNotifications > 0" class="notification-badge">{{ unreadNotifications }}</span>
+                    </button>
+
+                    <!-- Menú desplegable de notificaciones -->
+                    <div v-if="showNotifications" class="notification-menu">
+                        <div class="notification-header">
+                            <h3>Notificaciones</h3>
+                            <button v-if="unreadNotifications > 0" @click="markAllAsRead" class="mark-all-read">
+                                Marcar todas como leídas
+                            </button>
+                        </div>
+
+                        <div class="notification-list">
+                            <div v-for="notification in notifications" :key="notification.id" class="notification-item"
+                                :class="{ 'unread': !notification.read }" @click="markAsRead(notification.id)">
+                                <div class="notification-content">
+                                    <h4>{{ notification.title }}</h4>
+                                    <p>{{ notification.message }}</p>
+                                    <span class="notification-date">{{ formatDate(notification.date) }}</span>
+                                </div>
+                            </div>
+
+                            <div v-if="notifications.length === 0" class="no-notifications">
+                                No tienes notificaciones
+                            </div>
+                        </div>
+
+                        <div class="notification-footer">
+                            <router-link to="/notifications" @click="showNotifications = false">
+                                Ver todas las notificaciones
+                            </router-link>
+                        </div>
+                    </div>
                 </div>
-                <router-link to="/user" class="action-item">
-                    <UserIcon />
-                </router-link>
-                <router-link to="/cart" class="action-item cart">
+
+                <!-- Carrito -->
+                <router-link v-if="isAuthenticated" to="/cart" class="action-item cart">
                     <ShoppingCartIcon />
-                    <span class="cart-count">{{ cartCount }}</span>
+                    <span v-if="cartCount > 0" class="cart-count">{{ cartCount }}</span>
                 </router-link>
-                <router-link to="/login" class="action-item">
-                    <LogInIcon />
-                </router-link>
+
+                <!-- Usuario autenticado -->
+                <div v-if="isAuthenticated" class="action-item user-container">
+                    <button class="user-info" @click.stop="showUserMenu = !showUserMenu">
+                        <UserIcon />
+                        <span class="user-name">{{ userName }}</span>
+                        <ChevronDown />
+                    </button>
+
+                    <!-- Menú desplegable de usuario -->
+                    <div v-if="showUserMenu" class="user-menu">
+                        <div class="user-menu-item" @click="navigateTo('/user')">
+                            <UserIcon size="16" />
+                            <span>Mi Perfil</span>
+                        </div>
+                        <div class="user-menu-item" @click="navigateTo('/orders')">
+                            <PackageIcon size="16" />
+                            <span>Mis Pedidos</span>
+                        </div>
+                        <div class="user-menu-divider"></div>
+                        <div class="user-menu-item logout" @click="logout">
+                            <LogOutIcon size="16" />
+                            <span>Cerrar Sesión</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Usuario no autenticado -->
+                <div v-else class="auth-buttons">
+                    <router-link to="/login" class="btn btn-login">
+                        <span>Ingresar</span>
+                    </router-link>
+                    <router-link to="/register" class="btn btn-register">
+                        <span>Registrarse</span>
+                    </router-link>
+                </div>
             </div>
         </div>
 
