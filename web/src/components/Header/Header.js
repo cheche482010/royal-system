@@ -1,5 +1,5 @@
-import { ref, computed, onMounted } from 'vue';
-import { SearchIcon, BellIcon, UserIcon, LogInIcon, LogOutIcon, ShoppingCartIcon, TagIcon, PackageIcon, ChevronDown  } from 'lucide-vue-next';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { SearchIcon, BellIcon, UserIcon, LogInIcon, LogOutIcon, ShoppingCartIcon, TagIcon, PackageIcon, ChevronDown } from 'lucide-vue-next';
 import { useAuth } from '../../composables/useAuth';
 import { useRouter } from 'vue-router';
 
@@ -30,7 +30,7 @@ export default {
     // Estado para los menús desplegables
     const showUserMenu = ref(false);
     const showNotifications = ref(false);
-
+    
     // Notificaciones de ejemplo
     const notifications = ref([
       {
@@ -123,9 +123,35 @@ export default {
       }
     };
     
-    // Agregar event listener para cerrar menús al hacer clic fuera
+    // Actualizar contador del carrito
+    const updateCartCount = () => {
+      const count = localStorage.getItem('cartCount');
+      if (count) {
+        cartCount.value = parseInt(count);
+      } else {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        cartCount.value = cart.length;
+      }
+    };
+    
+    // Escuchar evento de actualización del carrito
+    const handleCartUpdated = () => {
+      updateCartCount();
+    };
+    
+    // Agregar event listeners
     onMounted(() => {
       document.addEventListener('click', closeMenus);
+      window.addEventListener('cart-updated', handleCartUpdated);
+      
+      // Inicializar contador del carrito
+      updateCartCount();
+    });
+    
+    // Limpiar event listeners
+    onUnmounted(() => {
+      document.removeEventListener('click', closeMenus);
+      window.removeEventListener('cart-updated', handleCartUpdated);
     });
     
     const categories = ref([

@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Header from '../../components/Header/Header.vue';
 import {
@@ -39,6 +39,9 @@ export default {
                 image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=100&width=100'
             }
         ]);
+
+        // Carrito de items agregados desde ProductDetails
+        const cartItems2 = ref([]);
 
         const relatedProducts = ref([
             {
@@ -123,6 +126,15 @@ export default {
 
         const removeItem = (itemId) => {
             cartItems.value = cartItems.value.filter(item => item.id !== itemId);
+            
+            // También actualizar localStorage
+            const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
+            const updatedCart = storedCart.filter(item => item.id !== itemId);
+            localStorage.setItem('cart', JSON.stringify(updatedCart));
+            
+            // Actualizar contador
+            localStorage.setItem('cartCount', updatedCart.length);
+            window.dispatchEvent(new CustomEvent('cart-updated'));
         };
 
         const addToCart = (product) => {
@@ -139,14 +151,45 @@ export default {
                     quantity: 1
                 });
             }
+            
+            // También actualizar localStorage
+            let storedCart = JSON.parse(localStorage.getItem('cart')) || [];
+            const existingItemIndex = storedCart.findIndex(item => item.id === product.id);
+            
+            if (existingItemIndex !== -1) {
+                storedCart[existingItemIndex].quantity += 1;
+            } else {
+                storedCart.push({
+                    ...product,
+                    quantity: 1
+                });
+            }
+            
+            localStorage.setItem('cart', JSON.stringify(storedCart));
+            localStorage.setItem('cartCount', storedCart.length);
+            window.dispatchEvent(new CustomEvent('cart-updated'));
         };
 
         const checkout = () => {
             router.push('/payment');
         };
+        
+        // Cargar carrito desde localStorage
+        const loadCartFromStorage = () => {
+            const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
+            cartItems2.value = storedCart;
+            
+            // Log para verificar que llegó el item
+            console.log('Items en cartItems2:', cartItems2.value);
+        };
+
+        onMounted(() => {
+            loadCartFromStorage();
+        });
 
         return {
             cartItems,
+            cartItems2,
             relatedProducts,
             promoCode,
             subtotal,
