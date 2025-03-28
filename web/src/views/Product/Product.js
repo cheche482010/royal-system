@@ -15,6 +15,7 @@ import {
   SearchXIcon,
   EyeIcon
 } from 'lucide-vue-next';
+import { useToast } from '../../services/toast.service';
 
 export default {
   name: 'Products',
@@ -35,6 +36,7 @@ export default {
   },
   setup() {
     const router = useRouter();
+    const toast = useToast();
     const category = ref({
       id: 'perros',
       name: 'Productos para Perros',
@@ -333,40 +335,50 @@ export default {
 
     // Agregar al carrito
     const addToCart = (product) => {
-      // Crear el objeto del producto para el carrito
-      const cartItem = {
-        id: product.id,
-        name: product.name,
-        brand: product.brand,
-        price: typeof product.price === 'string' 
-          ? parseFloat(product.price.replace('$', '').replace(',', '.')) 
-          : product.price,
-        quantity: 1,
-        image: product.image
-      };
+      try {
+        // Crear el objeto del producto para el carrito
+        const cartItem = {
+          id: product.id,
+          name: product.name,
+          brand: product.brand,
+          price: typeof product.price === 'string' 
+            ? parseFloat(product.price.replace('$', '').replace(',', '.')) 
+            : product.price,
+          quantity: 1,
+          image: product.image
+        };
 
-      // Obtener el carrito actual del localStorage
-      let cart = JSON.parse(localStorage.getItem('cart')) || [];
-      
-      // Verificar si el producto ya está en el carrito
-      const existingItemIndex = cart.findIndex(item => item.id === cartItem.id);
-      
-      if (existingItemIndex !== -1) {
-        // Si ya existe, actualizar la cantidad
-        cart[existingItemIndex].quantity += 1;
-      } else {
-        // Si no existe, agregar al carrito
-        cart.push(cartItem);
+        // Obtener el carrito actual del localStorage
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        
+        // Verificar si el producto ya está en el carrito
+        const existingItemIndex = cart.findIndex(item => item.id === cartItem.id);
+        
+        if (existingItemIndex !== -1) {
+          // Si ya existe, actualizar la cantidad
+          cart[existingItemIndex].quantity += 1;
+        } else {
+          // Si no existe, agregar al carrito
+          cart.push(cartItem);
+        }
+        
+        // Guardar el carrito actualizado en localStorage
+        localStorage.setItem('cart', JSON.stringify(cart));
+        
+        // Actualizar el contador del carrito en el header
+        updateCartCount();
+        
+        // Mostrar toast de éxito
+        toast.success(`${product.name} ha sido agregado exitosamente`, {
+          title: 'Producto agregado'
+        });
+      } catch (error) {
+        // Mostrar toast de error
+        toast.error(`No se ha podido agregar ${product.name} al carrito`, {
+          title: 'Error'
+        });
+        console.error('Error al agregar al carrito:', error);
       }
-      
-      // Guardar el carrito actualizado en localStorage
-      localStorage.setItem('cart', JSON.stringify(cart));
-      
-      // Actualizar el contador del carrito en el header
-      updateCartCount();
-      
-      // Mostrar mensaje de éxito
-      alert('Producto agregado al carrito');
     };
 
     // Actualizar el contador del carrito

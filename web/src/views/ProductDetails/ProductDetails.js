@@ -12,6 +12,7 @@ import {
   CheckCircle
 } from 'lucide-vue-next';
 import { useAuth } from '../../composables/useAuth';
+import { useToast } from '../../services/toast.service';
 
 export default {
   name: 'ProductDetails',
@@ -30,6 +31,7 @@ export default {
     const router = useRouter();
     const route = useRoute();
     const auth = useAuth();
+    const toast = useToast();
     
     // Estado para la cantidad
     const quantity = ref(1);
@@ -143,46 +145,56 @@ export default {
 
     // Agregar al carrito
     const addToCart = () => {
-      // Verificar si el usuario está autenticado
-      if (!auth.isAuthenticated.value) {
-        router.push('/login');
-        return;
-      }
+      try {
+        // Verificar si el usuario está autenticado
+        if (!auth.isAuthenticated.value) {
+          router.push('/login');
+          return;
+        }
 
-      const product = productItems.value[0];
-      
-      // Crear el objeto del producto para el carrito
-      const cartItem = {
-        id: product.id,
-        name: product.name,
-        brand: product.brand,
-        price: product.price,
-        quantity: quantity.value,
-        image: product.images[0]
-      };
+        const product = productItems.value[0];
+        
+        // Crear el objeto del producto para el carrito
+        const cartItem = {
+          id: product.id,
+          name: product.name,
+          brand: product.brand,
+          price: product.price,
+          quantity: quantity.value,
+          image: product.images[0]
+        };
 
-      // Obtener el carrito actual del localStorage
-      let cart = JSON.parse(localStorage.getItem('cart')) || [];
-      
-      // Verificar si el producto ya está en el carrito
-      const existingItemIndex = cart.findIndex(item => item.id === cartItem.id);
-      
-      if (existingItemIndex !== -1) {
-        // Si ya existe, actualizar la cantidad
-        cart[existingItemIndex].quantity += cartItem.quantity;
-      } else {
-        // Si no existe, agregar al carrito
-        cart.push(cartItem);
+        // Obtener el carrito actual del localStorage
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        
+        // Verificar si el producto ya está en el carrito
+        const existingItemIndex = cart.findIndex(item => item.id === cartItem.id);
+        
+        if (existingItemIndex !== -1) {
+          // Si ya existe, actualizar la cantidad
+          cart[existingItemIndex].quantity += cartItem.quantity;
+        } else {
+          // Si no existe, agregar al carrito
+          cart.push(cartItem);
+        }
+        
+        // Guardar el carrito actualizado en localStorage
+        localStorage.setItem('cart', JSON.stringify(cart));
+        
+        // Actualizar el contador del carrito en el header
+        updateCartCount();
+        
+        // Mostrar toast de éxito
+        toast.success(`${product.name} ha sido agregado exitosamente`, {
+          title: 'Producto agregado'
+        });
+      } catch (error) {
+        // Mostrar toast de error
+        toast.error(`No se ha podido agregar el producto al carrito`, {
+          title: 'Error'
+        });
+        console.error('Error al agregar al carrito:', error);
       }
-      
-      // Guardar el carrito actualizado en localStorage
-      localStorage.setItem('cart', JSON.stringify(cart));
-      
-      // Actualizar el contador del carrito en el header
-      updateCartCount();
-      
-      // Mostrar mensaje de éxito (puedes implementar un sistema de notificaciones)
-      alert('Producto agregado al carrito');
     };
 
     // Actualizar el contador del carrito

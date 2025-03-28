@@ -23,27 +23,9 @@ export default {
     },
     setup() {
         const router = useRouter();
-        const cartItems = ref([
-            {
-                id: 1,
-                name: 'Producto I',
-                brand: 'Marca',
-                price: 36.49,
-                quantity: 1,
-                image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=100&width=100'
-            },
-            {
-                id: 2,
-                name: 'Producto I',
-                brand: 'Marca',
-                price: 30.89,
-                quantity: 2,
-                image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=100&width=100'
-            }
-        ]);
-
+        
         // Carrito de items agregados desde ProductDetails
-        const cartItems2 = ref([]);
+        const cartItems = ref([]);
 
         const relatedProducts = ref([
             {
@@ -153,10 +135,10 @@ export default {
         // Cargar carrito desde localStorage
         const loadCartFromStorage = () => {
             const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
-            cartItems2.value = storedCart;
+            cartItems.value = storedCart;
             
             // Log para verificar que llegó el item
-            console.log('Items en cartItems2:', cartItems2.value);
+            console.log('Items en cartItems:', cartItems.value);
         };
 
         onMounted(() => {
@@ -165,7 +147,7 @@ export default {
 
         return {
             cartItems,
-            cartItems2,
+            cartItems,
             relatedProducts,
             promoCode,
             subtotal,
