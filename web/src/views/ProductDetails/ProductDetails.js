@@ -1,13 +1,15 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router';
 import Header from '../../components/Header/Header.vue';
+import ProductCarousel from '../../components/ProductCarousel/ProductCarousel.vue';
 import {
   MinusIcon,
   PlusIcon,
   TrashIcon,
   ShoppingCartIcon,
   LockIcon,
-  Search
+  Search,
+  CheckCircle
 } from 'lucide-vue-next';
 import { useAuth } from '../../composables/useAuth';
 
@@ -20,7 +22,9 @@ export default {
     ShoppingCartIcon,
     LockIcon,
     Search,
-    Header
+    CheckCircle,
+    Header,
+    ProductCarousel
   },
   setup() {
     const router = useRouter();
@@ -81,6 +85,13 @@ export default {
           name: 'Producto IV',
           brand: 'Marca',
           price: 14.50,
+          image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=150&width=150'
+      },
+      {
+          id: 7,
+          name: 'Producto V',
+          brand: 'Marca',
+          price: 22.75,
           image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=150&width=150'
       }
     ]);
@@ -174,25 +185,10 @@ export default {
       alert('Producto agregado al carrito');
     };
 
-    // Ver opciones de un producto relacionado
-    const viewProductOptions = (product) => {
-      // Navegar a la página de detalles del producto seleccionado
-      router.push({
-        path: '/productdetails',
-        query: { id: product.id }
-      });
-    };
-
     // Actualizar el contador del carrito
     const updateCartCount = () => {
       const cart = JSON.parse(localStorage.getItem('cart')) || [];
-      // Aquí deberías tener una forma de actualizar el contador en el header
-      // Por ejemplo, usando un estado global o un evento personalizado
-      
-      // Para este ejemplo, vamos a usar localStorage para comunicarnos con el componente Header
       localStorage.setItem('cartCount', cart.length);
-      
-      // Disparar un evento personalizado para que el Header lo escuche
       window.dispatchEvent(new CustomEvent('cart-updated'));
     };
 
@@ -224,8 +220,7 @@ export default {
       selectImage,
       toggleZoom,
       closeZoom,
-      addToCart,
-      viewProductOptions
+      addToCart
     };
   },
 }

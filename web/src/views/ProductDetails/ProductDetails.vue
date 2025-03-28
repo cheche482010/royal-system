@@ -18,13 +18,8 @@
           </button>
         </div>
         <div class="thumbnails">
-          <div 
-            v-for="(image, index) in productItems[0].images" 
-            :key="index" 
-            class="thumbnail" 
-            :class="{ active: selectedImageIndex === index }"
-            @click="selectImage(index)"
-          >
+          <div v-for="(image, index) in productItems[0].images" :key="index" class="thumbnail"
+            :class="{ active: selectedImageIndex === index }" @click="selectImage(index)">
             <img :src="image" :alt="'Thumbnail ' + productItems[0].name" />
           </div>
         </div>
@@ -102,26 +97,11 @@
         </div>
       </div>
     </div>
-    <div class="related-products" v-if="productItems.length > 0">
-      <h2 class="related-title">También te puede interesar</h2>
 
-      <div class="related-grid">
-        <div v-for="product in relatedProductsdetails" :key="product.id" class="product-card">
-          <div class="product-image">
-            <img :src="product.image" :alt="product.name" />
-          </div>
-          <div class="product-brand">{{ product.brand }}</div>
-          <div class="product-name">{{ product.name }}</div>
-          <div class="product-price">${{ product.price.toFixed(2) }}</div>
-          <button class="add-to-cart" @click="viewProductOptions(product)">
-            <ShoppingCartIcon class="cart-icon" />
-            Ver opciones
-          </button>
-        </div>
-      </div>
-    </div>
+    <ProductCarousel class="related-products" v-if="relatedProductsdetails.length > 0" :products="relatedProductsdetails"
+      title="También te puede interesar" />
   </div>
 </template>
 
 <script src="./ProductDetails.js"></script>
-<style scoped src="./ProductDetails.scss" lang="scss"></style>
+<style scoped src="./ProductDetails.scss"></style>

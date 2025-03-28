@@ -1,7 +1,7 @@
-
 import { ref } from 'vue';
 import { StarIcon, ArrowRightIcon, DogIcon, CatIcon, ShoppingCartIcon } from 'lucide-vue-next';
 import Header from '../../components/Header/Header.vue';
+import ProductCarousel from '../../components/ProductCarousel/ProductCarousel.vue';
 
 export default { 
   name: 'Home',
@@ -11,7 +11,8 @@ export default {
     DogIcon,
     CatIcon, 
     ShoppingCartIcon,
-    Header
+    Header,
+    ProductCarousel
   },
   setup() {
     const activeSlide = ref(0);
@@ -50,7 +51,7 @@ export default {
         id: 1,
         name: 'Producto 1',
         brand: 'marca',
-        price: '36,49$',
+        price: 36.49,
         rating: 5,
         reviews: 2004,
         image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=200&width=200'
@@ -59,7 +60,7 @@ export default {
         id: 2,
         name: 'Producto 2',
         brand: 'marca',
-        price: '27,15$',
+        price: 27.15,
         rating: 5,
         reviews: 1544,
         image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=200&width=200'
@@ -68,7 +69,7 @@ export default {
         id: 3,
         name: 'Producto 4',
         brand: 'marca',
-        price: '30,89$',
+        price: 30.89,
         rating: 5,
         reviews: 283,
         image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=200&width=200'
@@ -77,9 +78,18 @@ export default {
         id: 4,
         name: 'Producto 5',
         brand: 'marca',
-        price: '29,99$',
+        price: 29.99,
         rating: 5,
         reviews: 97,
+        image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=200&width=200'
+      },
+      {
+        id: 5,
+        name: 'Producto 6',
+        brand: 'marca',
+        price: 42.50,
+        rating: 4,
+        reviews: 156,
         image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=200&width=200'
       }
     ]);
