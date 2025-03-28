@@ -14,7 +14,7 @@ const router = express.Router()
 
 /**
  * @swagger
- * /productos:
+ * /products/getAll:
  *   get:
  *     summary: Get all productos
  *     description: Retrieve a list of all productos
@@ -24,7 +24,7 @@ const router = express.Router()
  *       200:
  *         description: A list of productos
  */
-router.get("/", getAllProductos)
+router.get("/getAll", getAllAllProductos)
 
 /**
  * @swagger
