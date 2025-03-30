@@ -191,6 +191,7 @@
       </div>
     </div>
   </div>
+  <Footer />
 </template>
 
 <script src="./Product.js"></script>

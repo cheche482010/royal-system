@@ -161,6 +161,7 @@
             </main>
         </div>
     </div>
+    <Footer />
 </template>
 
 <script src="./Terms.js"></script>

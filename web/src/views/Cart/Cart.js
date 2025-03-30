@@ -1,6 +1,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Header from '../../components/Header/Header.vue';
+import Footer from '../../components/Footer/Footer.vue';
 import ProductCarousel from '../../components/ProductCarousel/ProductCarousel.vue';
 import {
     MinusIcon,
@@ -19,6 +20,7 @@ export default {
         ShoppingCartIcon,
         LockIcon,
         Header,
+        Footer,
         ProductCarousel
     },
     setup() {

@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue';
 import Header from '../../components/Header/Header.vue';
+import Footer from '../../components/Footer/Footer.vue';
 import { 
   PackageIcon, 
   MapPinIcon, 
@@ -24,7 +25,8 @@ export default {
     TrashIcon,
     PlusIcon,
     LoaderIcon,
-    Header
+    Header,
+    Footer
   },
   setup() {
     const activeSection = ref('orders');

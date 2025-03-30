@@ -239,11 +239,8 @@
       </div>
     </div>
   </div>
+  <Footer />
 </template>
-
-<script>
-
-</script>
 
 <script src="./User.js"></script>
 <style scoped src="./User.scss" lang="scss"></style>

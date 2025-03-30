@@ -103,6 +103,7 @@
     />
 
   </div>
+  <Footer />
 </template>
 
 <script src="./Cart.js"></script>

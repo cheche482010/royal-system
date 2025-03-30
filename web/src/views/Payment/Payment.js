@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import Header from '../../components/Header/Header.vue';
+import Footer from '../../components/Footer/Footer.vue';
 import {
   UploadIcon,
   FileIcon,
@@ -12,6 +13,7 @@ export default {
   name: 'Payment',
   components: {
     Header,
+    Footer,
     UploadIcon,
     FileIcon,
     XIcon,

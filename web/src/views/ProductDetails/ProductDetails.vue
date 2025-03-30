@@ -101,6 +101,7 @@
     <ProductCarousel class="related-products" v-if="relatedProductsdetails.length > 0" :products="relatedProductsdetails"
       title="También te puede interesar" />
   </div>
+  <Footer />
 </template>
 
 <script src="./ProductDetails.js"></script>

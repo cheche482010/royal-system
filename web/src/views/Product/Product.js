@@ -1,6 +1,8 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import Header from '../../components/Header/Header.vue';
+import Footer from '../../components/Footer/Footer.vue';
+
 import { 
   StarIcon, 
   HeartIcon, 
@@ -32,7 +34,8 @@ export default {
     ChevronRightIcon,
     SearchXIcon,
     EyeIcon,
-    Header
+    Header,
+    Footer
   },
   setup() {
     const router = useRouter();

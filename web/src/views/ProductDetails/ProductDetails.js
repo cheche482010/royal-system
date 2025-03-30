@@ -1,7 +1,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router';
 import Header from '../../components/Header/Header.vue';
+import Footer from '../../components/Footer/Footer.vue';
 import ProductCarousel from '../../components/ProductCarousel/ProductCarousel.vue';
+
 import {
   MinusIcon,
   PlusIcon,
@@ -25,6 +27,7 @@ export default {
     Search,
     CheckCircle,
     Header,
+    Footer,
     ProductCarousel
   },
   setup() {
