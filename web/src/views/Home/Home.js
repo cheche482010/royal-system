@@ -1,6 +1,7 @@
 import { ref } from 'vue';
 import { StarIcon, ArrowRightIcon, DogIcon, CatIcon, ShoppingCartIcon } from 'lucide-vue-next';
 import Header from '../../components/Header/Header.vue';
+import Footer from '../../components/Footer/Footer.vue';
 import ProductCarousel from '../../components/ProductCarousel/ProductCarousel.vue';
 
 export default { 
@@ -12,6 +13,7 @@ export default {
     CatIcon, 
     ShoppingCartIcon,
     Header,
+    Footer,
     ProductCarousel
   },
   setup() {

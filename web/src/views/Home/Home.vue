@@ -49,6 +49,7 @@
       />
     </section>
   </div>
+  <Footer />
 </template>
 
 <script src="./Home.js"></script>
