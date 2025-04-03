@@ -48,19 +48,14 @@ export default {
     });
     
     const subcategories = ref([
-      { id: 'alimentacion', name: 'Alimentación', count: 245 },
-      { id: 'antiparasitarios', name: 'Antiparasitarios', count: 78 },
-      { id: 'higiene', name: 'Higiene y Cuidado', count: 124 },
-      { id: 'juguetes', name: 'Juguetes', count: 93 },
-      { id: 'accesorios', name: 'Accesorios', count: 156 }
+      { id: 1, name: 'Alimento para Gatos', count: 24 },
+      { id: 2, name: 'Alimento para Perros', count: 45 },
+      { id: 3, name: 'Alimento para Aves', count: 25 },
+  
     ]);
     
     const brands = ref([
-      { id: 'royal-canin', name: 'Royal Canin', count: 45 },
-      { id: 'seresto', name: 'Seresto', count: 12 },
-      { id: 'frontline', name: 'Frontline', count: 18 },
-      { id: 'scalibor', name: 'Scalibor', count: 8 },
-      { id: 'advance', name: 'Advance', count: 32 }
+      { id: 1, name: 'Brit', count: 32 }
     ]);
     
     const ratings = ref([

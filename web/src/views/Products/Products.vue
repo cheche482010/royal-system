@@ -194,5 +194,5 @@
   <Footer />
 </template>
 
-<script src="./Product.js"></script>
-<style scoped src="./Product.scss" lang="scss"></style>
+<script src="./Products.js"></script>
+<style scoped src="./Products.scss" lang="scss"></style>

@@ -105,6 +105,11 @@
                         {{ category.name }}
                     </router-link>
                 </li>
+                <li class="nav-item">
+                    <router-link to="/Products" class="nav-link">
+                        Productos
+                    </router-link>
+                </li>
                 <li class="nav-item brands">
                     <router-link to="/brands" class="nav-link">
                         <TagIcon class="brand-icon" />
