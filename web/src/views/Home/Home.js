@@ -37,6 +37,7 @@ export default {
         link: '/offer/traveness',
         image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg'
       },
+      
       // Más banners aquí
     ]);
     
@@ -47,7 +48,7 @@ export default {
     
     const featuredSection = ref({
       title: 'Productos',
-      link: '/Product'
+      link: '/Products'
     });
     
     const featuredProducts = ref([]);

@@ -95,13 +95,9 @@
       <router-link to="/" class="continue-shopping">Continuar comprando</router-link>
     </div>
     
-    <!-- Productos relacionados usando el componente ProductCarousel -->
     <ProductCarousel 
-      v-if="cartItems.length > 0"
-      :products="relatedProducts"
-      title="También te puede interesar"
-    />
-
+        :products="featuredProducts"
+      />
   </div>
   <Footer />
 </template>

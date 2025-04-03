@@ -26,48 +26,11 @@ export default {
     },
     setup() {
         const router = useRouter();
-        
+
         // Carrito de items agregados desde ProductDetails
         const cartItems = ref([]);
 
-        const relatedProducts = ref([
-            {
-                id: 3,
-                name: 'Producto I',
-                brand: 'Marca',
-                price: 47.46,
-                image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=150&width=150'
-            },
-            {
-                id: 4,
-                name: 'Producto II',
-                brand: 'Marca',
-                price: 12.99,
-                image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=150&width=150'
-            },
-            {
-                id: 5,
-                name: 'Producto III',
-                brand: 'Marca',
-                price: 39.95,
-                image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=150&width=150'
-            },
-            {
-                id: 6,
-                name: 'Producto IV',
-                brand: 'Marca',
-                price: 14.50,
-                image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=150&width=150'
-            },
-            {
-                id: 7,
-                name: 'Producto V',
-                brand: 'Marca',
-                price: 22.75,
-                image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=150&width=150'
-            }
-        ]);
-
+        const featuredProducts = ref([]);
         const promoCode = ref('');
         const appliedPromo = ref(null);
 
@@ -120,10 +83,10 @@ export default {
 
         const removeItem = (itemId) => {
             cartItems.value = cartItems.value.filter(item => item.id !== itemId);
-            
+
             // Actualizar localStorage
             localStorage.setItem('cart', JSON.stringify(cartItems.value));
-            
+
             // Actualizar contador
             localStorage.setItem('cartCount', cartItems.value.length);
             window.dispatchEvent(new CustomEvent('cart-updated'));
@@ -136,57 +99,85 @@ export default {
         const loadCartFromStorage = async () => {
             try {
                 const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
-                
+
                 // Obtener detalles actualizados de cada producto
                 const updatedCart = await Promise.all(
-                  storedCart.map(async (item) => {
-                    try {
-                      const product = await apiService.getProductById(item.id);
-                      if (product && product.is_active) {
-                        return {
-                          ...item,
-                          name: product.nombre,
-                          brand: product.marca?.nombre || 'Sin marca',
-                          price: product.precio_unidad,
-                          image: product.producto_img,
-                          maxQuantity: product.inventario?.cantidad_actual || 0
-                        };
-                      }
-                      return null; // Producto no encontrado o inactivo
-                    } catch (error) {
-                      console.error(`Error al cargar producto ${item.id}:`, error);
-                      return null;
-                    }
-                  })
+                    storedCart.map(async (item) => {
+                        try {
+                            const product = await apiService.getProductById(item.id);
+                            if (product && product.is_active) {
+                                return {
+                                    ...item,
+                                    name: product.nombre,
+                                    brand: product.marca?.nombre || 'Sin marca',
+                                    price: product.precio_unidad,
+                                    image: product.producto_img,
+                                    maxQuantity: product.inventario?.cantidad_actual || 0
+                                };
+                            }
+                            return null; // Producto no encontrado o inactivo
+                        } catch (error) {
+                            console.error(`Error al cargar producto ${item.id}:`, error);
+                            return null;
+                        }
+                    })
                 );
-                
+
                 // Filtrar productos nulos y actualizar carrito
                 cartItems.value = updatedCart.filter(item => item !== null);
-                
+
                 // Actualizar localStorage con datos actualizados
                 localStorage.setItem('cart', JSON.stringify(cartItems.value));
-              } catch (error) {
+            } catch (error) {
                 console.error('Error al cargar el carrito:', error);
                 useToast().error('Error al cargar el carrito', {
-                  title: 'Error'
+                    title: 'Error'
                 });
-              }
-              window.dispatchEvent(new CustomEvent('cart-updated'));
+            }
+            window.dispatchEvent(new CustomEvent('cart-updated'));
         };
+
+        const loadFeaturedProducts = async () => {
+            try {
+                const response = await apiService.getAllProducts();
+                if (!response.success || !response.data) {
+                    throw new Error('Respuesta inválida del servidor');
+                }
+
+                // Tomar los primeros 5 productos activos como destacados
+                featuredProducts.value = response.data
+                    .filter(p => p.is_active)
+                    .slice(0, 5)
+                    .map(p => ({
+                        id: p.id,
+                        name: p.nombre,
+                        brand: p.Marca?.nombre || 'Sin marca',
+                        price: p.precio_unidad,
+                        image: p.producto_img
+                    }));
+            } catch (error) {
+                console.error('Error al cargar productos destacados:', error);
+                useToast().error('Error al cargar productos destacados', {
+                    title: 'Error'
+                });
+            }
+        };
+
 
         // Inicializar
         onMounted(async () => {
             await loadCartFromStorage();
+            loadFeaturedProducts();
         });
 
         return {
             cartItems,
-            relatedProducts,
             promoCode,
             subtotal,
             shipping,
             discount,
             total,
+            featuredProducts,
             formatPrice,
             updateQuantity,
             removeItem,
