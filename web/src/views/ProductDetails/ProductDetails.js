@@ -1,23 +1,17 @@
-import { ref, computed, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router';
-import Header from '../../components/Header/Header.vue';
-import Footer from '../../components/Footer/Footer.vue';
-import ProductCarousel from '../../components/ProductCarousel/ProductCarousel.vue';
 
-import {
-  MinusIcon,
-  PlusIcon,
-  TrashIcon,
-  ShoppingCartIcon,
-  LockIcon,
-  Search,
-  CheckCircle
-} from 'lucide-vue-next';
-import { useAuth } from '../../composables/useAuth';
-import { useToast } from '../../services/toast.service';
+import { ref, computed, onMounted, watch } from "vue"
+import { useRouter, useRoute } from "vue-router"
+import Header from "../../components/Header/Header.vue"
+import Footer from "../../components/Footer/Footer.vue"
+import ProductCarousel from "../../components/ProductCarousel/ProductCarousel.vue"
+import { apiService } from "../../services/api.service"
+
+import { MinusIcon, PlusIcon, TrashIcon, ShoppingCartIcon, LockIcon, Search, CheckCircle } from "lucide-vue-next"
+import { useAuth } from "../../composables/useAuth"
+import { useToast } from "../../services/toast.service"
 
 export default {
-  name: 'ProductDetails',
+  name: "ProductDetails",
   components: {
     MinusIcon,
     PlusIcon,
@@ -28,135 +22,176 @@ export default {
     CheckCircle,
     Header,
     Footer,
-    ProductCarousel
+    ProductCarousel,
   },
   setup() {
-    const router = useRouter();
-    const route = useRoute();
-    const auth = useAuth();
-    const toast = useToast();
-    
+    const router = useRouter()
+    const route = useRoute()
+    const auth = useAuth()
+    const toast = useToast()
+
     // Estado para la cantidad
-    const quantity = ref(1);
-    
+    const quantity = ref(1)
+
     // Estado para el zoom de imagen
-    const showZoom = ref(false);
-    
+    const showZoom = ref(false)
+
     // Estado para la imagen seleccionada
-    const selectedImageIndex = ref(0);
-    
-    // Datos del producto actual
-    const productItems = ref([
-      {
-        id: 1,
-        name: 'Producto I',
-        brand: 'BRIT',
-        price: 36.89,
-        quantity: 1,
-        inventory: 150,
-        images: [
-          'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=100&width=100',
-          'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=100&width=100',
-          'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=100&width=100'
-        ]
-      },
-    ]);
+    const selectedImageIndex = ref(0)
+
+    // Estado para la carga y errores
+    const loading = ref(true)
+    const error = ref(null)
+
+    // Estado del producto
+    const productItems = ref(null)
 
     // Productos relacionados
-    const relatedProductsdetails = ref([
-      {
-          id: 3,
-          name: 'Producto I',
-          brand: 'Marca',
-          price: 47.46,
-          image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=150&width=150'
+    const relatedProductsdetails = ref([])
+
+    // Cargar el producto cuando el componente se monta
+    onMounted(() => {
+      console.log("Component mounted, loading product...")
+      loadProductDetails()
+    })
+
+    // Recargar cuando cambia la ruta
+    watch(
+      () => route.params.id,
+      (newId) => {
+        if (newId) {
+          console.log("Route changed, reloading product...")
+          loadProductDetails()
+        }
       },
-      {
-          id: 4,
-          name: 'Producto II',
-          brand: 'Marca',
-          price: 12.99,
-          image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=150&width=150'
-      },
-      {
-          id: 5,
-          name: 'Producto III',
-          brand: 'Marca',
-          price: 39.95,
-          image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=150&width=150'
-      },
-      {
-          id: 6,
-          name: 'Producto IV',
-          brand: 'Marca',
-          price: 14.50,
-          image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=150&width=150'
-      },
-      {
-          id: 7,
-          name: 'Producto V',
-          brand: 'Marca',
-          price: 22.75,
-          image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=150&width=150'
+    )
+
+    // Cargar el producto seleccionado
+    const loadProductDetails = async () => {
+      loading.value = true
+      error.value = null
+
+      try {
+        const productId = route.query.id
+        if (!productId) {
+          error.value = "ID de producto no encontrado"
+          return
+        }
+
+        const response = await apiService.getProductById(productId)
+        console.log("Product Response:", response)
+
+        if (!response || !response.data) {
+          throw new Error("No se pudo cargar el producto")
+        }
+
+        const data = response.data
+        console.log("Product Data:", data)
+
+        // Transformar el producto al formato esperado
+        productItems.value = {
+          id: data.id,
+          name: data.nombre,
+          brand: data.Marca?.nombre || "Sin marca",
+          marca_id: data.marca_id,
+          categoria: data.Categorium?.nombre || data.Categoria?.nombre || "Sin categoría",
+          categoria_id: data.categoria_id,
+          price: Number.parseFloat(data.precio_unidad),
+          description: data.descripcion,
+          quantity: 1,
+          inventory: Number.parseInt(data.Inventario?.cantidad_actual || 0),
+          images: [data.producto_img],
+        }
+
+        // Cargar productos para el carousel (generales por ahora)
+        const productsResponse = await apiService.getAllProducts()
+
+        console.log("All Products Response:", productsResponse)
+
+        if (productsResponse?.data) {
+          relatedProductsdetails.value = productsResponse.data
+            .filter((p) => p.id !== data.id)
+            .slice(0, 8)
+            .map((p) => ({
+              id: p.id,
+              name: p.nombre,
+              brand: p.Marca?.nombre || "Sin marca",
+              price: Number.parseFloat(p.precio_unidad),
+              image: p.producto_img,
+            }))
+        }
+      } catch (err) {
+        console.error("Error al cargar el producto:", err)
+        error.value = err.message
+        toast.error("Error al cargar el producto")
+      } finally {
+        loading.value = false
       }
-    ]);
+    }
 
     // Calcular el precio total basado en la cantidad
     const totalPrice = computed(() => {
-      return (productItems.value[0].price * quantity.value).toFixed(2);
-    });
+      if (!productItems.value) return "0.00"
+      return (productItems.value.price * quantity.value).toFixed(2)
+    })
 
     // Obtener la imagen principal actual
     const currentImage = computed(() => {
-      return productItems.value[0].images[selectedImageIndex.value];
-    });
+      if (!productItems.value || !productItems.value.images) return ""
+      return productItems.value.images[selectedImageIndex.value]
+    })
 
     // Actualizar la cantidad
     const updateQuantity = (newQuantity) => {
-      if (newQuantity < 1) return;
-      quantity.value = newQuantity;
-    };
+      if (newQuantity < 1) return
+      quantity.value = newQuantity
+    }
 
     // Incrementar cantidad
     const increaseQuantity = () => {
-      quantity.value++;
-    };
+      quantity.value++
+    }
 
     // Decrementar cantidad
     const decreaseQuantity = () => {
       if (quantity.value > 1) {
-        quantity.value--;
+        quantity.value--
       }
-    };
+    }
 
     // Cambiar la imagen seleccionada
     const selectImage = (index) => {
-      selectedImageIndex.value = index;
-    };
+      selectedImageIndex.value = index
+    }
 
     // Mostrar/ocultar zoom de imagen
     const toggleZoom = () => {
-      showZoom.value = !showZoom.value;
-    };
+      showZoom.value = !showZoom.value
+    }
 
     // Cerrar zoom al hacer clic fuera de la imagen
     const closeZoom = (event) => {
-      if (event.target.classList.contains('zoom-overlay')) {
-        showZoom.value = false;
+      if (event.target.classList.contains("zoom-overlay")) {
+        showZoom.value = false
       }
-    };
+    }
 
     // Agregar al carrito
     const addToCart = () => {
       try {
         // Verificar si el usuario está autenticado
         if (!auth.isAuthenticated.value) {
-          router.push('/login');
-          return;
+          router.push("/login")
+          return
         }
 
-        const product = productItems.value[0];
-        
+        if (!productItems.value) {
+          toast.error("No se ha podido agregar el producto al carrito: Producto no disponible")
+          return
+        }
+
+        const product = productItems.value
+
         // Crear el objeto del producto para el carrito
         const cartItem = {
           id: product.id,
@@ -164,63 +199,67 @@ export default {
           brand: product.brand,
           price: product.price,
           quantity: quantity.value,
-          image: product.images[0]
-        };
+          image: product.images[0],
+        }
 
         // Obtener el carrito actual del localStorage
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        
+        const cart = JSON.parse(localStorage.getItem("cart")) || []
+
         // Verificar si el producto ya está en el carrito
-        const existingItemIndex = cart.findIndex(item => item.id === cartItem.id);
-        
+        const existingItemIndex = cart.findIndex((item) => item.id === cartItem.id)
+
         if (existingItemIndex !== -1) {
           // Si ya existe, actualizar la cantidad
-          cart[existingItemIndex].quantity += cartItem.quantity;
+          cart[existingItemIndex].quantity += cartItem.quantity
         } else {
           // Si no existe, agregar al carrito
-          cart.push(cartItem);
+          cart.push(cartItem)
         }
-        
+
         // Guardar el carrito actualizado en localStorage
-        localStorage.setItem('cart', JSON.stringify(cart));
-        
+        localStorage.setItem("cart", JSON.stringify(cart))
+
         // Actualizar el contador del carrito en el header
-        updateCartCount();
-        
+        updateCartCount()
+
         // Mostrar toast de éxito
         toast.success(`${product.name} ha sido agregado exitosamente`, {
-          title: 'Producto agregado'
-        });
+          title: "Producto agregado",
+        })
       } catch (error) {
         // Mostrar toast de error
         toast.error(`No se ha podido agregar el producto al carrito`, {
-          title: 'Error'
-        });
-        console.error('Error al agregar al carrito:', error);
+          title: "Error",
+        })
+        console.error("Error al agregar al carrito:", error)
       }
-    };
+    }
 
     // Actualizar el contador del carrito
     const updateCartCount = () => {
-      const cart = JSON.parse(localStorage.getItem('cart')) || [];
-      localStorage.setItem('cartCount', cart.length);
-      window.dispatchEvent(new CustomEvent('cart-updated'));
-    };
+      const cart = JSON.parse(localStorage.getItem("cart")) || []
+      localStorage.setItem("cartCount", cart.length)
+      window.dispatchEvent(new CustomEvent("cart-updated"))
+    }
+
+    // Observar cambios en la ruta para recargar el producto
+    watch(
+      () => route.query.id,
+      (newId) => {
+        if (newId) {
+          console.log("Route query changed, reloading product...")
+          loadProductDetails()
+        }
+      },
+      { immediate: true },
+    )
 
     // Inicializar
     onMounted(() => {
-      // Aquí podrías cargar los datos del producto basado en el ID de la URL
-      const productId = route.query.id;
-      if (productId) {
-        // Cargar datos del producto con ese ID
-        // fetchProductDetails(productId);
-        console.log('Cargando producto con ID:', productId);
-      }
-      
-      // Inicializar el contador del carrito
-      updateCartCount();
-    });
-    
+      loadProductDetails()
+      updateCartCount()
+    })
+
     return {
       productItems,
       relatedProductsdetails,
@@ -235,7 +274,8 @@ export default {
       selectImage,
       toggleZoom,
       closeZoom,
-      addToCart
-    };
+      addToCart,
+    }
   },
 }
+
