@@ -1,4 +1,5 @@
 # Ignora node_modules solo en carpetas específicas
+api/.env
 api/node_modules/
 web/node_modules/
 

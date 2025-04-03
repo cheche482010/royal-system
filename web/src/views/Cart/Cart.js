@@ -1,6 +1,8 @@
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Header from '../../components/Header/Header.vue';
+import Footer from '../../components/Footer/Footer.vue';
+import ProductCarousel from '../../components/ProductCarousel/ProductCarousel.vue';
 import {
     MinusIcon,
     PlusIcon,
@@ -17,28 +19,15 @@ export default {
         TrashIcon,
         ShoppingCartIcon,
         LockIcon,
-        Header
+        Header,
+        Footer,
+        ProductCarousel
     },
     setup() {
         const router = useRouter();
-        const cartItems = ref([
-            {
-                id: 1,
-                name: 'Producto I',
-                brand: 'Marca',
-                price: 36.49,
-                quantity: 1,
-                image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=100&width=100'
-            },
-            {
-                id: 2,
-                name: 'Producto I',
-                brand: 'Marca',
-                price: 30.89,
-                quantity: 2,
-                image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=100&width=100'
-            }
-        ]);
+        
+        // Carrito de items agregados desde ProductDetails
+        const cartItems = ref([]);
 
         const relatedProducts = ref([
             {
@@ -67,6 +56,13 @@ export default {
                 name: 'Producto IV',
                 brand: 'Marca',
                 price: 14.50,
+                image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=150&width=150'
+            },
+            {
+                id: 7,
+                name: 'Producto V',
+                brand: 'Marca',
+                price: 22.75,
                 image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=150&width=150'
             }
         ]);
@@ -123,29 +119,36 @@ export default {
 
         const removeItem = (itemId) => {
             cartItems.value = cartItems.value.filter(item => item.id !== itemId);
-        };
-
-        const addToCart = (product) => {
-            // Comprobar si el producto ya está en el carrito
-            const existingItem = cartItems.value.find(item => item.id === product.id);
-
-            if (existingItem) {
-                // Si ya está, incrementar la cantidad
-                existingItem.quantity += 1;
-            } else {
-                // Si no está, añadirlo con cantidad 1
-                cartItems.value.push({
-                    ...product,
-                    quantity: 1
-                });
-            }
+            
+            // También actualizar localStorage
+            const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
+            const updatedCart = storedCart.filter(item => item.id !== itemId);
+            localStorage.setItem('cart', JSON.stringify(updatedCart));
+            
+            // Actualizar contador
+            localStorage.setItem('cartCount', updatedCart.length);
+            window.dispatchEvent(new CustomEvent('cart-updated'));
         };
 
         const checkout = () => {
             router.push('/payment');
         };
+        
+        // Cargar carrito desde localStorage
+        const loadCartFromStorage = () => {
+            const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
+            cartItems.value = storedCart;
+            
+            // Log para verificar que llegó el item
+            console.log('Items en cartItems:', cartItems.value);
+        };
+
+        onMounted(() => {
+            loadCartFromStorage();
+        });
 
         return {
+            cartItems,
             cartItems,
             relatedProducts,
             promoCode,
@@ -156,7 +159,6 @@ export default {
             formatPrice,
             updateQuantity,
             removeItem,
-            addToCart,
             checkout
         };
     }
