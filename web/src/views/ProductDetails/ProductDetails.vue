@@ -1,99 +1,93 @@
 <template>
   <Header :disable-nav="true" />
-  <div>
+  <div v-if="productItems" class="product-container">
     <!-- Overlay para zoom de imagen -->
     <div v-if="showZoom" class="zoom-overlay" @click="closeZoom">
       <div class="zoom-container">
-        <img :src="currentImage" :alt="productItems[0].name" class="zoomed-image" />
+        <img :src="currentImage" :alt="productItems.name" class="zoomed-image" />
         <button class="close-zoom" @click="toggleZoom">×</button>
       </div>
     </div>
 
-    <div class="product-container">
+    <div class="product-details">
       <div class="product-gallery">
         <div class="main-image">
-          <img :src="currentImage" :alt="productItems[0].name" />
+          <img :src="currentImage" :alt="productItems.name" />
           <button class="zoom-button" @click="toggleZoom">
             <Search class="zoom-icon" />
           </button>
         </div>
-        <div class="thumbnails">
-          <div v-for="(image, index) in productItems[0].images" :key="index" class="thumbnail"
+        <div v-if="productItems.images.length > 1" class="thumbnails">
+          <div v-for="(image, index) in productItems.images" :key="index" class="thumbnail"
             :class="{ active: selectedImageIndex === index }" @click="selectImage(index)">
-            <img :src="image" :alt="'Thumbnail ' + productItems[0].name" />
+            <img :src="image" :alt="'Thumbnail ' + productItems.name" />
           </div>
         </div>
       </div>
+
       <div class="product-info">
-        <h1 class="breadcrumb-item current">{{ productItems[0].name }}</h1>
+        <div class="breadcrumbs">
+          <router-link to="/" class="breadcrumb-item">Inicio</router-link>
+          <span class="separator">›</span>
+          <router-link :to="`/categoria/${productItems.categoria_id}`" class="breadcrumb-item">
+            {{ productItems.categoria }}
+          </router-link>
+          <span class="separator">›</span>
+          <router-link :to="`/marca/${productItems.marca_id}`" class="breadcrumb-item">
+            {{ productItems.brand }}
+          </router-link>
+        </div>
+
+        <h1 class="product-title">{{ productItems.name }}</h1>
 
         <div class="product-price">
           ${{ totalPrice }}
         </div>
 
-        <div class="breadcrumbs">
-          <router-link to="/" class="breadcrumb-item">Inicio</router-link>
-          <span class="separator">›</span>
-          <router-link to="/perros" class="breadcrumb-item">PERROS</router-link>
-          <span class="separator">›</span>
-          <router-link to="/perros/alimento" class="breadcrumb-item">ALIMENTO PARA PERROS</router-link>
-          <span class="separator">›</span>
-          <router-link to="/perros/alimento/medicados" class="breadcrumb-item">Alimentos Medicados para
-            Perros</router-link>
-          <span class="separator">›</span>
-          <span class="breadcrumb-item current">{{ productItems[0].name }}</span>
-        </div>
-
         <div class="product-meta">
           <div class="meta-item">
-            <span class="meta-label">SKU</span>
-            <span class="meta-value">8595602528196</span>
+            <span class="meta-label">SKU:</span>
+            <span class="meta-value">{{ productItems.id }}</span>
           </div>
           <div class="meta-item">
-            <span class="meta-label">Categoría</span>
-            <router-link to="/perros/alimento/medicados" class="meta-value link">Alimentos Medicados para
-              Perros</router-link>
+            <span class="meta-label">Categoría:</span>
+            <router-link :to="`/categoria/${productItems.categoria_id}`" class="meta-value link">
+              {{ productItems.categoria }}
+            </router-link>
           </div>
           <div class="meta-item">
             <span class="meta-label">Marca:</span>
-            <router-link to="/marcas/brit" class="meta-value link">{{ productItems[0].brand }}</router-link>
+            <router-link :to="`/marca/${productItems.marca_id}`" class="meta-value link">
+              {{ productItems.brand }}
+            </router-link>
           </div>
         </div>
 
         <div class="stock-info">
           <div class="stock-icon">
-            <CheckCircle class="check-icon" />
+            <CheckCircle v-if="productItems.inventory > 0" class="check-icon" />
+            <XCircle v-else class="x-icon" />
           </div>
-          <span class="stock-text">{{ productItems[0].inventory }} disponibles</span>
+          <span class="stock-text" :class="{ 'out-of-stock': productItems.inventory === 0 }">
+            {{ productItems.inventory > 0 ? `${productItems.inventory} disponibles` : 'Agotado' }}
+          </span>
         </div>
 
         <div class="add-to-cart">
           <div class="quantity-selector">
-            <button class="quantity-button" @click="decreaseQuantity">-</button>
-            <input type="number" v-model="quantity" min="1" class="quantity-input" />
-            <button class="quantity-button" @click="increaseQuantity">+</button>
+            <button class="quantity-button" @click="decreaseQuantity" :disabled="productItems.inventory === 0">-</button>
+            <input type="number" v-model="quantity" min="1" :max="productItems.inventory" class="quantity-input"
+              :disabled="productItems.inventory === 0" />
+            <button class="quantity-button" @click="increaseQuantity"
+              :disabled="productItems.inventory === 0 || quantity >= productItems.inventory">+</button>
           </div>
-          <button class="cart-button" @click="addToCart">
-            Añadir al carrito
+          <button class="cart-button" @click="addToCart" :disabled="productItems.inventory === 0">
+            {{ productItems.inventory > 0 ? 'Añadir al carrito' : 'Agotado' }}
           </button>
         </div>
 
         <div class="product-description">
-          <p>Complete balanced food for dogs with damaged kidney functions. Promotes kidney functions in cases of
-            chronic kidney failure.</p>
-        </div>
-
-        <div class="product-section">
-          <h2 class="section-title">COMPOSITION:</h2>
-          <p class="composition-text">
-            Yellow peas (44%), polo fat (12%), buckwheat, eggs (10%), apple pulp, hydrolyzed salmon protein (7%),
-            salmon
-            oil (2%), hydrolyzed chicken liver ( 2%), minerals, eggshells (source of calcium), potassium citrate
-            (0.8%),
-            silium shell and seeds (0.5%), dried seaweed (0.5%, Ascophyllum nodosum), chitosan (0.08%), yeast extract
-            (source of oligosaccharides, 0.025%), beta glucans (0.22%), fruit-oligosaccharides (0.02%), Yucca mojave
-            (0.02%), sea buckthorn ( 0.015%).
-          </p>
+          <p>{{ productItems.description }}</p>
         </div>
       </div>
     </div>

@@ -1,49 +1,68 @@
 -- Insertar datos de prueba en la tabla usuarios
 INSERT INTO usuarios (documento, documento_img, nombre, direccion, registro_mercantil_img, correo, telefono, user_password, role, token) VALUES
-('V-12345678', '/uploads/user/doc1.jpg', 'Juan Pérez', 'Calle Principal 123, Caracas', '/images/registros/reg1.jpg', 'juan@example.com', '+584141234567', '$2a$10$abcdefghijklmnopqrstuv', 'Admin', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'),
-('J-87654321', '/uploads/user/doc2.jpg', 'María Rodríguez', 'Avenida Libertador 456, Maracaibo', '/images/registros/reg2.jpg', 'maria@example.com', '+584261234567', '$2a$10$vwxyzabcdefghijklmnopq', 'Employee', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ0'),
-('V-98765432', '/uploads/user/doc3.jpg', 'Carlos Gómez', 'Urbanización El Paraíso 789, Valencia', '/images/registros/reg3.jpg', 'carlos@example.com', '+584161234567', '$2a$10$rstuvwxyzabcdefghijklm', 'Customer', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ1');
+('V-12345678', '/uploads/user/doc1.jpg', 'Juan Pérez', 'Calle Principal 123, Caracas', '/uploads/user/reg1.jpg', 'juan@example.com', '+584141234567', '$2a$10$abcdefghijklmnopqrstuv', 'Admin', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'),
+('J-87654321', '/uploads/user/doc2.jpg', 'María Rodríguez', 'Avenida Libertador 456, Maracaibo', '/uploads/user/reg2.jpg', 'maria@example.com', '+584261234567', '$2a$10$vwxyzabcdefghijklmnopq', 'Employee', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ0'),
+('V-98765432', '/uploads/user/doc3.jpg', 'Carlos Gómez', 'Urbanización El Paraíso 789, Valencia', '/uploads/user/reg3.jpg', 'carlos@example.com', '+584161234567', '$2a$10$rstuvwxyzabcdefghijklm', 'Customer', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ1');
 
 -- Insertar datos de prueba en la tabla sesiones
 INSERT INTO sesiones (usuario_id, token, ip, expiracion, agente_usuario) VALUES
-(1, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.session1', '192.168.1.1', DATE_ADD(NOW(), INTERVAL 1 DAY), 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'),
-(2, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.session2', '192.168.1.2', DATE_ADD(NOW(), INTERVAL 1 DAY), 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)'),
 (3, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.session3', '192.168.1.3', DATE_ADD(NOW(), INTERVAL 1 DAY), 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_1)');
 
 -- Insertar datos de prueba en la tabla categorias
 INSERT INTO categorias (nombre, codigo) VALUES
-('Electrónicos', 'CAT001'),
-('Ropa', 'CAT002'),
-('Hogar', 'CAT003');
+('Alimento para Gatos', 'CAT001'),
+('Alimento para Perros', 'CAT002')
+('Alimento para Aves', 'CAT003');
 
 -- Insertar datos de prueba en la tabla marcas
 INSERT INTO marcas (nombre, descripcion, logo_img) VALUES
-('Samsung', 'Empresa multinacional de tecnología', '/images/logos/samsung.png'),
-('Adidas', 'Marca de ropa deportiva', '/images/logos/adidas.png'),
-('IKEA', 'Empresa de muebles y artículos para el hogar', '/images/logos/ikea.png');
+('BRIT', 'Marca de alimentos para mascotas', '/uploads/brands/brit.png');
 
 -- Insertar datos de prueba en la tabla inventario (sin producto_id inicialmente)
 INSERT INTO inventario (cantidad_inicial, cantidad_actual, lote, estado, fecha_ingreso) VALUES
-(100, 95, 'LOT001', 'Disponible', '2023-01-15'),
-(50, 48, 'LOT002', 'Disponible', '2023-02-20'),
-(75, 75, 'LOT003', 'Disponible', '2023-03-10');
+(1000, 1000, 'HYPO2KG', 'Disponible', '2025-04-01'),
+(1000, 1000, 'GASTRO-2KG', 'Disponible', '2025-04-01'),
+(1000, 1000, 'HEPATIC-2KG', 'Disponible', '2025-04-01'),
+(1000, 1000, 'RENAL-2KG', 'Disponible', '2025-04-01'),
+(1000, 1000, 'STRUVITE-2KG', 'Disponible', '2025-04-01'),
+(1000, 1000, 'GASTRO-12KG', 'Disponible', '2025-04-01'),
+(1000, 1000, 'HYPO-12KG', 'Disponible', '2025-04-01'),
+(1000, 1000, 'RENAL-12KG', 'Disponible', '2025-04-01');
+
 
 -- Insertar datos de prueba en la tabla productos
 INSERT INTO productos (codigo, nombre, descripcion, producto_img, precio_unidad, precio_tienda, precio_distribuidor, inventario_id, marca_id, categoria_id) VALUES
-('PROD001', 'Smartphone Galaxy S21', 'Teléfono inteligente con pantalla AMOLED de 6.2 pulgadas', '/images/productos/galaxy-s21.jpg', 799.99, 749.99, 699.99, 1, 1, 1),
-('PROD002', 'Camiseta Deportiva', 'Camiseta deportiva de algodón transpirable', '/images/productos/camiseta-adidas.jpg', 29.99, 24.99, 19.99, 2, 2, 2),
-('PROD003', 'Mesa de Centro', 'Mesa de centro de madera para sala de estar', '/images/productos/mesa-ikea.jpg', 149.99, 129.99, 109.99, 3, 3, 3);
+('RP001', 'BRIT DIETA BETERINARIA HYPOALLERGENIC 2KG', 'Alimento balanceado hipoalergénico completo para perros con problemas dermatológicos y gastrointestinales', '/uploads/products/2 kg/hypo 2kg.jpg', 32.00, 28.00, 22.00, 4, 4, 4),
+('RP002', 'BRIT DIETA BETERINARIA GASTROINTESTINAL 2KG', 'Alimento Balanceado completo para perros con desordenes gastrointestinales','/uploads/products/2 kg/gastro 2kg.jpg', 32.00, 28.00, 22.00, 5, 4, 4),
+('RP003', 'BRIT DIETA BETERINARIA HEPATIC 2KG', 'Alimento balanceado completo para perros con funciones hepáticas dañadas','/uploads/products/2 kg/hepatic 2kg.jpg', 32.00, 28.00, 22.00, 6, 4, 4),
+('RP004', 'BRIT DIETA BETERINARIA RENAL 2KG', 'Alimento balanceado completo para perros con funciones renales dañados','/uploads/products/2 kg/renal 2kg.jpg', 32.00, 28.00, 22.00, 7, 4, 4),
+('RP005', 'BRIT DIETA BETERINARIA STRUVITE 2KG', 'Alimento Balanceado completo para control de perros con enfermedades de tracto urinario inferior','/uploads/products/2 kg/struvite 2kg.jpg', 32.00, 28.00, 22.00, 8, 4, 4),
+('RP006', 'BRIT DIETA BETERINARIA GASTROINTESTINAL 12KG', 'Alimento Balanceado completo para perros con desordenes gastrointestinales','/uploads/products/12 kg/gastro 12kg.jpg', 140.00, 110.00, 95.00, 9, 4, 4),
+('RP007', 'BRIT DIETA BETERINARIA HYPOALLERGENIC 12KG', 'Alimento balanceado hipoalergénico completo para perros con problemas dermatológicos y gastrointestinales','/uploads/products/12 kg/hypo 12kg.jpg', 140.00, 110.00, 95.00, 10, 4, 4),
+('RP008', 'BRIT DIETA BETERINARIA RENAL 12KG', 'Alimento balanceado completo para perros con funciones renales dañados','/uploads/products/12 kg/renal 12kg.jpg', 140.00, 110.00, 95.00, 11, 4, 4);
 
 -- Actualizar la tabla inventario para agregar producto_id
 UPDATE inventario SET producto_id = 1 WHERE id = 1;
 UPDATE inventario SET producto_id = 2 WHERE id = 2;
 UPDATE inventario SET producto_id = 3 WHERE id = 3;
+UPDATE inventario SET producto_id = 4 WHERE id = 4;
+UPDATE inventario SET producto_id = 5 WHERE id = 5;
+UPDATE inventario SET producto_id = 6 WHERE id = 6;
+UPDATE inventario SET producto_id = 7 WHERE id = 7;
+UPDATE inventario SET producto_id = 8 WHERE id = 8;
+
 
 -- Insertar datos de prueba en la tabla historial_precios
 INSERT INTO historial_precios (producto_id, precio_unidad, precio_tienda, precio_distribuidor, fecha_update) VALUES
-(1, 849.99, 799.99, 749.99, '2022-12-01'),
-(2, 34.99, 29.99, 24.99, '2022-11-15'),
-(3, 169.99, 149.99, 129.99, '2022-10-20');
+(1, 1, 2, 3, '2022-12-01'),
+(2, 1, 2, 3, '2022-12-01'), 
+(3, 1, 2, 3, '2022-12-01'),
+(4, 1, 2, 3, '2022-12-01'),
+(5, 1, 2, 3, '2022-12-01'),
+(6, 1, 2, 3, '2022-12-01'),
+(7, 1, 2, 3, '2022-12-01'),
+(8, 1, 2, 3, '2022-12-01');
+
 
 -- Insertar datos de prueba en la tabla carrito
 INSERT INTO carrito (usuario_id, producto_id, cantidad) VALUES
@@ -72,9 +91,7 @@ INSERT INTO metodos_pago (nombre, descripcion) VALUES
 
 -- Insertar datos de prueba en la tabla pagos
 INSERT INTO pagos (orden_id, metodo_pago_id, fecha, comprobante_img, numero_referencia, monto) VALUES
-(1, 1, '2023-04-15 10:30:00', '/images/comprobantes/comp1.jpg', '123456', 859.97),
-(2, 2, '2023-04-16 14:45:00', '/images/comprobantes/comp2.jpg', '654321', 149.99),
-(3, 3, '2023-04-17 16:20:00', '/images/comprobantes/comp3.jpg', NULL, 29.99);
+(1, 1, '2023-04-15 10:30:00', '/uploads/receipt/pago_test.webp', '123456', 859.97);
 
 -- Insertar datos de prueba en la tabla facturas
 INSERT INTO facturas (orden_id, numero_factura, fecha_emision, subtotal) VALUES

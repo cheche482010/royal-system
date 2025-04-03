@@ -1,7 +1,8 @@
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import Header from '../../components/Header/Header.vue';
 import Footer from '../../components/Footer/Footer.vue';
+import { apiService } from '../../services/api.service';
 
 import { 
   StarIcon, 
@@ -69,116 +70,7 @@ export default {
       { value: 1, count: 12 }
     ]);
     
-    const products = ref([
-      {
-        id: 1,
-        name: 'Collar Antiparasitario para Perros Pequeño - 8 Kg',
-        brand: 'Seresto',
-        price: 36.49,
-        originalPrice: 42.99,
-        rating: 5,
-        reviews: 2004,
-        image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=200&width=200',
-        subcategory: 'antiparasitarios',
-        brandId: 'seresto',
-        description: 'Collar antiparasitario de larga duración para perros pequeños. Protección contra pulgas y garrapatas durante 8 meses.',
-        badges: [
-          { type: 'discount', text: '-15%' }
-        ]
-      },
-      {
-        id: 2,
-        name: 'Collar Antiparasitario para Perros 48 cm',
-        brand: 'Scalibor',
-        price: 27.15,
-        rating: 5,
-        reviews: 1544,
-        image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=200&width=200',
-        subcategory: 'antiparasitarios',
-        brandId: 'scalibor',
-        description: 'Collar antiparasitario para perros de todos los tamaños. Protección contra pulgas, garrapatas y flebotomos durante 12 meses.'
-      },
-      {
-        id: 3,
-        name: 'Pipetas Tri-Act Solución Spot-On para Perros de 20-40 Kg 3 Pipetas',
-        brand: 'Frontline',
-        price: 30.89,
-        rating: 5,
-        reviews: 283,
-        image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=200&width=200',
-        subcategory: 'antiparasitarios',
-        brandId: 'frontline',
-        description: 'Pipetas antiparasitarias para perros medianos. Protección contra pulgas, garrapatas, mosquitos y flebotomos.'
-      },
-      {
-        id: 4,
-        name: 'Pienso para perros adultos Medium Adult',
-        brand: 'Royal Canin',
-        price: 47.46,
-        originalPrice: 52.99,
-        rating: 5,
-        reviews: 1876,
-        image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=200&width=200',
-        subcategory: 'alimentacion',
-        brandId: 'royal-canin',
-        description: 'Alimento completo y equilibrado para perros adultos de razas medianas. Formulado para mantener un peso saludable y favorecer la digestión.',
-        badges: [
-          { type: 'discount', text: '-10%' }
-        ]
-      },
-      {
-        id: 5,
-        name: 'Champú para perros de pelo largo',
-        brand: 'TropiClean',
-        price: 14.50,
-        rating: 4,
-        reviews: 342,
-        image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=200&width=200',
-        subcategory: 'higiene',
-        brandId: 'tropiclean',
-        description: 'Champú especial para perros de pelo largo. Limpia en profundidad y facilita el cepillado, dejando el pelo suave y brillante.'
-      },
-      {
-        id: 6,
-        name: 'Juguete para perros Kong Classic',
-        brand: 'Kong',
-        price: 12.99,
-        rating: 5,
-        reviews: 2145,
-        image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=200&width=200',
-        subcategory: 'juguetes',
-        brandId: 'kong',
-        description: 'Juguete resistente de caucho para perros. Ideal para masticar, jugar y rellenar con premios. Ayuda a reducir el aburrimiento y la ansiedad.'
-      },
-      {
-        id: 7,
-        name: 'Cama para perros Deluxe Ortopédica',
-        brand: 'PetComfort',
-        price: 39.95,
-        originalPrice: 49.95,
-        rating: 4,
-        reviews: 567,
-        image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=200&width=200',
-        subcategory: 'accesorios',
-        brandId: 'petcomfort',
-        description: 'Cama ortopédica para perros con espuma viscoelástica. Proporciona soporte y alivio para articulaciones y músculos, especialmente en perros mayores.',
-        badges: [
-          { type: 'discount', text: '-20%' }
-        ]
-      },
-      {
-        id: 8,
-        name: 'Pienso para perros adultos Sensitive',
-        brand: 'Advance',
-        price: 42.75,
-        rating: 4,
-        reviews: 892,
-        image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=200&width=200',
-        subcategory: 'alimentacion',
-        brandId: 'advance',
-        description: 'Alimento especial para perros con sensibilidad digestiva o cutánea. Formulado con ingredientes seleccionados para minimizar las reacciones alérgicas.'
-      }
-    ]);
+    const products = ref([]);
     
     const selectedSubcategories = ref([]);
     const selectedBrands = ref([]);
@@ -189,68 +81,85 @@ export default {
     const currentPage = ref(1);
     const itemsPerPage = 6;
     
+    // Cargar productos
+    const loadProducts = async () => {
+      try {
+        // Construir los parámetros de búsqueda
+        let query = '';
+        let categoriaId = null;
+        let marcaId = null;
+
+        // Si hay subcategorías seleccionadas, usar la primera como categoría
+        if (selectedSubcategories.value.length > 0) {
+          categoriaId = selectedSubcategories.value[0];
+        }
+
+        // Si hay marcas seleccionadas, usar la primera
+        if (selectedBrands.value.length > 0) {
+          marcaId = selectedBrands.value[0];
+        }
+
+        const response = await apiService.searchProducts(query, categoriaId, marcaId);
+        if (!response.success || !response.data) {
+          throw new Error('Respuesta inválida del servidor');
+        }
+        
+        // Transformar los productos para que coincidan con el formato esperado
+        products.value = response.data
+          .filter(p => p.is_active)
+          .map(p => ({
+            id: p.id,
+            name: p.nombre,
+            brand: p.Marca?.nombre || 'Sin marca',
+            price: p.precio_unidad,
+            originalPrice: null, // Por ahora no manejamos precios originales
+            rating: 5, // Por ahora hardcoded hasta implementar sistema de ratings
+            reviews: Math.floor(Math.random() * 2000), // Por ahora random hasta implementar sistema de reviews
+            image: p.producto_img,
+            subcategory: p.Categorium?.id?.toString(),
+            brandId: p.Marca?.id?.toString(),
+            description: p.descripcion
+          }));
+      } catch (error) {
+        console.error('Error al cargar productos:', error);
+        useToast().error('Error al cargar productos', {
+          title: 'Error'
+        });
+      }
+    };
+
+    // Observar cambios en los filtros para recargar productos
+    watch(
+      [selectedSubcategories, selectedBrands],
+      () => {
+        loadProducts();
+      }
+    );
+
+    // Productos filtrados
     const filteredProducts = computed(() => {
       let result = [...products.value];
       
-      // Filtrar por subcategorías
-      if (selectedSubcategories.value.length > 0) {
-        result = result.filter(product => selectedSubcategories.value.includes(product.subcategory));
-      }
-      
-      // Filtrar por marcas
-      if (selectedBrands.value.length > 0) {
-        result = result.filter(product => selectedBrands.value.includes(product.brandId));
-      }
-      
-      // Filtrar por valoración
+      // Filtrar por rating
       if (selectedRatings.value.length > 0) {
         result = result.filter(product => selectedRatings.value.includes(product.rating));
       }
       
-      // Filtrar por precio
-      if (priceRange.value.min !== null) {
-        const minPrice = parseFloat(priceRange.value.min);
+      // Filtrar por rango de precio
+      if (priceRange.value.min !== null && priceRange.value.max !== null) {
         result = result.filter(product => {
-          const productPrice = typeof product.price === 'string' 
-            ? parseFloat(product.price.replace('$', '').replace(',', '.')) 
-            : product.price;
-          return productPrice >= minPrice;
-        });
-      }
-      
-      if (priceRange.value.max !== null) {
-        const maxPrice = parseFloat(priceRange.value.max);
-        result = result.filter(product => {
-          const productPrice = typeof product.price === 'string' 
-            ? parseFloat(product.price.replace('$', '').replace(',', '.')) 
-            : product.price;
-          return productPrice <= maxPrice;
+          const price = parseFloat(product.price);
+          return price >= parseFloat(priceRange.value.min) && price <= parseFloat(priceRange.value.max);
         });
       }
       
       // Ordenar productos
       switch (sortOption.value) {
         case 'price-asc':
-          result.sort((a, b) => {
-            const priceA = typeof a.price === 'string' 
-              ? parseFloat(a.price.replace('$', '').replace(',', '.')) 
-              : a.price;
-            const priceB = typeof b.price === 'string' 
-              ? parseFloat(b.price.replace('$', '').replace(',', '.')) 
-              : b.price;
-            return priceA - priceB;
-          });
+          result.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
           break;
         case 'price-desc':
-          result.sort((a, b) => {
-            const priceA = typeof a.price === 'string' 
-              ? parseFloat(a.price.replace('$', '').replace(',', '.')) 
-              : a.price;
-            const priceB = typeof b.price === 'string' 
-              ? parseFloat(b.price.replace('$', '').replace(',', '.')) 
-              : b.price;
-            return priceB - priceA;
-          });
+          result.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
           break;
         case 'rating':
           result.sort((a, b) => b.rating - a.rating || b.reviews - a.reviews);
@@ -399,6 +308,11 @@ export default {
       return `${price.toFixed(2)}$`;
     };
     
+    // Inicializar
+    onMounted(() => {
+      loadProducts();
+    });
+
     return {
       category,
       subcategories,

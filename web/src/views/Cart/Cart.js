@@ -2,6 +2,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Header from '../../components/Header/Header.vue';
 import Footer from '../../components/Footer/Footer.vue';
+import { apiService } from '../../services/api.service';
 import ProductCarousel from '../../components/ProductCarousel/ProductCarousel.vue';
 import {
     MinusIcon,
@@ -120,35 +121,65 @@ export default {
         const removeItem = (itemId) => {
             cartItems.value = cartItems.value.filter(item => item.id !== itemId);
             
-            // También actualizar localStorage
-            const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
-            const updatedCart = storedCart.filter(item => item.id !== itemId);
-            localStorage.setItem('cart', JSON.stringify(updatedCart));
+            // Actualizar localStorage
+            localStorage.setItem('cart', JSON.stringify(cartItems.value));
             
             // Actualizar contador
-            localStorage.setItem('cartCount', updatedCart.length);
+            localStorage.setItem('cartCount', cartItems.value.length);
             window.dispatchEvent(new CustomEvent('cart-updated'));
         };
 
         const checkout = () => {
             router.push('/payment');
         };
-        
-        // Cargar carrito desde localStorage
-        const loadCartFromStorage = () => {
-            const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
-            cartItems.value = storedCart;
-            
-            // Log para verificar que llegó el item
-            console.log('Items en cartItems:', cartItems.value);
+
+        const loadCartFromStorage = async () => {
+            try {
+                const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
+                
+                // Obtener detalles actualizados de cada producto
+                const updatedCart = await Promise.all(
+                  storedCart.map(async (item) => {
+                    try {
+                      const product = await apiService.getProductById(item.id);
+                      if (product && product.is_active) {
+                        return {
+                          ...item,
+                          name: product.nombre,
+                          brand: product.marca?.nombre || 'Sin marca',
+                          price: product.precio_unidad,
+                          image: product.producto_img,
+                          maxQuantity: product.inventario?.cantidad_actual || 0
+                        };
+                      }
+                      return null; // Producto no encontrado o inactivo
+                    } catch (error) {
+                      console.error(`Error al cargar producto ${item.id}:`, error);
+                      return null;
+                    }
+                  })
+                );
+                
+                // Filtrar productos nulos y actualizar carrito
+                cartItems.value = updatedCart.filter(item => item !== null);
+                
+                // Actualizar localStorage con datos actualizados
+                localStorage.setItem('cart', JSON.stringify(cartItems.value));
+              } catch (error) {
+                console.error('Error al cargar el carrito:', error);
+                useToast().error('Error al cargar el carrito', {
+                  title: 'Error'
+                });
+              }
+              window.dispatchEvent(new CustomEvent('cart-updated'));
         };
 
-        onMounted(() => {
-            loadCartFromStorage();
+        // Inicializar
+        onMounted(async () => {
+            await loadCartFromStorage();
         });
 
         return {
-            cartItems,
             cartItems,
             relatedProducts,
             promoCode,

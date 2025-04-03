@@ -1,6 +1,23 @@
 const API_URL = 'http://localhost:3000/api'
 
 export const apiService = {
+  // Product API functions
+  async getAllProducts() {
+    return this.get('/productos/getAll')
+  },
+
+  async searchProducts(query = '', categoriaId = null, marcaId = null) {
+    let endpoint = '/productos/search?'
+    if (query) endpoint += `query=${encodeURIComponent(query)}&`
+    if (categoriaId) endpoint += `categoria_id=${categoriaId}&`
+    if (marcaId) endpoint += `marca_id=${marcaId}&`
+    return this.get(endpoint)
+  },
+
+  async getProductById(id) {
+    return this.get(`/productos/${id}`)
+  },
+
   async request(method, endpoint, token, data = null) {
     try {
       const options = {
