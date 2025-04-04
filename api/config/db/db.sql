@@ -170,6 +170,35 @@ LOCK TABLES `dolar_bcv` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `coupons`
+--
+
+DROP TABLE IF EXISTS `coupons`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+
+CREATE TABLE coupons (
+  id bigint NOT NULL AUTO_INCREMENT,
+  codigo varchar(255) NOT NULL COMMENT 'Código de promoción',
+  fecha_inicio datetime NOT NULL COMMENT 'Fecha inicio de vigencia',
+  fecha_fin datetime DEFAULT NULL COMMENT 'Fecha fin de vigencia',
+  is_active tinyint(1) DEFAULT '1' COMMENT 'Indica si el cupón está activo',
+  created_at timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creación del registro',
+  updated_at timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha de última actualización',
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `coupons`
+--
+
+LOCK TABLES `coupons` WRITE;
+/*!40000 ALTER TABLE `coupons` DISABLE KEYS */;
+/*!40000 ALTER TABLE `coupons` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `facturas`
 --
 
