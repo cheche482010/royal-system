@@ -25,7 +25,7 @@ router.get("/health", (req, res) => {
 // Mount routes
 router.use("/usuarios", UsuarioRoutes)
 router.use("/bitacora", BitacoraRoutes)
-router.use("/carrito", CarritoRoutes)
+router.use("/cart", CarritoRoutes)
 router.use("/categorias", CategoriaRoutes)
 router.use("/detalles-orden", DetalleOrdenRoutes)
 router.use("/dolar-bcv", DolarBCVRoutes)

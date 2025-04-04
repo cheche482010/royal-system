@@ -1,10 +1,10 @@
 import { Carrito, Usuario, Producto, Inventario } from "../models/index.js"
 import { sequelize } from "../config/database.js"
 
-// Obtener todos los items del carrito
-export const getAllCarritoItems = async (req, res, next) => {
+// Obtener todos los items del cart
+export const getAllCartItems = async (req, res, next) => {
   try {
-    const carritoItems = await Carrito.findAll({
+    const cartItems = await Carrito.findAll({
       where: { is_delete: false, is_active: true },
       include: [
         {
@@ -18,14 +18,14 @@ export const getAllCarritoItems = async (req, res, next) => {
       ],
     })
 
-    return res.status(200).json({ success: true, data: carritoItems })
+    return res.status(200).json({ success: true, data: cartItems })
   } catch (error) {
     next(error)
   }
 }
 
-// Obtener carrito por usuario
-export const getCarritoByUsuario = async (req, res, next) => {
+// Obtener cart por usuario
+export const getCartByUsuario = async (req, res, next) => {
   try {
     const { usuario_id } = req.params
 
@@ -35,7 +35,7 @@ export const getCarritoByUsuario = async (req, res, next) => {
       return res.status(404).json({ success: false, message: "Usuario not found" })
     }
 
-    const carritoItems = await Carrito.findAll({
+    const cartItems = await Carrito.findAll({
       where: { usuario_id, is_delete: false, is_active: true },
       include: [
         {
@@ -45,14 +45,14 @@ export const getCarritoByUsuario = async (req, res, next) => {
       ],
     })
 
-    return res.status(200).json({ success: true, data: carritoItems })
+    return res.status(200).json({ success: true, data: cartItems })
   } catch (error) {
     next(error)
   }
 }
 
-// Agregar item al carrito
-export const addToCarrito = async (req, res, next) => {
+// Agregar item al cart
+export const addToCart = async (req, res, next) => {
   try {
     const { usuario_id, producto_id, cantidad } = req.body
 
@@ -80,7 +80,7 @@ export const addToCarrito = async (req, res, next) => {
       })
     }
 
-    // Verificar si el producto ya está en el carrito
+    // Verificar si el producto ya está en el cart
     const existingItem = await Carrito.findOne({
       where: { usuario_id, producto_id, is_delete: false, is_active: true },
     })
@@ -94,26 +94,26 @@ export const addToCarrito = async (req, res, next) => {
       return res.status(200).json({ success: true, data: existingItem })
     }
 
-    // Crear nuevo item en el carrito
-    const carritoItem = await Carrito.create({
+    // Crear nuevo item en el cart
+    const cartItem = await Carrito.create({
       usuario_id,
       producto_id,
       cantidad,
     })
 
-    return res.status(201).json({ success: true, data: carritoItem })
+    return res.status(201).json({ success: true, data: cartItem })
   } catch (error) {
     next(error)
   }
 }
 
-// Actualizar item del carrito
-export const updateCarritoItem = async (req, res, next) => {
+// Actualizar item del cart
+export const updateCartItem = async (req, res, next) => {
   try {
     const { id } = req.params
     const { cantidad } = req.body
 
-    const carritoItem = await Carrito.findOne({
+    const cartItem = await Carrito.findOne({
       where: { id, is_delete: false, is_active: true },
       include: [
         {
@@ -123,49 +123,49 @@ export const updateCarritoItem = async (req, res, next) => {
       ],
     })
 
-    if (!carritoItem) {
-      return res.status(404).json({ success: false, message: "Carrito item not found" })
+    if (!cartItem) {
+      return res.status(404).json({ success: false, message: "Cart item not found" })
     }
 
     // Verificar si hay suficiente stock
-    if (carritoItem.Producto.Inventario.cantidad_actual < cantidad) {
+    if (cartItem.Producto.Inventario.cantidad_actual < cantidad) {
       return res.status(400).json({
         success: false,
-        message: "Insufficient stock. Available: " + carritoItem.Producto.Inventario.cantidad_actual,
+        message: "Insufficient stock. Available: " + cartItem.Producto.Inventario.cantidad_actual,
       })
     }
 
     await carritoItem.update({ cantidad })
 
-    return res.status(200).json({ success: true, data: carritoItem })
+    return res.status(200).json({ success: true, data: cartItem })
   } catch (error) {
     next(error)
   }
 }
 
-// Eliminar item del carrito (soft delete)
-export const removeFromCarrito = async (req, res, next) => {
+// Eliminar item del cart (soft delete)
+export const removeFromCart = async (req, res, next) => {
   try {
     const { id } = req.params
 
-    const carritoItem = await Carrito.findOne({
+    const cartItem = await Carrito.findOne({
       where: { id, is_delete: false, is_active: true },
     })
 
-    if (!carritoItem) {
-      return res.status(404).json({ success: false, message: "Carrito item not found" })
+    if (!cartItem) {
+      return res.status(404).json({ success: false, message: "Cart item not found" })
     }
 
     await carritoItem.update({ is_delete: true, is_active: false })
 
-    return res.status(200).json({ success: true, message: "Item removed from carrito" })
+    return res.status(200).json({ success: true, message: "Item removed from cart" })
   } catch (error) {
     next(error)
   }
 }
 
-// Vaciar carrito de un usuario
-export const clearCarrito = async (req, res, next) => {
+// Vaciar cart de un usuario
+export const clearCart = async (req, res, next) => {
   try {
     const { usuario_id } = req.params
 
@@ -182,7 +182,7 @@ export const clearCarrito = async (req, res, next) => {
       }
     )
 
-    return res.status(200).json({ success: true, message: "Carrito cleared successfully" })
+    return res.status(200).json({ success: true, message: "Cart cleared successfully" })
   } catch (error) {
     next(error)
   }
