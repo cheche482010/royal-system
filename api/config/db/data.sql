@@ -11,12 +11,15 @@ INSERT INTO sesiones (usuario_id, token, ip, expiracion, agente_usuario) VALUES
 -- Insertar datos de prueba en la tabla categorias
 INSERT INTO categorias (nombre, codigo) VALUES
 ('Alimento para Gatos', 'CAT001'),
-('Alimento para Perros', 'CAT002')
+('Alimento para Perros', 'CAT002'),
 ('Alimento para Aves', 'CAT003');
 
 -- Insertar datos de prueba en la tabla marcas
 INSERT INTO marcas (nombre, descripcion, logo_img) VALUES
-('BRIT', 'Marca de alimentos para mascotas', '/uploads/brands/brit.png');
+('BRIT', 'Marca de alimentos para mascotas', '/uploads/brands/brit.png'),
+('Royal Canin', 'Marca premium de alimentos para mascotas', '/uploads/brands/royal.png'),
+('Purina', 'Marca de alimentos para mascotas variados', '/uploads/brands/purina.png'),
+('Hills', 'Marca especializada en dietas veterinarias', '/uploads/brands/hills.png');
 
 -- Insertar datos de prueba en la tabla inventario (sin producto_id inicialmente)
 INSERT INTO inventario (cantidad_inicial, cantidad_actual, lote, estado, fecha_ingreso) VALUES
@@ -29,17 +32,17 @@ INSERT INTO inventario (cantidad_inicial, cantidad_actual, lote, estado, fecha_i
 (1000, 1000, 'HYPO-12KG', 'Disponible', '2025-04-01'),
 (1000, 1000, 'RENAL-12KG', 'Disponible', '2025-04-01');
 
-
 -- Insertar datos de prueba en la tabla productos
+-- Nota: Ahora usando marca_id = 1 (BRIT) en lugar de 4, y categoria_id = 2 (Alimento para Perros) en lugar de 4
 INSERT INTO productos (codigo, nombre, descripcion, producto_img, precio_unidad, precio_tienda, precio_distribuidor, inventario_id, marca_id, categoria_id) VALUES
-('RP001', 'BRIT DIETA BETERINARIA HYPOALLERGENIC 2KG', 'Alimento balanceado hipoalergénico completo para perros con problemas dermatológicos y gastrointestinales', '/uploads/products/2 kg/hypo 2kg.jpg', 32.00, 28.00, 22.00, 4, 4, 4),
-('RP002', 'BRIT DIETA BETERINARIA GASTROINTESTINAL 2KG', 'Alimento Balanceado completo para perros con desordenes gastrointestinales','/uploads/products/2 kg/gastro 2kg.jpg', 32.00, 28.00, 22.00, 5, 4, 4),
-('RP003', 'BRIT DIETA BETERINARIA HEPATIC 2KG', 'Alimento balanceado completo para perros con funciones hepáticas dañadas','/uploads/products/2 kg/hepatic 2kg.jpg', 32.00, 28.00, 22.00, 6, 4, 4),
-('RP004', 'BRIT DIETA BETERINARIA RENAL 2KG', 'Alimento balanceado completo para perros con funciones renales dañados','/uploads/products/2 kg/renal 2kg.jpg', 32.00, 28.00, 22.00, 7, 4, 4),
-('RP005', 'BRIT DIETA BETERINARIA STRUVITE 2KG', 'Alimento Balanceado completo para control de perros con enfermedades de tracto urinario inferior','/uploads/products/2 kg/struvite 2kg.jpg', 32.00, 28.00, 22.00, 8, 4, 4),
-('RP006', 'BRIT DIETA BETERINARIA GASTROINTESTINAL 12KG', 'Alimento Balanceado completo para perros con desordenes gastrointestinales','/uploads/products/12 kg/gastro 12kg.jpg', 140.00, 110.00, 95.00, 9, 4, 4),
-('RP007', 'BRIT DIETA BETERINARIA HYPOALLERGENIC 12KG', 'Alimento balanceado hipoalergénico completo para perros con problemas dermatológicos y gastrointestinales','/uploads/products/12 kg/hypo 12kg.jpg', 140.00, 110.00, 95.00, 10, 4, 4),
-('RP008', 'BRIT DIETA BETERINARIA RENAL 12KG', 'Alimento balanceado completo para perros con funciones renales dañados','/uploads/products/12 kg/renal 12kg.jpg', 140.00, 110.00, 95.00, 11, 4, 4);
+('RP001', 'BRIT DIETA BETERINARIA HYPOALLERGENIC 2KG', 'Alimento balanceado hipoalergénico completo para perros con problemas dermatológicos y gastrointestinales', '/uploads/products/2 kg/hypo 2kg.jpg', 32.00, 28.00, 22.00, 1, 1, 2),
+('RP002', 'BRIT DIETA BETERINARIA GASTROINTESTINAL 2KG', 'Alimento Balanceado completo para perros con desordenes gastrointestinales','/uploads/products/2 kg/gastro 2kg.jpg', 32.00, 28.00, 22.00, 2, 1, 2),
+('RP003', 'BRIT DIETA BETERINARIA HEPATIC 2KG', 'Alimento balanceado completo para perros con funciones hepáticas dañadas','/uploads/products/2 kg/hepatic 2kg.jpg', 32.00, 28.00, 22.00, 3, 1, 2),
+('RP004', 'BRIT DIETA BETERINARIA RENAL 2KG', 'Alimento balanceado completo para perros con funciones renales dañados','/uploads/products/2 kg/renal 2kg.jpg', 32.00, 28.00, 22.00, 4, 1, 2),
+('RP005', 'BRIT DIETA BETERINARIA STRUVITE 2KG', 'Alimento Balanceado completo para control de perros con enfermedades de tracto urinario inferior','/uploads/products/2 kg/struvite 2kg.jpg', 32.00, 28.00, 22.00, 5, 1, 2),
+('RP006', 'BRIT DIETA BETERINARIA GASTROINTESTINAL 12KG', 'Alimento Balanceado completo para perros con desordenes gastrointestinales','/uploads/products/12 kg/gastro 12kg.jpg', 140.00, 110.00, 95.00, 6, 1, 2),
+('RP007', 'BRIT DIETA BETERINARIA HYPOALLERGENIC 12KG', 'Alimento balanceado hipoalergénico completo para perros con problemas dermatológicos y gastrointestinales','/uploads/products/12 kg/hypo 12kg.jpg', 140.00, 110.00, 95.00, 7, 1, 2),
+('RP008', 'BRIT DIETA BETERINARIA RENAL 12KG', 'Alimento balanceado completo para perros con funciones renales dañados','/uploads/products/12 kg/renal 12kg.jpg', 140.00, 110.00, 95.00, 8, 1, 2);
 
 -- Actualizar la tabla inventario para agregar producto_id
 UPDATE inventario SET producto_id = 1 WHERE id = 1;
@@ -51,24 +54,16 @@ UPDATE inventario SET producto_id = 6 WHERE id = 6;
 UPDATE inventario SET producto_id = 7 WHERE id = 7;
 UPDATE inventario SET producto_id = 8 WHERE id = 8;
 
-
--- Insertar datos de prueba en la tabla historial_precios
+-- AHORA insertamos en historial_precios DESPUÉS de que los productos existan
 INSERT INTO historial_precios (producto_id, precio_unidad, precio_tienda, precio_distribuidor, fecha_update) VALUES
-(1, 1, 2, 3, '2022-12-01'),
-(2, 1, 2, 3, '2022-12-01'), 
-(3, 1, 2, 3, '2022-12-01'),
-(4, 1, 2, 3, '2022-12-01'),
-(5, 1, 2, 3, '2022-12-01'),
-(6, 1, 2, 3, '2022-12-01'),
-(7, 1, 2, 3, '2022-12-01'),
-(8, 1, 2, 3, '2022-12-01');
-
-
--- Insertar datos de prueba en la tabla carrito
-INSERT INTO carrito (usuario_id, producto_id, cantidad) VALUES
-(3, 1, 1),
-(3, 2, 2),
-(2, 3, 1);
+(1, 30.00, 26.00, 20.00, '2022-12-01'),
+(2, 30.00, 26.00, 20.00, '2022-12-01'), 
+(3, 30.00, 26.00, 20.00, '2022-12-01'),
+(4, 30.00, 26.00, 20.00, '2022-12-01'),
+(5, 30.00, 26.00, 20.00, '2022-12-01'),
+(6, 130.00, 100.00, 85.00, '2022-12-01'),
+(7, 130.00, 100.00, 85.00, '2022-12-01'),
+(8, 130.00, 100.00, 85.00, '2022-12-01');
 
 -- Insertar datos de prueba en la tabla ordenes
 INSERT INTO ordenes (usuario_id, monto_total, status) VALUES
@@ -110,3 +105,27 @@ INSERT INTO dolar_bcv (tasa_cambio, fecha_inicio, fecha_fin) VALUES
 (35.8765, '2023-04-01 00:00:00', '2023-04-07 23:59:59'),
 (36.1234, '2023-04-08 00:00:00', '2023-04-14 23:59:59'),
 (36.4321, '2023-04-15 00:00:00', NULL);
+
+-- Insertar datos de prueba en la tabla carrito
+INSERT INTO carrito (usuario_id, is_active) VALUES
+(1, 1), -- Carrito para Juan Pérez (Admin)
+(2, 1), -- Carrito para María Rodríguez (Employee)
+(3, 1); -- Carrito para Carlos Gómez (Customer)
+
+-- Insertar datos de prueba en la tabla carrito_producto
+-- Productos en el carrito de Juan Pérez (Admin)
+INSERT INTO carrito_producto (carrito_id, producto_id, cantidad) VALUES
+(1, 1, 2), -- 2 unidades de BRIT DIETA BETERINARIA HYPOALLERGENIC 2KG
+(1, 3, 1), -- 1 unidad de BRIT DIETA BETERINARIA HEPATIC 2KG
+(1, 6, 1); -- 1 unidad de BRIT DIETA BETERINARIA GASTROINTESTINAL 12KG
+
+-- Productos en el carrito de María Rodríguez (Employee)
+INSERT INTO carrito_producto (carrito_id, producto_id, cantidad) VALUES
+(2, 2, 3), -- 3 unidades de BRIT DIETA BETERINARIA GASTROINTESTINAL 2KG
+(2, 5, 2); -- 2 unidades de BRIT DIETA BETERINARIA STRUVITE 2KG
+
+-- Productos en el carrito de Carlos Gómez (Customer)
+INSERT INTO carrito_producto (carrito_id, producto_id, cantidad) VALUES
+(3, 7, 1), -- 1 unidad de BRIT DIETA BETERINARIA HYPOALLERGENIC 12KG
+(3, 4, 2), -- 2 unidades de BRIT DIETA BETERINARIA RENAL 2KG
+(3, 8, 1); -- 1 unidad de BRIT DIETA BETERINARIA RENAL 12KG
