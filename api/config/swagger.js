@@ -30,8 +30,16 @@ const swaggerOptions = {
     tags: [
       {
         name: "Usuarios",
-        description: "Modulo Usuarios"
-      }
+        description: "Modulo Usuarios",
+      },
+      {
+        name: "Cart Products",
+        description: "Módulo de Productos en Carrito",
+      },
+      {
+        name: "Coupons",
+        description: "Módulo de Cupones de Descuento",
+      },
     ],
     components: {
       securitySchemes: {
@@ -60,610 +68,686 @@ const swaggerOptions = {
           properties: {
             id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             nombre: {
               type: "string",
-              example: "John"
+              example: "John",
             },
             apellido: {
               type: "string",
-              example: "Doe"
+              example: "Doe",
             },
             email: {
               type: "string",
-              example: "john.doe@example.com"
+              example: "john.doe@example.com",
             },
             password: {
               type: "string",
-              example: "hashedpassword"
+              example: "hashedpassword",
             },
             telefono: {
               type: "string",
-              example: "+584141234567"
+              example: "+584141234567",
             },
             direccion: {
               type: "string",
-              example: "123 Main St, City"
+              example: "123 Main St, City",
             },
             documento_tipo: {
               type: "string",
-              example: "V"
+              example: "V",
             },
             documento_numero: {
               type: "string",
-              example: "12345678"
+              example: "12345678",
             },
             documento_img: {
               type: "string",
-              example: "/uploads/user/12345/documento-12345.jpg"
+              example: "/uploads/user/12345/documento-12345.jpg",
             },
             registro_mercantil_img: {
               type: "string",
-              example: "/uploads/user/12345/registro-12345.jpg"
+              example: "/uploads/user/12345/registro-12345.jpg",
             },
             role: {
               type: "string",
               enum: ["admin", "cliente", "vendedor"],
-              example: "cliente"
+              example: "cliente",
             },
             is_active: {
               type: "boolean",
-              example: true
+              example: true,
             },
             is_delete: {
               type: "boolean",
-              example: false
+              example: false,
             },
             created_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
+              example: "2023-01-01T00:00:00Z",
             },
             updated_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
-            }
-          }
+              example: "2023-01-01T00:00:00Z",
+            },
+          },
         },
         Bitacora: {
           type: "object",
           properties: {
             id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             usuario_id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             accion: {
               type: "string",
-              example: "Inicio de sesión"
+              example: "Inicio de sesión",
             },
             tabla: {
               type: "string",
-              example: "usuarios"
+              example: "usuarios",
             },
             descripcion: {
               type: "string",
-              example: "El usuario inició sesión en el sistema"
+              example: "El usuario inició sesión en el sistema",
             },
             created_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
-            }
-          }
+              example: "2023-01-01T00:00:00Z",
+            },
+          },
         },
         Carrito: {
           type: "object",
           properties: {
             id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             usuario_id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             producto_id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             cantidad: {
               type: "integer",
-              example: 2
+              example: 2,
             },
             created_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
+              example: "2023-01-01T00:00:00Z",
             },
             updated_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
-            }
-          }
+              example: "2023-01-01T00:00:00Z",
+            },
+          },
+        },
+        CarritoProducto: {
+          type: "object",
+          properties: {
+            id: {
+              type: "integer",
+              example: 1,
+            },
+            carrito_id: {
+              type: "integer",
+              example: 1,
+            },
+            producto_id: {
+              type: "integer",
+              example: 1,
+            },
+            cantidad: {
+              type: "integer",
+              example: 2,
+            },
+            is_active: {
+              type: "boolean",
+              example: true,
+            },
+            is_delete: {
+              type: "boolean",
+              example: false,
+            },
+            created_at: {
+              type: "string",
+              format: "date-time",
+              example: "2023-01-01T00:00:00Z",
+            },
+            updated_at: {
+              type: "string",
+              format: "date-time",
+              example: "2023-01-01T00:00:00Z",
+            },
+          },
+        },
+        Coupon: {
+          type: "object",
+          properties: {
+            id: {
+              type: "integer",
+              example: 1,
+            },
+            codigo: {
+              type: "string",
+              example: "SUMMER2023",
+            },
+            fecha_inicio: {
+              type: "string",
+              format: "date-time",
+              example: "2023-06-01T00:00:00Z",
+            },
+            fecha_fin: {
+              type: "string",
+              format: "date-time",
+              example: "2023-08-31T23:59:59Z",
+            },
+            is_active: {
+              type: "boolean",
+              example: true,
+            },
+            created_at: {
+              type: "string",
+              format: "date-time",
+              example: "2023-01-01T00:00:00Z",
+            },
+            updated_at: {
+              type: "string",
+              format: "date-time",
+              example: "2023-01-01T00:00:00Z",
+            },
+          },
         },
         Categoria: {
           type: "object",
           properties: {
             id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             nombre: {
               type: "string",
-              example: "Electrónicos"
+              example: "Electrónicos",
             },
             descripcion: {
               type: "string",
-              example: "Productos electrónicos y gadgets"
+              example: "Productos electrónicos y gadgets",
             },
             is_active: {
               type: "boolean",
-              example: true
+              example: true,
             },
             is_delete: {
               type: "boolean",
-              example: false
+              example: false,
             },
             created_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
+              example: "2023-01-01T00:00:00Z",
             },
             updated_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
-            }
-          }
+              example: "2023-01-01T00:00:00Z",
+            },
+          },
         },
         DetalleOrden: {
           type: "object",
           properties: {
             id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             orden_id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             producto_id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             cantidad: {
               type: "integer",
-              example: 2
+              example: 2,
             },
             precio: {
               type: "number",
               format: "float",
-              example: 99.99
+              example: 99.99,
             },
             created_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
+              example: "2023-01-01T00:00:00Z",
             },
             updated_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
-            }
-          }
+              example: "2023-01-01T00:00:00Z",
+            },
+          },
         },
         DolarBCV: {
           type: "object",
           properties: {
             id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             tasa: {
               type: "number",
               format: "float",
-              example: 35.50
+              example: 35.5,
             },
             fecha: {
               type: "string",
               format: "date",
-              example: "2023-01-01"
+              example: "2023-01-01",
             },
             created_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
+              example: "2023-01-01T00:00:00Z",
             },
             updated_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
-            }
-          }
+              example: "2023-01-01T00:00:00Z",
+            },
+          },
         },
         Factura: {
           type: "object",
           properties: {
             id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             orden_id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             numero: {
               type: "string",
-              example: "F-2023-001"
+              example: "F-2023-001",
             },
             fecha: {
               type: "string",
               format: "date",
-              example: "2023-01-01"
+              example: "2023-01-01",
             },
             monto_total: {
               type: "number",
               format: "float",
-              example: 199.99
+              example: 199.99,
             },
             impuesto: {
               type: "number",
               format: "float",
-              example: 16.0
+              example: 16.0,
             },
             created_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
+              example: "2023-01-01T00:00:00Z",
             },
             updated_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
-            }
-          }
+              example: "2023-01-01T00:00:00Z",
+            },
+          },
         },
         HistorialPrecio: {
           type: "object",
           properties: {
             id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             producto_id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             precio_anterior: {
               type: "number",
               format: "float",
-              example: 89.99
+              example: 89.99,
             },
             precio_nuevo: {
               type: "number",
               format: "float",
-              example: 99.99
+              example: 99.99,
             },
             fecha_cambio: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
+              example: "2023-01-01T00:00:00Z",
             },
             usuario_id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             created_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
-            }
-          }
+              example: "2023-01-01T00:00:00Z",
+            },
+          },
         },
         Inventario: {
           type: "object",
           properties: {
             id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             producto_id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             cantidad: {
               type: "integer",
-              example: 100
+              example: 100,
             },
             ubicacion: {
               type: "string",
-              example: "Almacén A, Estante 3"
+              example: "Almacén A, Estante 3",
             },
             created_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
+              example: "2023-01-01T00:00:00Z",
             },
             updated_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
-            }
-          }
+              example: "2023-01-01T00:00:00Z",
+            },
+          },
         },
         Marca: {
           type: "object",
           properties: {
             id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             nombre: {
               type: "string",
-              example: "Samsung"
+              example: "Samsung",
             },
             descripcion: {
               type: "string",
-              example: "Marca de electrónicos y electrodomésticos"
+              example: "Marca de electrónicos y electrodomésticos",
             },
             logo_img: {
               type: "string",
-              example: "/uploads/marca/12345/logo-12345.jpg"
+              example: "/uploads/marca/12345/logo-12345.jpg",
             },
             is_active: {
               type: "boolean",
-              example: true
+              example: true,
             },
             is_delete: {
               type: "boolean",
-              example: false
+              example: false,
             },
             created_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
+              example: "2023-01-01T00:00:00Z",
             },
             updated_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
-            }
-          }
+              example: "2023-01-01T00:00:00Z",
+            },
+          },
         },
         MetodoPago: {
           type: "object",
           properties: {
             id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             nombre: {
               type: "string",
-              example: "Transferencia Bancaria"
+              example: "Transferencia Bancaria",
             },
             descripcion: {
               type: "string",
-              example: "Pago mediante transferencia bancaria"
+              example: "Pago mediante transferencia bancaria",
             },
             instrucciones: {
               type: "string",
-              example: "Transferir el monto a la cuenta 0000-0000-0000-0000"
+              example: "Transferir el monto a la cuenta 0000-0000-0000-0000",
             },
             is_active: {
               type: "boolean",
-              example: true
+              example: true,
             },
             is_delete: {
               type: "boolean",
-              example: false
+              example: false,
             },
             created_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
+              example: "2023-01-01T00:00:00Z",
             },
             updated_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
-            }
-          }
+              example: "2023-01-01T00:00:00Z",
+            },
+          },
         },
         Orden: {
           type: "object",
           properties: {
             id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             usuario_id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             fecha: {
               type: "string",
               format: "date",
-              example: "2023-01-01"
+              example: "2023-01-01",
             },
             monto_total: {
               type: "number",
               format: "float",
-              example: 199.99
+              example: 199.99,
             },
             status: {
               type: "string",
               enum: ["Pendiente", "Completa", "Cancelada"],
-              example: "Pendiente"
+              example: "Pendiente",
             },
             created_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
+              example: "2023-01-01T00:00:00Z",
             },
             updated_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
-            }
-          }
+              example: "2023-01-01T00:00:00Z",
+            },
+          },
         },
         Pago: {
           type: "object",
           properties: {
             id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             orden_id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             metodo_pago_id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             monto: {
               type: "number",
               format: "float",
-              example: 199.99
+              example: 199.99,
             },
             referencia: {
               type: "string",
-              example: "REF123456789"
+              example: "REF123456789",
             },
             comprobante_img: {
               type: "string",
-              example: "/uploads/pago/12345/comprobante-12345.jpg"
+              example: "/uploads/pago/12345/comprobante-12345.jpg",
             },
             status: {
               type: "string",
               enum: ["Pendiente", "Aprobado", "Rechazado"],
-              example: "Pendiente"
+              example: "Pendiente",
             },
             fecha_pago: {
               type: "string",
               format: "date",
-              example: "2023-01-01"
+              example: "2023-01-01",
             },
             created_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
+              example: "2023-01-01T00:00:00Z",
             },
             updated_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
-            }
-          }
+              example: "2023-01-01T00:00:00Z",
+            },
+          },
         },
         Producto: {
           type: "object",
           properties: {
             id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             codigo: {
               type: "string",
-              example: "PROD-001"
+              example: "PROD-001",
             },
             nombre: {
               type: "string",
-              example: "Smartphone Galaxy S21"
+              example: "Smartphone Galaxy S21",
             },
             descripcion: {
               type: "string",
-              example: "Smartphone de última generación con 128GB de almacenamiento"
+              example: "Smartphone de última generación con 128GB de almacenamiento",
             },
             precio_unidad: {
               type: "number",
               format: "float",
-              example: 699.99
+              example: 699.99,
             },
             categoria_id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             marca_id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             producto_img: {
               type: "string",
-              example: "/uploads/producto/12345/producto-12345.jpg"
+              example: "/uploads/producto/12345/producto-12345.jpg",
             },
             is_active: {
               type: "boolean",
-              example: true
+              example: true,
             },
             is_delete: {
               type: "boolean",
-              example: false
+              example: false,
             },
             created_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
+              example: "2023-01-01T00:00:00Z",
             },
             updated_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
-            }
-          }
+              example: "2023-01-01T00:00:00Z",
+            },
+          },
         },
         Sesion: {
           type: "object",
           properties: {
             id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             usuario_id: {
               type: "integer",
-              example: 1
+              example: 1,
             },
             token: {
               type: "string",
-              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
             },
             ip: {
               type: "string",
-              example: "192.168.1.1"
+              example: "192.168.1.1",
             },
             dispositivo: {
               type: "string",
-              example: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+              example: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
             },
             fecha_expiracion: {
               type: "string",
               format: "date-time",
-              example: "2023-02-01T00:00:00Z"
+              example: "2023-02-01T00:00:00Z",
             },
             is_active: {
               type: "boolean",
-              example: true
+              example: true,
             },
             created_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
+              example: "2023-01-01T00:00:00Z",
             },
             updated_at: {
               type: "string",
               format: "date-time",
-              example: "2023-01-01T00:00:00Z"
-            }
-          }
-        }
+              example: "2023-01-01T00:00:00Z",
+            },
+          },
+        },
       },
     },
   },

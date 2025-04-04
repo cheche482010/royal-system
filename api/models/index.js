@@ -13,6 +13,8 @@ import Orden from "./Orden.js"
 import Pago from "./Pago.js"
 import Producto from "./Producto.js"
 import Sesion from "./Sesion.js"
+import CarritoProducto from "./CarritoProducto.js"
+import Coupon from "./Coupon.js"
 
 // Definir relaciones
 Usuario.hasMany(Bitacora, { foreignKey: "usuario_id" })
@@ -20,8 +22,10 @@ Bitacora.belongsTo(Usuario, { foreignKey: "usuario_id" })
 
 Usuario.hasMany(Carrito, { foreignKey: "usuario_id" })
 Carrito.belongsTo(Usuario, { foreignKey: "usuario_id" })
-Producto.hasMany(Carrito, { foreignKey: "producto_id" })
-Carrito.belongsTo(Producto, { foreignKey: "producto_id" })
+Carrito.hasMany(CarritoProducto, { foreignKey: "carrito_id" })
+CarritoProducto.belongsTo(Carrito, { foreignKey: "carrito_id" })
+Producto.hasMany(CarritoProducto, { foreignKey: "producto_id" })
+CarritoProducto.belongsTo(Producto, { foreignKey: "producto_id" })
 
 Producto.hasMany(HistorialPrecio, { foreignKey: "producto_id" })
 HistorialPrecio.belongsTo(Producto, { foreignKey: "producto_id" })
@@ -70,4 +74,6 @@ export {
   Pago,
   Producto,
   Sesion,
+  CarritoProducto,
+  Coupon
 }

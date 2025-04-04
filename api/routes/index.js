@@ -2,6 +2,8 @@ import express from "express"
 import UsuarioRoutes from "./UsuarioRoutes.js"
 import BitacoraRoutes from "./BitacoraRoutes.js"
 import CarritoRoutes from "./CarritoRoutes.js"
+import CarritoProductoRoutes from "./CarritoProductoRoutes.js"
+import CouponRoutes from "./CouponRoutes.js"
 import CategoriaRoutes from "./CategoriaRoutes.js"
 import DetalleOrdenRoutes from "./DetalleOrdenRoutes.js"
 import DolarBCVRoutes from "./DolarBCVRoutes.js"
@@ -26,6 +28,8 @@ router.get("/health", (req, res) => {
 router.use("/usuarios", UsuarioRoutes)
 router.use("/bitacora", BitacoraRoutes)
 router.use("/cart", CarritoRoutes)
+router.use("/cart-products", CarritoProductoRoutes)
+router.use("/coupon", CouponRoutes)
 router.use("/categorias", CategoriaRoutes)
 router.use("/detalles-orden", DetalleOrdenRoutes)
 router.use("/dolar-bcv", DolarBCVRoutes)
