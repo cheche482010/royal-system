@@ -8,7 +8,7 @@ export const useCartService = () => {
 
   // Obtener el token del usuario autenticado
   const getToken = () => {
-    return auth.token.value
+    return auth.userToken.value 
   }
 
   // Obtener el ID del usuario autenticado
@@ -54,11 +54,27 @@ export const useCartService = () => {
     }
   }
 
-  // Agregar un producto al carrito
+  // Modificar la función addToCart para verificar si el producto ya existe en el carrito
+
+  // Reemplazar la función addToCart actual con esta versión actualizada:
   const addToCart = async (product, quantity = 1) => {
     try {
       const token = getToken()
       const userId = getUserId()
+
+      // Primero verificar si el producto ya está en el carrito
+      const cartItems = await getCartItems()
+      const existingItem = cartItems.find((item) => item.productId === product.id)
+
+      if (existingItem) {
+        // Si el producto ya está en el carrito, retornar un objeto con información
+        return {
+          success: false,
+          alreadyInCart: true,
+          message: "Este producto ya está en tu carrito",
+          item: existingItem,
+        }
+      }
 
       if (!token || !userId) {
         // Si no hay usuario autenticado, usar el carrito local
@@ -78,7 +94,12 @@ export const useCartService = () => {
       // Actualizar el contador del carrito y notificar a los componentes
       notifyCartUpdated()
 
-      return response.data
+      return {
+        success: true,
+        alreadyInCart: false,
+        message: "Producto agregado al carrito",
+        data: response.data,
+      }
     } catch (error) {
       console.error("Error al agregar al carrito:", error)
       // Si falla la API, intentar usar el carrito local
@@ -182,6 +203,7 @@ export const useCartService = () => {
     }
   }
 
+  // Modificar la función addToLocalCart para verificar si el producto ya existe
   const addToLocalCart = (product, quantity = 1) => {
     try {
       // Crear el objeto del producto para el carrito
@@ -205,8 +227,14 @@ export const useCartService = () => {
       const existingItemIndex = cart.findIndex((item) => item.productId === cartItem.productId)
 
       if (existingItemIndex !== -1) {
-        // Si ya existe, actualizar la cantidad
-        cart[existingItemIndex].quantity += quantity
+        // Si ya existe, retornar información sin modificar el carrito
+        notifyCartUpdated() // Asegurarse de que la UI se actualice
+        return {
+          success: false,
+          alreadyInCart: true,
+          message: "Este producto ya está en tu carrito",
+          item: cart[existingItemIndex],
+        }
       } else {
         // Si no existe, agregar al carrito
         cart.push(cartItem)
@@ -218,10 +246,20 @@ export const useCartService = () => {
       // Notificar a los componentes sobre la actualización
       notifyCartUpdated()
 
-      return cartItem
+      return {
+        success: true,
+        alreadyInCart: false,
+        message: "Producto agregado al carrito",
+        item: cartItem,
+      }
     } catch (error) {
       console.error("Error al agregar al carrito local:", error)
-      return null
+      return {
+        success: false,
+        alreadyInCart: false,
+        message: "Error al agregar al carrito",
+        error: error.message,
+      }
     }
   }
 

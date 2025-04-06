@@ -188,12 +188,22 @@ export default {
         }
 
         // Usar el servicio de carrito para agregar el producto
-        await cartService.addToCart(productItems.value, quantity.value)
+        const result = await cartService.addToCart(productItems.value, quantity.value)
 
-        // Mostrar toast de éxito
-        toast.success(`${productItems.value.name} ha sido agregado exitosamente`, {
-          title: "Producto agregado",
-        })
+        if (result.alreadyInCart) {
+          // Si el producto ya está en el carrito, mostrar un mensaje diferente
+          toast.info(`${productItems.value.name} ya está en tu carrito`, {
+            title: "Producto en carrito",
+          })
+        } else if (result.success) {
+          // Si se agregó correctamente, mostrar mensaje de éxito
+          toast.success(`${productItems.value.name} ha sido agregado exitosamente`, {
+            title: "Producto agregado",
+          })
+        } else {
+          // Si hubo un error, mostrar mensaje de error
+          throw new Error(result.message || "Error al agregar al carrito")
+        }
       } catch (error) {
         // Mostrar toast de error
         toast.error(`No se ha podido agregar el producto al carrito`, {
