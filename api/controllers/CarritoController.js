@@ -1,5 +1,4 @@
 import { Carrito, Usuario, Producto, Inventario } from "../models/index.js"
-import { sequelize } from "../config/database.js"
 
 // Obtener todos los items del cart
 export const getAllCartItems = async (req, res, next) => {
@@ -135,7 +134,7 @@ export const updateCartItem = async (req, res, next) => {
       })
     }
 
-    await carritoItem.update({ cantidad })
+    await cartItem.update({ cantidad })
 
     return res.status(200).json({ success: true, data: cartItem })
   } catch (error) {
@@ -156,7 +155,7 @@ export const removeFromCart = async (req, res, next) => {
       return res.status(404).json({ success: false, message: "Cart item not found" })
     }
 
-    await carritoItem.update({ is_delete: true, is_active: false })
+    await cartItem.update({ is_delete: true, is_active: false })
 
     return res.status(200).json({ success: true, message: "Item removed from cart" })
   } catch (error) {
@@ -179,7 +178,7 @@ export const clearCart = async (req, res, next) => {
       { is_delete: true, is_active: false },
       {
         where: { usuario_id, is_delete: false, is_active: true },
-      }
+      },
     )
 
     return res.status(200).json({ success: true, message: "Cart cleared successfully" })
@@ -187,3 +186,4 @@ export const clearCart = async (req, res, next) => {
     next(error)
   }
 }
+
