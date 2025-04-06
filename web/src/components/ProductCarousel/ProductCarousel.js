@@ -79,6 +79,18 @@ export default {
     // Agregar al carrito
     const addToCart = async (product) => {
       try {
+        // Verificar si el usuario está autenticado
+        if (!cartService.isAuthenticated()) {
+          // Si no está autenticado, mostrar mensaje y redirigir a login
+          toast.error("Debes iniciar sesión para agregar productos al carrito", {
+            title: "Acceso denegado",
+          })
+
+          // Opcional: redirigir al usuario a la página de login
+          router.push("/login")
+          return
+        }
+
         // Usar el servicio de carrito para agregar el producto
         const result = await cartService.addToCart(product, 1)
 
@@ -92,6 +104,14 @@ export default {
           toast.success(`${product.name} ha sido agregado exitosamente`, {
             title: "Producto agregado",
           })
+        } else if (result.authenticated === false) {
+          // Si no está autenticado, mostrar mensaje y redirigir a login
+          toast.error("Debes iniciar sesión para agregar productos al carrito", {
+            title: "Acceso denegado",
+          })
+
+          // Opcional: redirigir al usuario a la página de login
+          router.push("/login")
         } else {
           // Si hubo un error, mostrar mensaje de error
           throw new Error(result.message || "Error al agregar al carrito")
