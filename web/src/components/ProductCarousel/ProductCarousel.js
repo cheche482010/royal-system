@@ -1,175 +1,151 @@
-import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { ChevronLeftIcon, ChevronRightIcon, StarIcon, EyeIcon, ShoppingCartIcon } from 'lucide-vue-next';
-import { useToast } from '../../services/toast.service';
+"use client"
+
+import { ref, onMounted, onUnmounted } from "vue"
+import { useRouter } from "vue-router"
+import { ChevronLeftIcon, ChevronRightIcon, StarIcon, EyeIcon, ShoppingCartIcon } from "lucide-vue-next"
+import { useToast } from "../../services/toast.service"
+import { useCartService } from "../../services/cart.service"
 
 export default {
-  name: 'ProductCarousel',
+  name: "ProductCarousel",
   components: {
     ChevronLeftIcon,
     ChevronRightIcon,
     StarIcon,
     EyeIcon,
-    ShoppingCartIcon
+    ShoppingCartIcon,
   },
   props: {
     products: {
       type: Array,
-      required: true
+      required: true,
     },
     title: {
       type: String,
-      default: ''
-    }
+      default: "",
+    },
   },
   setup(props) {
-    const router = useRouter();
-    const toast = useToast();
-    const carouselRef = ref(null);
-    const showLeftArrow = ref(false);
-    const showRightArrow = ref(false);
-    
-    // Calcular si se deben mostrar las flechas de navegación
-    const updateArrows = () => {
-      if (!carouselRef.value) return;
-      
-      const container = carouselRef.value;
-      
-      // Mostrar flecha izquierda si hay scroll hacia la izquierda
-      showLeftArrow.value = container.scrollLeft > 0;
-      
-      // Mostrar flecha derecha si hay más contenido a la derecha
-      showRightArrow.value = container.scrollLeft < (container.scrollWidth - container.clientWidth - 10);
-    };
-    
+    const router = useRouter()
+    const toast = useToast()
+    const cartService = useCartService()
+    const carouselTrack = ref(null)
+    const scrollPosition = ref(0)
+    const maxScrollPosition = ref(0)
+
+    // Calcular la posición máxima de scroll
+    const calculateMaxScrollPosition = () => {
+      if (!carouselTrack.value) return 0
+      return carouselTrack.value.scrollWidth - carouselTrack.value.clientWidth
+    }
+
+    // Actualizar la posición de scroll
+    const updateScrollPosition = () => {
+      if (!carouselTrack.value) return
+      scrollPosition.value = carouselTrack.value.scrollLeft
+      maxScrollPosition.value = calculateMaxScrollPosition()
+    }
+
     // Desplazar a la izquierda
     const scrollLeft = () => {
-      if (!carouselRef.value) return;
-      
-      const container = carouselRef.value;
-      const scrollAmount = container.clientWidth * 0.8; // Desplazar 80% del ancho visible
-      
-      container.scrollBy({
+      if (!carouselTrack.value) return
+
+      const scrollAmount = carouselTrack.value.clientWidth * 0.8 // Desplazar 80% del ancho visible
+      carouselTrack.value.scrollBy({
         left: -scrollAmount,
-        behavior: 'smooth'
-      });
-    };
-    
+        behavior: "smooth",
+      })
+    }
+
     // Desplazar a la derecha
     const scrollRight = () => {
-      if (!carouselRef.value) return;
-      
-      const container = carouselRef.value;
-      const scrollAmount = container.clientWidth * 0.8; // Desplazar 80% del ancho visible
-      
-      container.scrollBy({
+      if (!carouselTrack.value) return
+
+      const scrollAmount = carouselTrack.value.clientWidth * 0.8 // Desplazar 80% del ancho visible
+      carouselTrack.value.scrollBy({
         left: scrollAmount,
-        behavior: 'smooth'
-      });
-    };
-    
+        behavior: "smooth",
+      })
+    }
+
     // Ver detalles del producto
     const viewProductDetails = (product) => {
       router.push({
-        path: '/productdetails',
-        query: { id: product.id }
-      });
-    };
-    
-    // Agregar al carrito
-    const addToCart = (product) => {
-      try {
-        // Crear el objeto del producto para el carrito
-        const cartItem = {
-          id: product.id,
-          name: product.name,
-          brand: product.brand,
-          price: typeof product.price === 'string' 
-            ? parseFloat(product.price.replace('$', '').replace(',', '.')) 
-            : product.price,
-          quantity: 1,
-          image: product.image
-        };
+        path: "/productdetails",
+        query: { id: product.id },
+      })
+    }
 
-        // Obtener el carrito actual del localStorage
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        
-        // Verificar si el producto ya está en el carrito
-        const existingItemIndex = cart.findIndex(item => item.id === cartItem.id);
-        
-        if (existingItemIndex !== -1) {
-          // Si ya existe, actualizar la cantidad
-          cart[existingItemIndex].quantity += 1;
-        } else {
-          // Si no existe, agregar al carrito
-          cart.push(cartItem);
-        }
-        
-        // Guardar el carrito actualizado en localStorage
-        localStorage.setItem('cart', JSON.stringify(cart));
-        
-        // Actualizar el contador del carrito en el header
-        updateCartCount();
-        
+    // Agregar al carrito
+    const addToCart = async (product) => {
+      try {
+        // Usar el servicio de carrito para agregar el producto
+        await cartService.addToCart(product, 1)
+
         // Mostrar toast de éxito
         toast.success(`${product.name} ha sido agregado exitosamente`, {
-          title: 'Producto agregado'
-        });
+          title: "Producto agregado",
+        })
       } catch (error) {
         // Mostrar toast de error
         toast.error(`No se ha podido agregar ${product.name} al carrito`, {
-          title: 'Error'
-        });
-        console.error('Error al agregar al carrito:', error);
+          title: "Error",
+        })
+        console.error("Error al agregar al carrito:", error)
       }
-    };
-    
-    // Actualizar el contador del carrito
-    const updateCartCount = () => {
-      const cart = JSON.parse(localStorage.getItem('cart')) || [];
-      localStorage.setItem('cartCount', cart.length);
-      window.dispatchEvent(new CustomEvent('cart-updated'));
-    };
-    
+    }
+
     // Formatear precio
     const formatPrice = (price) => {
-      if (typeof price === 'string') {
-        return price;
+      if (typeof price === "string") {
+        return price
       }
-      return `${price.toFixed(2)}$`;
-    };
-    
-    // Mostrar flechas solo si hay más de 4 productos
-    const shouldShowArrows = computed(() => {
-      return props.products.length > 4;
-    });
-    
+      return `${price.toFixed(2)}$`
+    }
+
+    // Manejar el evento de scroll
+    const handleScroll = () => {
+      updateScrollPosition()
+    }
+
     onMounted(() => {
-      // Inicializar estado de las flechas
-      updateArrows();
-      
-      // Agregar listener para actualizar flechas al hacer scroll
-      if (carouselRef.value) {
-        carouselRef.value.addEventListener('scroll', updateArrows);
+      // Inicializar posiciones de scroll
+      updateScrollPosition()
+
+      // Agregar listener para actualizar posición al hacer scroll
+      if (carouselTrack.value) {
+        carouselTrack.value.addEventListener("scroll", handleScroll)
       }
-      
-      // Verificar si se deben mostrar las flechas inicialmente
-      if (carouselRef.value) {
-        showRightArrow.value = carouselRef.value.scrollWidth > carouselRef.value.clientWidth;
+
+      // Calcular posición máxima inicial
+      maxScrollPosition.value = calculateMaxScrollPosition()
+
+      // Recalcular cuando cambia el tamaño de la ventana
+      window.addEventListener("resize", () => {
+        maxScrollPosition.value = calculateMaxScrollPosition()
+      })
+    })
+
+    onUnmounted(() => {
+      // Limpiar event listeners
+      if (carouselTrack.value) {
+        carouselTrack.value.removeEventListener("scroll", handleScroll)
       }
-    });
-    
+      window.removeEventListener("resize", () => {
+        maxScrollPosition.value = calculateMaxScrollPosition()
+      })
+    })
+
     return {
-      carouselRef,
-      showLeftArrow,
-      showRightArrow,
+      carouselTrack,
+      scrollPosition,
+      maxScrollPosition,
       scrollLeft,
       scrollRight,
       viewProductDetails,
       addToCart,
       formatPrice,
-      shouldShowArrows,
-      updateArrows
-    };
-  }
-};
+    }
+  },
+}
+

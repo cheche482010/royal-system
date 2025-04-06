@@ -1,10 +1,23 @@
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { SearchIcon, BellIcon, UserIcon, LogInIcon, LogOutIcon, ShoppingCartIcon, TagIcon, PackageIcon, ChevronDown } from 'lucide-vue-next';
-import { useAuth } from '../../composables/useAuth';
-import { useRouter } from 'vue-router';
+"use client"
+
+import { ref, computed, onMounted, onUnmounted } from "vue"
+import {
+  SearchIcon,
+  BellIcon,
+  UserIcon,
+  LogInIcon,
+  LogOutIcon,
+  ShoppingCartIcon,
+  TagIcon,
+  PackageIcon,
+  ChevronDown,
+} from "lucide-vue-next"
+import { useAuth } from "../../composables/useAuth"
+import { useRouter } from "vue-router"
+import { useCartService } from "../../services/cart.service"
 
 export default {
-  name: 'Header',
+  name: "Header",
   components: {
     SearchIcon,
     BellIcon,
@@ -14,157 +27,170 @@ export default {
     ShoppingCartIcon,
     TagIcon,
     PackageIcon,
-    ChevronDown
+    ChevronDown,
   },
   props: {
     disableNav: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   setup() {
-    const router = useRouter();
-    const auth = useAuth();
-    const cartCount = ref(0);
-    
+    const router = useRouter()
+    const auth = useAuth()
+    const cartService = useCartService()
+    const cartCount = ref(0)
+
     // Estado para los menús desplegables
-    const showUserMenu = ref(false);
-    const showNotifications = ref(false);
-    
+    const showUserMenu = ref(false)
+    const showNotifications = ref(false)
+
     // Notificaciones de ejemplo
     const notifications = ref([
       {
         id: 1,
-        title: 'Pedido confirmado',
-        message: 'Tu pedido #12345 ha sido confirmado y está en proceso.',
-        date: '2023-10-15T14:30:00',
-        read: false
+        title: "Pedido confirmado",
+        message: "Tu pedido #12345 ha sido confirmado y está en proceso.",
+        date: "2023-10-15T14:30:00",
+        read: false,
       },
       {
         id: 2,
-        title: 'Oferta especial',
-        message: '¡50% de descuento en productos seleccionados!',
-        date: '2023-10-14T09:15:00',
-        read: true
+        title: "Oferta especial",
+        message: "¡50% de descuento en productos seleccionados!",
+        date: "2023-10-14T09:15:00",
+        read: true,
       },
       {
         id: 3,
-        title: 'Envío en camino',
-        message: 'Tu pedido #12340 ha sido enviado y llegará pronto.',
-        date: '2023-10-13T16:45:00',
-        read: false
-      }
-    ]);
-    
+        title: "Envío en camino",
+        message: "Tu pedido #12340 ha sido enviado y llegará pronto.",
+        date: "2023-10-13T16:45:00",
+        read: false,
+      },
+    ])
+
     // Calcular notificaciones no leídas
     const unreadNotifications = computed(() => {
-      return notifications.value.filter(notification => !notification.read).length;
-    });
-    
+      return notifications.value.filter((notification) => !notification.read).length
+    })
+
     // Formatear fecha para mostrar en notificaciones
     const formatDate = (dateString) => {
-      const date = new Date(dateString);
-      const now = new Date();
-      const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
-      
+      const date = new Date(dateString)
+      const now = new Date()
+      const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24))
+
       if (diffDays === 0) {
-        return 'Hoy';
+        return "Hoy"
       } else if (diffDays === 1) {
-        return 'Ayer';
+        return "Ayer"
       } else if (diffDays < 7) {
-        return `Hace ${diffDays} días`;
+        return `Hace ${diffDays} días`
       } else {
-        return date.toLocaleDateString();
+        return date.toLocaleDateString()
       }
-    };
-    
+    }
+
     // Marcar notificación como leída
     const markAsRead = (id) => {
-      const notification = notifications.value.find(n => n.id === id);
+      const notification = notifications.value.find((n) => n.id === id)
       if (notification) {
-        notification.read = true;
+        notification.read = true
       }
-    };
-    
+    }
+
     // Marcar todas como leídas
     const markAllAsRead = () => {
-      notifications.value.forEach(notification => {
-        notification.read = true;
-      });
-    };
-    
+      notifications.value.forEach((notification) => {
+        notification.read = true
+      })
+    }
+
     // Método para cerrar sesión
     const logout = () => {
-      auth.clearUser();
-      router.push('/');
-      showUserMenu.value = false;
-    };
-    
+      auth.clearUser()
+      router.push("/")
+      showUserMenu.value = false
+    }
+
     // Método para navegar a una ruta y cerrar el menú
     const navigateTo = (route) => {
-      router.push(route);
-      showUserMenu.value = false;
-      showNotifications.value = false;
-    };
-    
+      router.push(route)
+      showUserMenu.value = false
+      showNotifications.value = false
+    }
+
     // Cerrar menús al hacer clic fuera de ellos
     const closeMenus = (event) => {
-      const userMenuEl = document.querySelector('.user-menu');
-      const userInfoEl = document.querySelector('.user-info');
-      const notificationMenuEl = document.querySelector('.notification-menu');
-      const notificationIconEl = document.querySelector('.notification-icon');
-      
+      const userMenuEl = document.querySelector(".user-menu")
+      const userInfoEl = document.querySelector(".user-info")
+      const notificationMenuEl = document.querySelector(".notification-menu")
+      const notificationIconEl = document.querySelector(".notification-icon")
+
       if (userMenuEl && userInfoEl && !userMenuEl.contains(event.target) && !userInfoEl.contains(event.target)) {
-        showUserMenu.value = false;
+        showUserMenu.value = false
       }
-      
-      if (notificationMenuEl && notificationIconEl && !notificationMenuEl.contains(event.target) && !notificationIconEl.contains(event.target)) {
-        showNotifications.value = false;
+
+      if (
+        notificationMenuEl &&
+        notificationIconEl &&
+        !notificationMenuEl.contains(event.target) &&
+        !notificationIconEl.contains(event.target)
+      ) {
+        showNotifications.value = false
       }
-    };
-    
+    }
+
     // Actualizar contador del carrito
-    const updateCartCount = () => {
-      const count = localStorage.getItem('cartCount');
-      if (count) {
-        cartCount.value = parseInt(count);
+    const updateCartCount = async () => {
+      if (auth.isAuthenticated.value) {
+        // Si el usuario está autenticado, obtener el carrito desde la API
+        const cartItems = await cartService.getCartItems()
+        cartCount.value = cartItems.length
       } else {
-        const cart = JSON.parse(localStorage.getItem('cart')) || [];
-        cartCount.value = cart.length;
+        // Si no está autenticado, obtener el carrito desde localStorage
+        const count = localStorage.getItem("cartCount")
+        if (count) {
+          cartCount.value = Number.parseInt(count)
+        } else {
+          const cart = JSON.parse(localStorage.getItem("cart")) || []
+          cartCount.value = cart.length
+        }
       }
-    };
-    
+    }
+
     // Escuchar evento de actualización del carrito
     const handleCartUpdated = () => {
-      updateCartCount();
-    };
-    
+      updateCartCount()
+    }
+
     // Agregar event listeners
     onMounted(() => {
-      document.addEventListener('click', closeMenus);
-      window.addEventListener('cart-updated', handleCartUpdated);
-      
+      document.addEventListener("click", closeMenus)
+      window.addEventListener("cart-updated", handleCartUpdated)
+
       // Inicializar contador del carrito
-      updateCartCount();
-    });
-    
+      updateCartCount()
+    })
+
     // Limpiar event listeners
     onUnmounted(() => {
-      document.removeEventListener('click', closeMenus);
-      window.removeEventListener('cart-updated', handleCartUpdated);
-    });
-    
+      document.removeEventListener("click", closeMenus)
+      window.removeEventListener("cart-updated", handleCartUpdated)
+    })
+
     const categories = ref([
-      { id: 1, name: 'Item I' },
-      { id: 2, name: 'Item II' },
-      { id: 3, name: 'Item III' },
-      { id: 4, name: 'Item IV' },
-    ]);
+      { id: 1, name: "Item I" },
+      { id: 2, name: "Item II" },
+      { id: 3, name: "Item III" },
+      { id: 4, name: "Item IV" },
+    ])
 
     const logo = ref({
-      image: new URL('../../assets/img/logo.jpg', import.meta.url).href,
-      name: 'Pet Shop'
-    });
+      image: new URL("../../assets/img/logo.jpg", import.meta.url).href,
+      name: "Pet Shop",
+    })
 
     return {
       cartCount,
@@ -180,7 +206,8 @@ export default {
       unreadNotifications,
       formatDate,
       markAsRead,
-      markAllAsRead
-    };
-  }
-};
+      markAllAsRead,
+    }
+  },
+}
+

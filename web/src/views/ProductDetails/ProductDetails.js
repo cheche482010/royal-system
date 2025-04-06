@@ -1,3 +1,4 @@
+"use client"
 
 import { ref, computed, onMounted, watch } from "vue"
 import { useRouter, useRoute } from "vue-router"
@@ -5,6 +6,7 @@ import Header from "../../components/Header/Header.vue"
 import Footer from "../../components/Footer/Footer.vue"
 import ProductCarousel from "../../components/ProductCarousel/ProductCarousel.vue"
 import { apiService } from "../../services/api.service"
+import { useCartService } from "../../services/cart.service"
 
 import { MinusIcon, PlusIcon, TrashIcon, ShoppingCartIcon, LockIcon, Search, CheckCircle } from "lucide-vue-next"
 import { useAuth } from "../../composables/useAuth"
@@ -29,6 +31,7 @@ export default {
     const route = useRoute()
     const auth = useAuth()
     const toast = useToast()
+    const cartService = useCartService()
 
     // Estado para la cantidad
     const quantity = ref(1)
@@ -177,53 +180,18 @@ export default {
     }
 
     // Agregar al carrito
-    const addToCart = () => {
+    const addToCart = async () => {
       try {
-        // Verificar si el usuario está autenticado
-        if (!auth.isAuthenticated.value) {
-          router.push("/login")
-          return
-        }
-
         if (!productItems.value) {
           toast.error("No se ha podido agregar el producto al carrito: Producto no disponible")
           return
         }
 
-        const product = productItems.value
-
-        // Crear el objeto del producto para el carrito
-        const cartItem = {
-          id: product.id,
-          name: product.name,
-          brand: product.brand,
-          price: product.price,
-          quantity: quantity.value,
-          image: product.images[0],
-        }
-
-        // Obtener el carrito actual del localStorage
-        const cart = JSON.parse(localStorage.getItem("cart")) || []
-
-        // Verificar si el producto ya está en el carrito
-        const existingItemIndex = cart.findIndex((item) => item.id === cartItem.id)
-
-        if (existingItemIndex !== -1) {
-          // Si ya existe, actualizar la cantidad
-          cart[existingItemIndex].quantity += cartItem.quantity
-        } else {
-          // Si no existe, agregar al carrito
-          cart.push(cartItem)
-        }
-
-        // Guardar el carrito actualizado en localStorage
-        localStorage.setItem("cart", JSON.stringify(cart))
-
-        // Actualizar el contador del carrito en el header
-        updateCartCount()
+        // Usar el servicio de carrito para agregar el producto
+        await cartService.addToCart(productItems.value, quantity.value)
 
         // Mostrar toast de éxito
-        toast.success(`${product.name} ha sido agregado exitosamente`, {
+        toast.success(`${productItems.value.name} ha sido agregado exitosamente`, {
           title: "Producto agregado",
         })
       } catch (error) {
@@ -233,13 +201,6 @@ export default {
         })
         console.error("Error al agregar al carrito:", error)
       }
-    }
-
-    // Actualizar el contador del carrito
-    const updateCartCount = () => {
-      const cart = JSON.parse(localStorage.getItem("cart")) || []
-      localStorage.setItem("cartCount", cart.length)
-      window.dispatchEvent(new CustomEvent("cart-updated"))
     }
 
     // Observar cambios en la ruta para recargar el producto
@@ -257,7 +218,6 @@ export default {
     // Inicializar
     onMounted(() => {
       loadProductDetails()
-      updateCartCount()
     })
 
     return {
