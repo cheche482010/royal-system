@@ -135,21 +135,29 @@ export const addToCart = async (req, res, next) => {
       })
     }
 
-    // Verificar si el producto ya está en el carrito
+    // Verificar si el producto ya está en el carrito (incluyendo los eliminados)
     const existingItem = await CarritoProducto.findOne({
       where: {
         carrito_id: carrito.id,
         producto_id,
-        is_delete: false,
-        is_active: true,
       },
+      paranoid: false // Esto incluye registros marcados como eliminados
     })
 
     if (existingItem) {
-      // Actualizar cantidad
-      await existingItem.update({
-        cantidad: existingItem.cantidad + cantidad,
-      })
+      // Si el item existe pero está marcado como eliminado, reactivarlo
+      if (existingItem.is_delete) {
+        await existingItem.update({
+          is_delete: false,
+          is_active: true,
+          cantidad: cantidad // Puedes establecer la nueva cantidad o sumar a la existente
+        })
+      } else {
+        // Si el item existe y no está eliminado, actualizar cantidad
+        await existingItem.update({
+          cantidad: existingItem.cantidad + cantidad,
+        })
+      }
 
       return res.status(200).json({ success: true, data: existingItem })
     }
@@ -165,6 +173,7 @@ export const addToCart = async (req, res, next) => {
 
     return res.status(201).json({ success: true, data: carritoProducto })
   } catch (error) {
+    console.error("Error en addToCart:", error)
     next(error)
   }
 }
