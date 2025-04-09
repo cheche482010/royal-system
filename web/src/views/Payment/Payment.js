@@ -1,7 +1,9 @@
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Header from '../../components/Header/Header.vue';
 import Footer from '../../components/Footer/Footer.vue';
+import { apiService } from '../../services/api.service';
+import { useCartService } from '../../services/cart.service';
 import {
   UploadIcon,
   FileIcon,
@@ -21,29 +23,16 @@ export default {
   },
   setup() {
     const router = useRouter();
+    const cartService = useCartService();
     
-    // Datos del pedido (normalmente vendrían del carrito o del store)
-    const orderItems = ref([
-      {
-        id: 1,
-        name: 'Producto I',
-        brand: 'Marca',
-        price: 36.49,
-        quantity: 1,
-        image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=100&width=100'
-      },
-      {
-        id: 2,
-        name: 'Producto I',
-        brand: 'Marca',
-        price: 30.89,
-        quantity: 2,
-        image: 'https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=100&width=100'
-      }
-    ]);
+    // Datos del pedido desde el carrito
+    const orderItems = ref([]);
+    const paymentMethods = ref([]);
+    const loading = ref(true);
 
     // Información de pago
     const paymentInfo = ref({
+      metodo_pago: '', 
       bank: '',
       reference: '',
       amount: '',
@@ -55,6 +44,7 @@ export default {
       name: '',
       address: '',
       city: '',
+      state: '',
       zip: '',
       phone: ''
     });
@@ -62,6 +52,32 @@ export default {
     // Estado del archivo
     const fileSelected = ref(false);
     const fileName = ref('');
+
+    // Cargar datos iniciales
+    const loadInitialData = async () => {
+      try {
+        // Cargar items del carrito
+        const cartItems = await cartService.getCartItems();
+        orderItems.value = cartItems.map(item => ({
+          id: item.id,
+          name: item.name,
+          brand: item.brand,
+          price: item.price,
+          quantity: item.quantity,
+          image: item.image
+        }));
+
+        // Cargar métodos de pago
+        const methodsResponse = await apiService.get('/metodos-pago');
+        if (methodsResponse.success && methodsResponse.data) {
+          paymentMethods.value = methodsResponse.data;
+        }
+      } catch (error) {
+        console.error('Error loading initial data:', error);
+      } finally {
+        loading.value = false;
+      }
+    };
 
     // Cálculos del pedido
     const subtotal = computed(() => {
@@ -96,7 +112,8 @@ export default {
     // Validación del formulario
     const isFormValid = computed(() => {
       return (
-        paymentInfo.value.bank &&
+        paymentInfo.value.metodo_pago &&
+        (paymentInfo.value.metodo_pago === '1' ? paymentInfo.value.bank : true) && 
         paymentInfo.value.reference &&
         fileSelected.value &&
         shippingInfo.value.name &&
@@ -130,21 +147,30 @@ export default {
       if (fileInput) fileInput.value = '';
     };
 
-    const confirmPayment = () => {
-      // Aquí iría la lógica para procesar el pago
-      console.log('Procesando pago...');
-      console.log('Información de pago:', paymentInfo.value);
-      console.log('Información de envío:', shippingInfo.value);
+    const confirmPayment = async () => {
+      try {
+       
+        console.log('Procesando pago...');
+        console.log('Información de pago:', paymentInfo.value);
+        console.log('Información de envío:', shippingInfo.value);
+        
       
-      // Simulación de procesamiento exitoso
-      setTimeout(() => {
-        // Redirigir a una página de confirmación
-        router.push('/confirmation');
-      }, 1500);
+        setTimeout(() => {
+          router.push('/confirmation');
+        }, 1500);
+      } catch (error) {
+        console.error('Error al procesar el pago:', error);
+      }
     };
+
+    // Cargar datos al montar el componente
+    onMounted(() => {
+      loadInitialData();
+    });
 
     return {
       orderItems,
+      paymentMethods,
       paymentInfo,
       shippingInfo,
       fileSelected,
@@ -157,7 +183,8 @@ export default {
       formatPrice,
       handleFileUpload,
       removeFile,
-      confirmPayment
+      confirmPayment,
+      loading
     };
   }
 };

@@ -106,6 +106,35 @@ INSERT INTO dolar_bcv (tasa_cambio, fecha_inicio, fecha_fin) VALUES
 (36.1234, '2023-04-08 00:00:00', '2023-04-14 23:59:59'),
 (36.4321, '2023-04-15 00:00:00', NULL);
 
+INSERT INTO bancos (id, codigo, nombre_banco) VALUES 
+(1, '0001', 'Banco Central de Venezuela'),
+(2, '0102', 'Banco de Venezuela, S.A.'),
+(3, '0104', 'Banco Venezolano de Crédito, S.A.'),
+(4, '0105', 'Banco Mercantil C.A.'),
+(5, '0108', 'Banco Provincial, S.A.'),
+(6, '0114', 'Banco del Caribe C.A.'),
+(7, '0115', 'Banco Exterior C.A.'),
+(8, '0128', 'Banco Caroní C.A.'),
+(9, '0134', 'Banesco Banco Universal, C.A.'),
+(10, '0137', 'Banco Sofitasa'),
+(11, '0138', 'Banco Plaza'),
+(12, '0146', 'Banco de la Gente Emprendedora C.A.'),
+(13, '0151', 'Banco Fondo Común, C.A'),
+(14, '0157', 'DelSur, Banco Universal C.A.'),
+(15, '0163', 'Banco del Tesoro C.A.'),
+(16, '0166', 'Banco Agrícola de Venezuela C.A.'),
+(17, '0168', 'Bancrecer S.A.'),
+(18, '0169', 'Mi Banco'),
+(19, '0171', 'Banco Activo C.A.'),
+(21, '0172', 'Bancamiga Banco Universal, C.A.'),
+(22, '0173', 'Banco Internacional de Desarrollo C.A.'),
+(23, '0174', 'Banplus Banco Universal, C.A.'),
+(24, '0175', 'Banco Bicentenario del Pueblo, Banco Universal C.A.'),
+(25, '0177', 'Banco de la Fuerza Armada Nacional Bolivariana, B.U.'),
+(26, '0178', 'N58 Banco Digital'),
+(27, '0191', 'Banco Nacional de Crédito C.A.'),
+(28, '0601', 'Instituto Municipal de Crédito Popular');
+
 -- Insertar datos de prueba en la tabla carrito
 INSERT INTO carrito (usuario_id, is_active) VALUES
 (1, 1), -- Carrito para Juan Pérez (Admin)

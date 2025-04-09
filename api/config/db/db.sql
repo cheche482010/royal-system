@@ -165,6 +165,23 @@ CREATE TABLE coupons (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `bancos`
+--
+DROP TABLE IF EXISTS `bancos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+
+CREATE TABLE bancos (
+    id bigint NOT NULL AUTO_INCREMENT,
+    codigo varchar(255) NOT NULL COMMENT 'Código del banco',
+    nombre_banco varchar(255) NOT NULL COMMENT 'Nombre del banco',
+    created_at timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creación del registro',
+    updated_at timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha de última actualización',
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `facturas`
 --
 

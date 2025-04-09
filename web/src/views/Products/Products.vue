@@ -129,7 +129,7 @@
         
               <div class="product-price">
                 <span v-if="product.originalPrice" class="original-price">{{ formatPrice(product.originalPrice) }}</span>
-                <span class="current-price">{{ formatPrice(product.price) }}</span>
+                <span class="current-price">{{ formatPrice(product.price) }} $</span>
               </div>
               
               <div class="product-description" v-if="viewMode === 'list'">

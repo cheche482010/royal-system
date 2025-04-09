@@ -7,7 +7,7 @@ import {
   updatePago,
   deletePago,
   hardDeletePago,
-} from "../controllers/PagoController.js"
+} from "../controllers/PagoController.js" 
 import { protect } from "../middleware/auth.js"
 import upload from "../middleware/upload.js"
 
