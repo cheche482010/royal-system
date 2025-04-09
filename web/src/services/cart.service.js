@@ -28,7 +28,6 @@ export const useCartService = () => {
       const userId = getUserId()
 
       if (!token || !userId) {
-        // Si no hay usuario autenticado, usar el carrito local
         return getLocalCartItems()
       }
 
@@ -37,7 +36,6 @@ export const useCartService = () => {
         throw new Error("Error al obtener los items del carrito")
       }
 
-      // Transformar los datos para que coincidan con el formato esperado
       const cartItems = response.data.map((item) => ({
         id: item.id,
         productId: item.producto_id,
@@ -48,13 +46,11 @@ export const useCartService = () => {
         image: item.Producto?.producto_img || "/placeholder.jpg",
       }))
 
-      // Actualizar el contador del carrito
       updateCartCount(cartItems.length)
 
       return cartItems
     } catch (error) {
       console.error("Error al obtener el carrito:", error)
-      // Si falla la API, intentar usar el carrito local
       return getLocalCartItems()
     }
   }
