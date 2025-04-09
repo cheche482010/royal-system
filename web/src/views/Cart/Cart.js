@@ -1,6 +1,7 @@
+
 "use client"
 
-import { ref, computed, onMounted, onUnmounted } from "vue"
+import { ref, computed, onMounted, onUnmounted, watch } from "vue"
 import { useRouter } from "vue-router"
 import Header from "../../components/Header/Header.vue"
 import Footer from "../../components/Footer/Footer.vue"
@@ -29,6 +30,7 @@ export default {
 
     // Carrito de items
     const cartItems = ref([])
+    const isCartEmpty = computed(() => cartItems.value.length === 0)
 
     const featuredProducts = ref([])
     const promoCode = ref("")
@@ -99,14 +101,30 @@ export default {
     const removeItem = async (itemId) => {
       try {
         // Eliminar el item del servidor
-        await cartService.removeFromCart(itemId)
+        const result = await cartService.removeFromCart(itemId)
 
-        // Actualizar la UI
-        cartItems.value = cartItems.value.filter((item) => item.id !== itemId)
-
-        toast.success("Producto eliminado del carrito", {
-          title: "Carrito actualizado",
-        })
+        if (result.success) {
+          // Actualizar la UI eliminando el item del array local
+          cartItems.value = cartItems.value.filter((item) => item.id !== itemId)
+          
+          // Actualizar el contador del carrito manualmente
+          cartService.updateCartCount(cartItems.value.length)
+          
+          // Notificar a los componentes sobre la actualización
+          cartService.notifyCartUpdated()
+          
+          toast.success("Producto eliminado del carrito", {
+            title: "Carrito actualizado",
+          })
+          
+          // Si el carrito está vacío, redirigir a la página principal
+          if (cartItems.value.length === 0) {
+            // Opcional: redirigir a la página principal o mostrar un mensaje
+            // router.push("/")
+          }
+        } else {
+          throw new Error(result.message || "Error al eliminar producto")
+        }
       } catch (error) {
         console.error("Error al eliminar item:", error)
         toast.error("Error al eliminar producto", {
@@ -179,8 +197,14 @@ export default {
       window.removeEventListener("cart-updated", handleCartUpdated)
     })
 
+    // Observar cambios en el carrito para actualizar el contador
+    watch(cartItems, (newItems) => {
+      cartService.updateCartCount(newItems.length)
+    }, { deep: true })
+
     return {
       cartItems,
+      isCartEmpty,
       promoCode,
       subtotal,
       shipping,
@@ -194,4 +218,3 @@ export default {
     }
   },
 }
-

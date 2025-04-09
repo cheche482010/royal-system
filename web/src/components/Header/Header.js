@@ -1,3 +1,4 @@
+
 "use client"
 
 import { ref, computed, onMounted, onUnmounted } from "vue"
@@ -144,24 +145,34 @@ export default {
 
     // Actualizar contador del carrito
     const updateCartCount = async () => {
-      if (auth.isAuthenticated.value) {
-        // Si el usuario está autenticado, obtener el carrito desde la API
-        const cartItems = await cartService.getCartItems()
-        cartCount.value = cartItems.length
-      } else {
-        // Si no está autenticado, obtener el carrito desde localStorage
+      try {
+        if (auth.isAuthenticated.value) {
+          // Si el usuario está autenticado, obtener el carrito desde la API
+          const cartItems = await cartService.getCartItems()
+          cartCount.value = cartItems.length
+        } else {
+          // Si no está autenticado, obtener el carrito desde localStorage
+          const count = localStorage.getItem("cartCount")
+          if (count) {
+            cartCount.value = parseInt(count, 10)
+          } else {
+            const cart = JSON.parse(localStorage.getItem("cart")) || []
+            cartCount.value = cart.length
+          }
+        }
+      } catch (error) {
+        console.error("Error al actualizar contador del carrito:", error)
+        // En caso de error, intentar obtener el contador desde localStorage
         const count = localStorage.getItem("cartCount")
         if (count) {
-          cartCount.value = Number.parseInt(count)
-        } else {
-          const cart = JSON.parse(localStorage.getItem("cart")) || []
-          cartCount.value = cart.length
+          cartCount.value = parseInt(count, 10)
         }
       }
     }
 
     // Escuchar evento de actualización del carrito
     const handleCartUpdated = () => {
+      // Actualizar el contador del carrito inmediatamente
       updateCartCount()
     }
 
@@ -210,4 +221,3 @@ export default {
     }
   },
 }
-

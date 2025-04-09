@@ -50,6 +50,8 @@ export const getCartByUsuario = async (req, res, next) => {
       include: [
         {
           model: CarritoProducto,
+          where: { is_delete: false, is_active: true },
+          required: false, 
           include: [
             {
               model: Producto,
@@ -78,12 +80,12 @@ export const getCartByUsuario = async (req, res, next) => {
     }
 
     // Transformar los datos para mantener la estructura esperada por el frontend
-    const formattedCartItems = carrito.CarritoProductos.map((item) => ({
+    const formattedCartItems = carrito.CarritoProductos ? carrito.CarritoProductos.map((item) => ({
       id: item.id,
       producto_id: item.producto_id,
       cantidad: item.cantidad,
       Producto: item.Producto,
-    }))
+    })) : []
 
     return res.status(200).json({ success: true, data: formattedCartItems })
   } catch (error) {

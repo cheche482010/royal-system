@@ -162,7 +162,9 @@ export const useCartService = () => {
       }
 
       const token = getToken()
-      const response = await apiService.delete(`/cart/removeFromCart/${itemId}`, token)
+      
+      // Usar el endpoint de CarritoProductoController en lugar del CarritoController
+      const response = await apiService.delete(`/cart-products/${itemId}`, token)
 
       if (!response.success) {
         throw new Error(response.message || "Error al eliminar del carrito")
@@ -198,18 +200,52 @@ export const useCartService = () => {
 
       const token = getToken()
       const userId = getUserId()
-      const response = await apiService.delete(`/cart/clearCart/${userId}`, token)
-
-      if (!response.success) {
-        throw new Error(response.message || "Error al vaciar el carrito")
+      
+      // Primero obtener el carrito activo del usuario
+      const response = await apiService.get(`/cart/usuario/${userId}`, token)
+      if (!response.success || !response.data || response.data.length === 0) {
+        return {
+          success: true,
+          message: "El carrito ya está vacío",
+        }
       }
+      
+      // Obtener el ID del carrito
+      try {
+        const carrito = await Carrito.findOne({
+          where: { usuario_id: userId, is_delete: false, is_active: true },
+        })
+        
+        if (!carrito) {
+          return {
+            success: true,
+            message: "El carrito ya está vacío",
+          }
+        }
+        
+        // Usar el endpoint de CarritoProductoController para limpiar el carrito
+        const clearResponse = await apiService.delete(`/cart-products/clear/${carrito.id}`, token)
 
-      // Notificar a los componentes sobre la actualización
-      notifyCartUpdated()
+        if (!clearResponse.success) {
+          throw new Error(clearResponse.message || "Error al vaciar el carrito")
+        }
 
-      return {
-        success: true,
-        data: response.data,
+        // Actualizar el contador a cero
+        updateCartCount(0)
+        
+        // Notificar a los componentes sobre la actualización
+        notifyCartUpdated()
+
+        return {
+          success: true,
+          data: clearResponse.data,
+        }
+      } catch (error) {
+        console.error("Error al buscar o vaciar el carrito:", error)
+        return {
+          success: false,
+          message: "Error al buscar o vaciar el carrito: " + error.message,
+        }
       }
     } catch (error) {
       console.error("Error al vaciar el carrito:", error)
@@ -234,7 +270,7 @@ export const useCartService = () => {
 
   // Actualizar el contador del carrito y notificar a los componentes
   const updateCartCount = (count) => {
-    localStorage.setItem("cartCount", count)
+    localStorage.setItem("cartCount", count.toString())
   }
 
   // Notificar a los componentes sobre la actualización del carrito
@@ -253,4 +289,3 @@ export const useCartService = () => {
     isAuthenticated,
   }
 }
-
