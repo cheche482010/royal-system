@@ -10,7 +10,7 @@
       <div class="cart-items">
         <div v-for="item in cartItems" :key="item.id" class="cart-item">
           <div class="item-image">
-            <img :src="item.image" :alt="item.name" />
+            <img :src="`http://localhost:3000${item.image}`" :alt="item.name" />
           </div>
           
           <div class="item-details">

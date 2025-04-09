@@ -35,14 +35,14 @@ INSERT INTO inventario (cantidad_inicial, cantidad_actual, lote, estado, fecha_i
 -- Insertar datos de prueba en la tabla productos
 -- Nota: Ahora usando marca_id = 1 (BRIT) en lugar de 4, y categoria_id = 2 (Alimento para Perros) en lugar de 4
 INSERT INTO productos (codigo, nombre, descripcion, producto_img, precio_unidad, precio_tienda, precio_distribuidor, inventario_id, marca_id, categoria_id) VALUES
-('RP001', 'BRIT DIETA BETERINARIA HYPOALLERGENIC 2KG', 'Alimento balanceado hipoalergénico completo para perros con problemas dermatológicos y gastrointestinales', '/uploads/products/2 kg/hypo 2kg.jpg', 32.00, 28.00, 22.00, 1, 1, 2),
-('RP002', 'BRIT DIETA BETERINARIA GASTROINTESTINAL 2KG', 'Alimento Balanceado completo para perros con desordenes gastrointestinales','/uploads/products/2 kg/gastro 2kg.jpg', 32.00, 28.00, 22.00, 2, 1, 2),
-('RP003', 'BRIT DIETA BETERINARIA HEPATIC 2KG', 'Alimento balanceado completo para perros con funciones hepáticas dañadas','/uploads/products/2 kg/hepatic 2kg.jpg', 32.00, 28.00, 22.00, 3, 1, 2),
-('RP004', 'BRIT DIETA BETERINARIA RENAL 2KG', 'Alimento balanceado completo para perros con funciones renales dañados','/uploads/products/2 kg/renal 2kg.jpg', 32.00, 28.00, 22.00, 4, 1, 2),
-('RP005', 'BRIT DIETA BETERINARIA STRUVITE 2KG', 'Alimento Balanceado completo para control de perros con enfermedades de tracto urinario inferior','/uploads/products/2 kg/struvite 2kg.jpg', 32.00, 28.00, 22.00, 5, 1, 2),
-('RP006', 'BRIT DIETA BETERINARIA GASTROINTESTINAL 12KG', 'Alimento Balanceado completo para perros con desordenes gastrointestinales','/uploads/products/12 kg/gastro 12kg.jpg', 140.00, 110.00, 95.00, 6, 1, 2),
-('RP007', 'BRIT DIETA BETERINARIA HYPOALLERGENIC 12KG', 'Alimento balanceado hipoalergénico completo para perros con problemas dermatológicos y gastrointestinales','/uploads/products/12 kg/hypo 12kg.jpg', 140.00, 110.00, 95.00, 7, 1, 2),
-('RP008', 'BRIT DIETA BETERINARIA RENAL 12KG', 'Alimento balanceado completo para perros con funciones renales dañados','/uploads/products/12 kg/renal 12kg.jpg', 140.00, 110.00, 95.00, 8, 1, 2);
+('RP001', 'BRIT DIETA BETERINARIA HYPOALLERGENIC 2KG', 'Alimento balanceado hipoalergénico completo para perros con problemas dermatológicos y gastrointestinales', '/uploads/products/2_kg/hypo_2kg.jpg', 32.00, 28.00, 22.00, 1, 1, 2),
+('RP002', 'BRIT DIETA BETERINARIA GASTROINTESTINAL 2KG', 'Alimento Balanceado completo para perros con desordenes gastrointestinales','/uploads/products/2_kg/gastro_2kg.jpg', 32.00, 28.00, 22.00, 2, 1, 2),
+('RP003', 'BRIT DIETA BETERINARIA HEPATIC 2KG', 'Alimento balanceado completo para perros con funciones hepáticas dañadas','/uploads/products/2_kg/hepatic_2kg.jpg', 32.00, 28.00, 22.00, 3, 1, 2),
+('RP004', 'BRIT DIETA BETERINARIA RENAL 2KG', 'Alimento balanceado completo para perros con funciones renales dañados','/uploads/products/2_kg/renal_2kg.jpg', 32.00, 28.00, 22.00, 4, 1, 2),
+('RP005', 'BRIT DIETA BETERINARIA STRUVITE 2KG', 'Alimento Balanceado completo para control de perros con enfermedades de tracto urinario inferior','/uploads/products/2_kg/struvite_2kg.jpg', 32.00, 28.00, 22.00, 5, 1, 2),
+('RP006', 'BRIT DIETA BETERINARIA GASTROINTESTINAL 12KG', 'Alimento Balanceado completo para perros con desordenes gastrointestinales','/uploads/products/12_kg/gastro_12kg.jpg', 140.00, 110.00, 95.00, 6, 1, 2),
+('RP007', 'BRIT DIETA BETERINARIA HYPOALLERGENIC 12KG', 'Alimento balanceado hipoalergénico completo para perros con problemas dermatológicos y gastrointestinales','/uploads/products/12_kg/hypo_12kg.jpg', 140.00, 110.00, 95.00, 7, 1, 2),
+('RP008', 'BRIT DIETA BETERINARIA RENAL 12KG', 'Alimento balanceado completo para perros con funciones renales dañados','/uploads/products/12_kg/renal_12kg.jpg', 140.00, 110.00, 95.00, 8, 1, 2);
 
 -- Actualizar la tabla inventario para agregar producto_id
 UPDATE inventario SET producto_id = 1 WHERE id = 1;

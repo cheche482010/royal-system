@@ -4,7 +4,7 @@
    <!-- Overlay para zoom de imagen -->
     <div v-if="showZoom" class="zoom-overlay" @click="closeZoom">
       <div class="zoom-container">
-        <img :src="currentImage" :alt="productItems?.name" class="zoomed-image" />
+        <img :src="`http://localhost:3000${currentImage}`" :alt="productItems?.name" class="zoomed-image" />
         <button class="close-zoom" @click="toggleZoom">×</button>
       </div>
     </div>
@@ -20,7 +20,7 @@
    
     <div class="product-gallery">
       <div class="main-image">
-        <img :src="currentImage" :alt="productItems.name" />
+        <img :src="`http://localhost:3000${currentImage}`" :alt="productItems.name" />
         <button class="zoom-button" @click="toggleZoom">
           <Search class="zoom-icon" />
         </button>
@@ -28,7 +28,7 @@
       <div class="thumbnails">
         <div v-for="(image, index) in productItems.images" :key="index" class="thumbnail"
             :class="{ active: selectedImageIndex === index }" @click="selectImage(index)">
-          <img :src="image" :alt="'Thumbnail ' + productItems.name" />
+          <img :src="`http://localhost:3000${image}`" :alt="'Thumbnail ' + productItems.name" />
         </div>
       </div>
     </div>

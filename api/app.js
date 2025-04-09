@@ -8,6 +8,7 @@ import { errorHandler } from "./middleware/errorHandler.js"
 import routes from "./routes/index.js"
 import { sequelize } from "./config/database.js"
 import { swaggerSpec } from "./config/swagger.js"
+import path from "path" // Importa el módulo 'path'
 
 // Load environment variables
 dotenv.config()
@@ -17,20 +18,25 @@ const PORT = process.env.PORT || 3000
 
 // Middleware
 app.use(cors())
-app.use(helmet())
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+}));
 app.use(morgan("dev"))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+
+// Configuración para servir archivos estáticos (IMPORTANTE)
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")))
 
 // Swagger documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 app.get("/", (req, res) => {
-  res.redirect("/api-docs");
-});
+  res.redirect("/api-docs")
+})
 
 app.get("/api", (req, res) => {
-  res.redirect("/api-docs");
+  res.redirect("/api-docs")
 })
 
 // Routes

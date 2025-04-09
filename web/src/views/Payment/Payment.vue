@@ -110,7 +110,7 @@
           <div class="order-items">
             <div v-for="item in orderItems" :key="item.id" class="order-item">
               <div class="item-image">
-                <img :src="item.image" :alt="item.name" />
+                <img :src="`http://localhost:3000${item.image}`" :alt="item.name" />
                 <span class="item-quantity">{{ item.quantity }}</span>
               </div>
               <div class="item-info">
