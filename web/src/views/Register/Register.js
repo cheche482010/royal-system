@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { config } from '../../config/config'
 import { 
   EyeIcon, 
   EyeOffIcon, 
@@ -263,7 +264,7 @@ export default {
         formDataToSend.append('updated_at', now);
         
         // Enviar datos al servidor
-        const response = await fetch('http://localhost:3000/api/usuarios/register', {
+        const response = await fetch(`${API_BASE_URL}/api/usuarios/register`, {
           method: 'POST',
           body: formDataToSend
         });

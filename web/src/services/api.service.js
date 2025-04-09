@@ -1,7 +1,7 @@
-const API_URL = 'http://localhost:3000/api'
+import { config } from '../config/config'
 
 export const apiService = {
-  // Product API functions
+
   async getAllProducts() {
     return this.get('/productos/getAll')
   },
@@ -32,7 +32,7 @@ export const apiService = {
         options.body = JSON.stringify(data)
       }
 
-      const response = await fetch(`${API_URL}${endpoint}`, options)
+      const response = await fetch(`${config.API_URL}${endpoint}`, options)
       
       if (!response.ok) {
         const errorData = await response.json()

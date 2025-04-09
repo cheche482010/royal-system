@@ -10,6 +10,7 @@ import { useCartService } from "../../services/cart.service"
 import { useToast } from "../../services/toast.service"
 import ProductCarousel from "../../components/ProductCarousel/ProductCarousel.vue"
 import { MinusIcon, PlusIcon, TrashIcon, ShoppingCartIcon, LockIcon } from "lucide-vue-next"
+import { config } from "../../config/config"
 
 export default {
   name: "Cart",
@@ -23,7 +24,13 @@ export default {
     Footer,
     ProductCarousel,
   },
-  setup() {
+  props: {
+    API_BASE_URL: {
+      type: String,
+      default: config.API_BASE_URL
+    }
+  },
+  setup(props) {
     const router = useRouter()
     const toast = useToast()
     const cartService = useCartService()

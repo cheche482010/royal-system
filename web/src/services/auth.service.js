@@ -1,9 +1,9 @@
-const API_URL = 'http://localhost:3000/api'
+import { config } from '../config/config'
 
 export const authService = {
   async login(documento, password) {
     try {
-      const response = await fetch(`${API_URL}/usuarios/login`, {
+      const response = await fetch(`${config.API_URL}/usuarios/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -28,7 +28,7 @@ export const authService = {
 
   async verifyToken(token) {
     try {
-      const response = await fetch(`${API_URL}/sesiones/verify`, {
+      const response = await fetch(`${config.API_URL}/sesiones/verify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

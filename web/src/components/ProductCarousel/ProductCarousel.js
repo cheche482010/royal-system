@@ -1,10 +1,9 @@
-"use client"
-
 import { ref, onMounted, onUnmounted } from "vue"
 import { useRouter } from "vue-router"
 import { ChevronLeftIcon, ChevronRightIcon, StarIcon, EyeIcon, ShoppingCartIcon } from "lucide-vue-next"
 import { useToast } from "../../services/toast.service"
 import { useCartService } from "../../services/cart.service"
+import { config } from '../../config/config'
 
 export default {
   name: "ProductCarousel",
@@ -16,6 +15,10 @@ export default {
     ShoppingCartIcon,
   },
   props: {
+    API_BASE_URL: {
+      type: String,
+      default: config.API_BASE_URL
+    },
     products: {
       type: Array,
       required: true,

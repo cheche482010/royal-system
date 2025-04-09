@@ -7,10 +7,19 @@ import Footer from "../../components/Footer/Footer.vue"
 import ProductCarousel from "../../components/ProductCarousel/ProductCarousel.vue"
 import { apiService } from "../../services/api.service"
 import { useCartService } from "../../services/cart.service"
-
-import { MinusIcon, PlusIcon, TrashIcon, ShoppingCartIcon, LockIcon, Search, CheckCircle } from "lucide-vue-next"
+import { config } from '../../config/config'
 import { useAuth } from "../../composables/useAuth"
 import { useToast } from "../../services/toast.service"
+
+import { 
+  MinusIcon,
+  PlusIcon,
+  TrashIcon,
+  ShoppingCartIcon,
+  LockIcon,
+  Search,
+  CheckCircle
+} from "lucide-vue-next"
 
 export default {
   name: "ProductDetails",
@@ -26,7 +35,13 @@ export default {
     Footer,
     ProductCarousel,
   },
-  setup() {
+  props: {
+    API_BASE_URL: {
+      type: String,
+      default: config.API_BASE_URL
+    }
+  },
+  setup(props) {
     const router = useRouter()
     const route = useRoute()
     const auth = useAuth()

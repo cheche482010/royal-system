@@ -19,7 +19,7 @@
           class="product-card"
         >
           <div class="product-image">
-            <img :src="`http://localhost:3000${product.image}`" :alt="product.name" />
+            <img :src="`${API_BASE_URL}${product.image}`" :alt="product.name" />
           </div>
           <div class="product-brand">{{ product.brand }}</div>
           <div class="product-name">{{ product.name }}</div>

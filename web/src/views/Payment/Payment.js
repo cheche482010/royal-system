@@ -4,6 +4,7 @@ import Header from '../../components/Header/Header.vue';
 import Footer from '../../components/Footer/Footer.vue';
 import { apiService } from '../../services/api.service';
 import { useCartService } from '../../services/cart.service';
+import { config } from '../../config/config'
 import {
   UploadIcon,
   FileIcon,
@@ -21,7 +22,13 @@ export default {
     XIcon,
     LockIcon
   },
-  setup() {
+  props: {
+    API_BASE_URL: {
+      type: String,
+      default: config.API_BASE_URL
+    }
+  },
+  setup(props) {
     const router = useRouter();
     const cartService = useCartService();
     

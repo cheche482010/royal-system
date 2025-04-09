@@ -110,7 +110,7 @@
             class="product-card"
           >
             <div class="product-image">
-              <img :src="`http://localhost:3000${product.image}`" :alt="product.name" />
+              <img :src="`${API_BASE_URL}${product.image}`" :alt="product.name" />
               <div class="product-badges" v-if="product.badges && product.badges.length > 0">
                 <span 
                   v-for="badge in product.badges" 
