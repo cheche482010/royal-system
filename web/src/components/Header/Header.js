@@ -1,7 +1,8 @@
-
-"use client"
-
 import { ref, computed, onMounted, onUnmounted } from "vue"
+import { useAuth } from "../../composables/useAuth"
+import { useRouter } from "vue-router"
+import { useCartService } from "../../services/cart.service"
+import { config } from "../../config/config"
 import {
   SearchIcon,
   BellIcon,
@@ -13,9 +14,6 @@ import {
   PackageIcon,
   ChevronDown,
 } from "lucide-vue-next"
-import { useAuth } from "../../composables/useAuth"
-import { useRouter } from "vue-router"
-import { useCartService } from "../../services/cart.service"
 
 export default {
   name: "Header",
@@ -31,6 +29,10 @@ export default {
     ChevronDown,
   },
   props: {
+    ASSETS: {
+      type: Object,
+      default: () => config.ASSETS.LOGO
+    },
     disableNav: {
       type: Boolean,
       default: false,
@@ -198,15 +200,9 @@ export default {
       { id: 4, name: "Item IV" },
     ])
 
-    const logo = ref({
-      image: new URL("../../assets/img/logo.jpg", import.meta.url).href,
-      name: "Pet Shop",
-    })
-
     return {
       cartCount,
       categories,
-      logo,
       isAuthenticated: auth.isAuthenticated,
       userName: auth.userName,
       logout,

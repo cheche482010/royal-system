@@ -1,8 +1,14 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { EyeIcon, EyeOffIcon, LoaderIcon } from 'lucide-vue-next';
 import { authService } from '../../services/auth.service';
 import { useAuth } from '../../composables/useAuth';
+import { config } from '../../config/config';
+
+import { 
+  EyeIcon, 
+  EyeOffIcon,
+ LoaderIcon 
+} from 'lucide-vue-next';
 
 export default {
   name: 'Login',
@@ -10,6 +16,12 @@ export default {
     EyeIcon,
     EyeOffIcon,
     LoaderIcon
+  },
+  props: {
+    ASSETS: {
+      type: Object,
+      default: () => config.ASSETS.LOGO
+    }
   },
   setup() {
     const router = useRouter();
@@ -25,11 +37,6 @@ export default {
       showPassword.value = !showPassword.value;
     };
 
-    const logo = ref({
-      image: new URL('../../assets/img/logo.jpg', import.meta.url).href,
-      name: 'Pet Shop'
-    });
-    
     const handleLogin = async () => {
       try {
         isLoading.value = true;
@@ -88,7 +95,6 @@ export default {
       showPassword,
       isLoading,
       errorMessage,
-      logo,
       togglePassword,
       handleLogin
     };

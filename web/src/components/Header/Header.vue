@@ -3,7 +3,7 @@
         <div class="header__container">
             <div class="header__logo">
                 <router-link to="/">
-                    <img :src="logo.image" :alt="logo.name" class="logo-img" />
+                    <img :src="ASSETS.image" :alt="ASSETS.name" class="logo-img" />
                 </router-link>
             </div>
 

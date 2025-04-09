@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { config } from '../../config/config'
+import { config } from '../../config/config';
+
 import { 
   EyeIcon, 
   EyeOffIcon, 
@@ -19,6 +20,12 @@ export default {
     UploadIcon,
     FileIcon,
     XIcon
+  },
+  props: {
+    ASSETS: {
+      type: Object,
+      default: () => config.ASSETS.LOGO
+    }
   },
   setup() {
     const router = useRouter();
@@ -101,11 +108,6 @@ export default {
       return 'Fuerte';
     });
     
-    const logo = ref({
-      image: new URL('../../assets/img/logo.jpg', import.meta.url).href,
-      name: 'Pet Shop'
-    });
-
     // Navegación entre pasos
     const nextStep = () => {
       if (validateCurrentStep()) {
@@ -310,7 +312,6 @@ export default {
       passwordStrength,
       strengthClass,
       strengthText,
-      logo,
       nextStep,
       prevStep,
       togglePassword,
