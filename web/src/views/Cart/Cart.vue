@@ -95,7 +95,7 @@
       <router-link to="/" class="continue-shopping">Continuar comprando</router-link>
     </div>
     
-    <ProductCarousel 
+    <ProductCarousel title="También te puede interesar"
         :products="featuredProducts"
       />
   </div>
