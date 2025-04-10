@@ -67,16 +67,15 @@
               </option>
             </select>
           </div>
-
+          
           <!-- Banco (solo visible si es transferencia) -->
-          <div class="form-group" v-if="paymentInfo.metodo_pago === '1'">
+          <div class="form-group" v-if="paymentInfo.metodo_pago == '3'">
             <label for="bank">Banco</label>
             <select id="bank" v-model="paymentInfo.bank" class="form-control">
               <option value="">Selecciona un banco</option>
-              <option value="banco1">Banco Nacional</option>
-              <option value="banco2">Banco Provincial</option>
-              <option value="banco3">Banco Mercantil</option>
-              <option value="banco4">Banco de Venezuela</option>
+              <option v-for="bank in banks" :key="bank.id" :value="bank.id">
+                {{ bank.nombre_banco }}
+              </option>
             </select>
           </div>
 

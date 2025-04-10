@@ -38,6 +38,8 @@ export default {
     // Datos del pedido desde el carrito
     const orderItems = ref([]);
     const paymentMethods = ref([]);
+    const banks = ref([]);
+
     const loading = ref(true);
 
     // Información de pago
@@ -81,6 +83,12 @@ export default {
         const methodsResponse = await apiService.get('/metodos-pago');
         if (methodsResponse.success && methodsResponse.data) {
           paymentMethods.value = methodsResponse.data;
+        }
+
+        // Cargar bancos
+        const banksResponse = await apiService.get('/bancos');
+        if (banksResponse.success && banksResponse.data) {
+          banks.value = banksResponse.data;
         }
       } catch (error) {
         console.error('Error loading initial data:', error);
@@ -181,6 +189,7 @@ export default {
     return {
       orderItems,
       paymentMethods,
+      banks,
       paymentInfo,
       shippingInfo,
       fileSelected,
