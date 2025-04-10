@@ -172,8 +172,7 @@
               <div class="form-group checkbox">
                 <input type="checkbox" id="terms" v-model="acceptTerms" required />
                 <label for="terms">
-                  Acepto los <a href="/terms" target="_blank">Términos y Condiciones</a> y la 
-                  <a href="/privacy" target="_blank">Política de Privacidad</a>
+                  Acepto los <a href="/terms" target="_blank">Términos y Condiciones</a>
                 </label>
               </div>
             </div>

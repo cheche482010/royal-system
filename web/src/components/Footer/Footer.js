@@ -8,7 +8,8 @@ import {
   PhoneIcon,
   MailIcon,
   ClockIcon,
-  SendIcon
+  SendIcon,
+  MessageCircleIcon
 } from 'lucide-vue-next';
 
 export default {
@@ -21,7 +22,8 @@ export default {
     PhoneIcon,
     MailIcon,
     ClockIcon,
-    SendIcon
+    SendIcon,
+    MessageCircleIcon
   },
   props: {
     ASSETS: {
