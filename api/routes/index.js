@@ -16,6 +16,7 @@ import OrdenRoutes from "./OrdenRoutes.js"
 import PagoRoutes from "./PagoRoutes.js"
 import ProductoRoutes from "./ProductoRoutes.js"
 import SesionRoutes from "./SesionRoutes.js"
+import BancoRoutes from "./BancoRoutes.js"
 
 const router = express.Router()
 
@@ -42,5 +43,6 @@ router.use("/ordenes", OrdenRoutes)
 router.use("/pagos", PagoRoutes)
 router.use("/productos", ProductoRoutes)
 router.use("/sesiones", SesionRoutes)
+router.use("/bancos", BancoRoutes)
 
 export default router

@@ -15,6 +15,7 @@ import Producto from "./Producto.js"
 import Sesion from "./Sesion.js"
 import CarritoProducto from "./CarritoProducto.js"
 import Coupon from "./Coupon.js"
+import Banco from "./Banco.js"
 
 // Definir relaciones
 Usuario.hasMany(Bitacora, { foreignKey: "usuario_id" })
@@ -75,5 +76,6 @@ export {
   Producto,
   Sesion,
   CarritoProducto,
-  Coupon
+  Coupon,
+  Banco
 }
