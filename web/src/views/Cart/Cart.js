@@ -167,7 +167,7 @@ export default {
         // Tomar los primeros 5 productos activos como destacados
         featuredProducts.value = response.data
           .filter((p) => p.is_active)
-          .slice(0, 5)
+          .slice(0, 8)
           .map((p) => ({
             id: p.id,
             name: p.nombre,

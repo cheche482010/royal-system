@@ -22,6 +22,7 @@ export default {
     XIcon
   },
   props: {
+
     ASSETS: {
       type: Object,
       default: () => config.ASSETS.LOGO
@@ -266,15 +267,15 @@ export default {
         formDataToSend.append('updated_at', now);
         
         // Enviar datos al servidor
-        const response = await fetch(`${API_BASE_URL}/api/usuarios/register`, {
+        const response = await fetch(`${config.API_URL}/usuarios/register`, {
           method: 'POST',
           body: formDataToSend
-        });
-        
+        })
+
         const data = await response.json();
         
         if (!response.ok) {
-          throw new Error(data.message || 'Error al registrar usuario');
+          throw new Error(data.message || 'Error al registrar usuario')
         }
         
         // Registro exitoso

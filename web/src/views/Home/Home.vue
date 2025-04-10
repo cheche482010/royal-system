@@ -45,6 +45,7 @@
       
       <!-- Productos destacados usando el componente ProductCarousel -->
       <ProductCarousel 
+        v-if="featuredProducts.length > 0"
         :products="featuredProducts"
       />
     </section>

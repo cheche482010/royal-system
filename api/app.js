@@ -49,7 +49,7 @@ app.use(errorHandler)
 async function startServer() {
   try {
     // Sync database
-    await sequelize.sync({ alter: true })
+    await sequelize.sync() 
     console.log("Database connected successfully")
 
     app.listen(PORT, () => {
