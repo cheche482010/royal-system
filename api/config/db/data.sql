@@ -81,8 +81,7 @@ INSERT INTO detalles_orden (orden_id, producto_id, cantidad, precio) VALUES
 -- Insertar datos de prueba en la tabla metodos_pago
 INSERT INTO metodos_pago (nombre, descripcion) VALUES
 ('Transferencia Bancaria', 'Pago mediante transferencia a cuenta bancaria'),
-('Pago Móvil', 'Pago mediante aplicación de pago móvil'),
-('Efectivo', 'Pago en efectivo al momento de la entrega');
+('Pago Móvil', 'Pago mediante aplicación de pago móvil');
 
 -- Insertar datos de prueba en la tabla pagos
 INSERT INTO pagos (orden_id, metodo_pago_id, fecha, comprobante_img, numero_referencia, monto) VALUES

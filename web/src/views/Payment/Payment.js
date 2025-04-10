@@ -32,6 +32,9 @@ export default {
     const router = useRouter();
     const cartService = useCartService();
     
+    // Tab activo
+    const activeTab = ref('cuenta');
+
     // Datos del pedido desde el carrito
     const orderItems = ref([]);
     const paymentMethods = ref([]);
@@ -191,7 +194,8 @@ export default {
       handleFileUpload,
       removeFile,
       confirmPayment,
-      loading
+      loading,
+      activeTab
     };
   }
 };

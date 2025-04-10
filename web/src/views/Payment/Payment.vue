@@ -2,8 +2,53 @@
   <Header />
   <div class="payment-container">
     <div class="payment-header">
-      <h1 class="payment-title">Finalizar Compra</h1>
-      <p class="payment-subtitle">Completa tu información de pago</p>
+      <div class="payment-tabs">
+        <span :class="{ active: activeTab === 'cuenta' }" @click="activeTab = 'cuenta'">Cuenta Bancaria</span>
+        <span :class="{ active: activeTab === 'pago-movil' }" @click="activeTab = 'pago-movil'">Pago Movil</span>
+      </div>
+    </div>
+
+    <div class="payment-tabs-content">
+      <div v-if="activeTab === 'cuenta'" class="tab-content">
+        <div class="bank-content">
+          <div class="bank-info">
+            <span class="bank-label">Nombre:</span>
+            <span class="bank-value">ROYAL PET C.A</span>
+          </div>
+          <div class="bank-info">
+            <span class="bank-label">Banco:</span>
+            <span class="bank-value">BANESCO</span>
+          </div>
+          <div class="bank-info">
+            <span class="bank-label">Cuenta:</span>
+            <span class="bank-value">0134-0416-05-4161028192</span>
+          </div>
+          <div class="bank-info">
+            <span class="bank-label">Tipo de Cuenta:</span>
+            <span class="bank-value">Corriente</span>
+          </div>
+          <div class="bank-info">
+            <span class="bank-label">Rif:</span>
+            <span class="bank-value">J403113661</span>
+          </div>
+        </div>
+      </div>
+      <div v-if="activeTab === 'pago-movil'" class="tab-content">
+        <div class="bank-content">
+          <div class="bank-info">
+            <span class="bank-label">Banco:</span>
+            <span class="bank-value">BANESCO</span>
+          </div>
+          <div class="bank-info">
+            <span class="bank-label">Rif:</span>
+            <span class="bank-value">J403113661</span>
+          </div>
+          <div class="bank-info">
+            <span class="bank-label">Telefono:</span>
+            <span class="bank-value">0414-5044409</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="payment-content" v-if="!loading">
