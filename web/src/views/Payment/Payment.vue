@@ -13,23 +13,23 @@
         <div class="bank-content">
           <div class="bank-info">
             <span class="bank-label">Nombre:</span>
-            <span class="bank-value">ROYAL PET C.A</span>
+            <span class="bank-value">{{ bankData.cuenta.nombre }}</span>
           </div>
           <div class="bank-info">
             <span class="bank-label">Banco:</span>
-            <span class="bank-value">BANESCO</span>
+            <span class="bank-value">{{ bankData.cuenta.banco }}</span>
           </div>
           <div class="bank-info">
             <span class="bank-label">Cuenta:</span>
-            <span class="bank-value">0134-0416-05-4161028192</span>
+            <span class="bank-value">{{ bankData.cuenta.cuenta }}</span>
           </div>
           <div class="bank-info">
             <span class="bank-label">Tipo de Cuenta:</span>
-            <span class="bank-value">Corriente</span>
+            <span class="bank-value">{{ bankData.cuenta.tipoCuenta }}</span>
           </div>
           <div class="bank-info">
             <span class="bank-label">Rif:</span>
-            <span class="bank-value">J403113661</span>
+            <span class="bank-value">{{ bankData.cuenta.rif }}</span>
           </div>
         </div>
       </div>
@@ -37,15 +37,15 @@
         <div class="bank-content">
           <div class="bank-info">
             <span class="bank-label">Banco:</span>
-            <span class="bank-value">BANESCO</span>
+            <span class="bank-value">{{ bankData.pagoMovil.banco }}</span>
           </div>
           <div class="bank-info">
             <span class="bank-label">Rif:</span>
-            <span class="bank-value">J403113661</span>
+            <span class="bank-value">{{ bankData.pagoMovil.rif }}</span>
           </div>
           <div class="bank-info">
             <span class="bank-label">Telefono:</span>
-            <span class="bank-value">0414-5044409</span>
+            <span class="bank-value">{{ bankData.pagoMovil.telefono }}</span>
           </div>
         </div>
       </div>

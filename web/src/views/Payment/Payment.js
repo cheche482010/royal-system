@@ -32,6 +32,22 @@ export default {
     const router = useRouter();
     const cartService = useCartService();
     
+    // Datos bancarios
+    const bankData = {
+      cuenta: {
+        nombre: 'ROYAL PET C.A',
+        banco: 'BANESCO',
+        cuenta: '0134-0416-05-4161028192',
+        tipoCuenta: 'Corriente',
+        rif: 'J403113661'
+      },
+      pagoMovil: {
+        banco: 'BANESCO',
+        rif: 'J403113661',
+        telefono: '0414-5044409'
+      }
+    };
+
     // Tab activo
     const activeTab = ref('cuenta');
 
@@ -204,6 +220,7 @@ export default {
       removeFile,
       confirmPayment,
       loading,
+      bankData,
       activeTab
     };
   }
