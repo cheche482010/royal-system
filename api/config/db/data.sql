@@ -157,3 +157,13 @@ INSERT INTO carrito_producto (carrito_id, producto_id, cantidad) VALUES
 (3, 7, 1), -- 1 unidad de BRIT DIETA BETERINARIA HYPOALLERGENIC 12KG
 (3, 4, 2), -- 2 unidades de BRIT DIETA BETERINARIA RENAL 2KG
 (3, 8, 1); -- 1 unidad de BRIT DIETA BETERINARIA RENAL 12KG
+
+-- Insertar datos de prueba en la tabla cupones
+INSERT INTO coupons (codigo, descuento, tipo_descuento, fecha_inicio, fecha_fin, max_usos) VALUES
+('CUPON1', '10', 'porcentaje', '2023-04-01 00:00:00', '2023-04-30 23:59:59', 10),
+('CUPON2', '20', 'monto_fijo', '2023-04-01 00:00:00', '2023-04-30 23:59:59', 5),
+('CUPON3', '15', 'porcentaje', '2023-04-01 00:00:00', '2023-04-30 23:59:59', 15);
+
+-- Insertar datos de prueba en la tabla cupones_usados
+INSERT INTO cupones_usados (cupon_id, usuario_id, orden_id, fecha_uso) VALUES
+(1, 1, 1, '2023-04-15 10:30:00');

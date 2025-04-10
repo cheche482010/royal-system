@@ -12,7 +12,18 @@ const Coupon = sequelize.define(
     codigo: {
       type: DataTypes.STRING(255),
       allowNull: false,
+      unique: true,
       comment: "Código de promoción",
+    },
+    descuento: {
+      type: DataTypes.STRING(10),
+      allowNull: false,
+      comment: "Valor de descuento (ej. 10%, $20)",
+    },
+    tipo_descuento: {
+      type: DataTypes.ENUM('porcentaje', 'monto_fijo'),
+      allowNull: false,
+      comment: "Tipo de descuento",
     },
     fecha_inicio: {
       type: DataTypes.DATE,
@@ -23,6 +34,16 @@ const Coupon = sequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
       comment: "Fecha fin de vigencia",
+    },
+    max_usos: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      comment: "Número máximo de usos permitidos (null para ilimitado)",
+    },
+    usos_actuales: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+      comment: "Número de veces que se ha usado el cupón",
     },
     is_active: {
       type: DataTypes.BOOLEAN,
@@ -39,4 +60,3 @@ const Coupon = sequelize.define(
 )
 
 export default Coupon
-

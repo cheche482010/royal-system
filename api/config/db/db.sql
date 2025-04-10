@@ -152,15 +152,43 @@ DROP TABLE IF EXISTS `coupons`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 
-CREATE TABLE coupons (
-  id bigint NOT NULL AUTO_INCREMENT,
-  codigo varchar(255) NOT NULL COMMENT 'Código de promoción',
-  fecha_inicio datetime NOT NULL COMMENT 'Fecha inicio de vigencia',
-  fecha_fin datetime DEFAULT NULL COMMENT 'Fecha fin de vigencia',
-  is_active tinyint(1) DEFAULT '1' COMMENT 'Indica si el cupón está activo',
-  created_at timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creación del registro',
-  updated_at timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha de última actualización',
-  PRIMARY KEY (id)
+CREATE TABLE `coupons` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `codigo` varchar(255) NOT NULL COMMENT 'Código de promoción',
+  `descuento` varchar(10) NOT NULL COMMENT 'Valor de descuento (ej. 10%, $20, etc.)',
+  `tipo_descuento` enum('porcentaje','monto_fijo') NOT NULL COMMENT 'Tipo de descuento (porcentaje o monto fijo)',
+  `fecha_inicio` datetime NOT NULL COMMENT 'Fecha inicio de vigencia',
+  `fecha_fin` datetime DEFAULT NULL COMMENT 'Fecha fin de vigencia',
+  `max_usos` int DEFAULT NULL COMMENT 'Número máximo de usos permitidos (NULL para ilimitado)',
+  `usos_actuales` int DEFAULT 0 COMMENT 'Número de veces que se ha usado el cupón',
+  `is_active` tinyint(1) DEFAULT '1' COMMENT 'Indica si el cupón está activo',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creación del registro',
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha de última actualización',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `codigo` (`codigo`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `cupones_usados`
+--
+
+DROP TABLE IF EXISTS `cupones_usados`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `cupones_usados` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `cupon_id` bigint NOT NULL COMMENT 'ID del cupón utilizado',
+  `usuario_id` bigint NOT NULL COMMENT 'ID del usuario que utilizó el cupón',
+  `orden_id` bigint DEFAULT NULL COMMENT 'ID de la orden donde se aplicó el cupón',
+  `fecha_uso` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha en que se usó el cupón',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `cupon_usuario_unico` (`cupon_id`, `usuario_id`),
+  KEY `idx_cupon_usuario` (`usuario_id`),
+  KEY `idx_cupon_orden` (`orden_id`),
+  CONSTRAINT `cupones_usados_ibfk_1` FOREIGN KEY (`cupon_id`) REFERENCES `coupons` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `cupones_usados_ibfk_2` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `cupones_usados_ibfk_3` FOREIGN KEY (`orden_id`) REFERENCES `ordenes` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
