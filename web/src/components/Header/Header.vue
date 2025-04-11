@@ -8,10 +8,45 @@
             </div>
 
             <div class="header__search">
-                <input type="text" placeholder="¿Qué es lo que buscas?" class="search-input" />
-                <button class="search-button">
+                <input 
+                    type="text" 
+                    v-model="searchQuery" 
+                    @input="searchProducts" 
+                    @focus="showSearchResults = true"
+                    placeholder="¿Qué es lo que buscas?" 
+                    class="search-input" 
+                />
+                <button class="search-button" @click="navigateToSearchPage">
                     <SearchIcon class="search-icon" />
                 </button>
+
+                <div v-if="showSearchResults && searchResults.length > 0" class="search-results">
+                    <div class="search-results-container">
+                        <div 
+                            v-for="product in searchResults.slice(0, 5)" 
+                            :key="product.id" 
+                            class="search-result-item"
+                            @click="navigateTo(`/productdetails?id=${product.id}`)"
+                        >
+                            <img 
+                                :src="`${API_BASE_URL}${product.producto_img || '/placeholder-product.png'}`" 
+                                :alt="product.nombre" 
+                                class="result-image"
+                            />
+                            <div class="result-details">
+                                <h4>{{ product.nombre }}</h4>
+                                <p class="price">{{ formatPrice(product.precio_unidad) }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button 
+                        v-if="searchResults.length > 5" 
+                        class="view-all-btn" 
+                        @click="navigateToSearchPage"
+                    >
+                        Ver todos los resultados ({{ searchResults.length }})
+                    </button>
+                </div>
             </div>
 
             <div class="header__actions">

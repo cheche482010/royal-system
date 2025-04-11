@@ -2,6 +2,7 @@ import { ref, computed, onMounted, onUnmounted } from "vue"
 import { useAuth } from "../../composables/useAuth"
 import { useRouter } from "vue-router"
 import { useCartService } from "../../services/cart.service"
+import { useProductsService } from "../../services/products.service" 
 import { config } from "../../config/config"
 import {
   SearchIcon,
@@ -37,16 +38,25 @@ export default {
       type: Boolean,
       default: false,
     },
+    API_BASE_URL: {
+      type: String,
+      default: config.API_BASE_URL
+    }
   },
   setup() {
     const router = useRouter()
     const auth = useAuth()
     const cartService = useCartService()
     const cartCount = ref(0)
+    const productsService = useProductsService()
 
     // Estado para los menús desplegables
     const showUserMenu = ref(false)
     const showNotifications = ref(false)
+    const searchQuery = ref("")
+    const searchResults = ref([])
+    const showSearchResults = ref(false)
+    const isSearching = ref(false)
 
     // Notificaciones de ejemplo
     const notifications = ref([
@@ -124,12 +134,54 @@ export default {
       showNotifications.value = false
     }
 
+    const searchProducts = async () => {
+      if (!searchQuery.value.trim()) {
+        searchResults.value = []
+        showSearchResults.value = false
+        return
+      }
+    
+      isSearching.value = true
+      try {
+        const isNumericSearch = !isNaN(searchQuery.value)
+        
+        const results = await productsService.searchProducts(
+          isNumericSearch ? '' : searchQuery.value, // query
+          null, // categoriaId
+          null, // marcaId
+          isNumericSearch ? searchQuery.value : null // precio
+        )
+        
+        searchResults.value = results.slice(0, 10)
+        showSearchResults.value = true
+      } catch (error) {
+        console.error("Error searching products:", error)
+        searchResults.value = []
+      } finally {
+        isSearching.value = false
+      }
+    }
+
+    const navigateToSearchPage = () => {
+      if (searchQuery.value.trim()) {
+        router.push({
+          path: "/products",
+          query: { search: searchQuery.value }
+        })
+        searchQuery.value = ""
+        searchResults.value = []
+        showSearchResults.value = false
+      }
+    }
+
     // Cerrar menús al hacer clic fuera de ellos
     const closeMenus = (event) => {
       const userMenuEl = document.querySelector(".user-menu")
       const userInfoEl = document.querySelector(".user-info")
       const notificationMenuEl = document.querySelector(".notification-menu")
       const notificationIconEl = document.querySelector(".notification-icon")
+      const searchResultsEl = document.querySelector(".search-results")
+      const searchInputEl = document.querySelector(".search-input")
 
       if (userMenuEl && userInfoEl && !userMenuEl.contains(event.target) && !userInfoEl.contains(event.target)) {
         showUserMenu.value = false
@@ -142,6 +194,15 @@ export default {
         !notificationIconEl.contains(event.target)
       ) {
         showNotifications.value = false
+      }
+
+      if (
+        searchResultsEl &&
+        searchInputEl &&
+        !searchResultsEl.contains(event.target) &&
+        !searchInputEl.contains(event.target)
+      ) {
+        showSearchResults.value = false
       }
     }
 
@@ -200,6 +261,20 @@ export default {
       { id: 4, name: "Item IV" },
     ])
 
+    const formatPrice = (price) => {
+      if (typeof price === 'number') {
+        return `$${price.toFixed(2)}`
+      }
+      if (typeof price === 'string') {
+        // Si ya tiene formato, devolverlo tal cual
+        if (price.includes('$')) return price
+        // Si es un número en string, formatearlo
+        const num = parseFloat(price)
+        if (!isNaN(num)) return `$${num.toFixed(2)}`
+      }
+      return price 
+    }
+
     return {
       cartCount,
       categories,
@@ -214,6 +289,13 @@ export default {
       formatDate,
       markAsRead,
       markAllAsRead,
+      searchQuery,
+      searchResults,
+      showSearchResults,
+      isSearching,
+      searchProducts,
+      navigateToSearchPage,
+      formatPrice
     }
   },
 }

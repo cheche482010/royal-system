@@ -367,7 +367,7 @@ export const deleteProducto = async (req, res, next) => {
 // Buscar productos
 export const searchProductos = async (req, res, next) => {
   try {
-    const { query, categoria_id, marca_id } = req.query
+    const { query, categoria_id, marca_id, precio } = req.query
 
     const whereClause = {
       is_delete: false,
@@ -380,6 +380,39 @@ export const searchProductos = async (req, res, next) => {
         { nombre: { [Op.like]: `%${query}%` } },
         { descripcion: { [Op.like]: `%${query}%` } },
       ]
+    }
+
+    // Búsqueda por precio mejorada
+    if (precio) {
+      const precioStr = precio.toString()
+      
+      // Creamos un array para las condiciones de precio
+      const precioConditions = []
+      
+      // Búsqueda parcial en precio_unidad como string
+      precioConditions.push(sequelize.where(
+        sequelize.cast(sequelize.col('precio_unidad'), 'TEXT'),
+        { [Op.like]: `%${precioStr}%` }
+      ))
+      
+      // Búsqueda exacta numérica
+      const precioNum = parseFloat(precio)
+      if (!isNaN(precioNum)) {
+        precioConditions.push(
+          { precio_unidad: precioNum }
+        )
+      }
+
+      // Si no hay condiciones OR previas, creamos un nuevo array
+      if (!whereClause[Op.or]) {
+        whereClause[Op.or] = precioConditions
+      } else {
+        // Si ya hay condiciones OR, las combinamos
+        whereClause[Op.or] = [
+          ...whereClause[Op.or],
+          { [Op.or]: precioConditions }
+        ]
+      }
     }
 
     if (categoria_id) {

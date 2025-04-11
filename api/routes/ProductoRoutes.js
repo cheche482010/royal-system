@@ -31,7 +31,7 @@ router.get("/getAll", getAllProductos)
  * /productos/search:
  *   get:
  *     summary: Search productos
- *     description: Search productos by query, categoria, or marca
+ *     description: Search productos by query, categoria, marca or precio
  *     tags:
  *       - Productos
  *     parameters:
@@ -50,6 +50,11 @@ router.get("/getAll", getAllProductos)
  *         schema:
  *           type: integer
  *         description: Filter by marca ID
+ *       - in: query
+ *         name: precio
+ *         schema:
+ *           type: number
+ *         description: Filter by price (matches unidad, tienda or distribuidor prices)
  *     responses:
  *       200:
  *         description: A list of matching productos

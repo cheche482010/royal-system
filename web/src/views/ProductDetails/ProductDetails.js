@@ -69,7 +69,6 @@ export default {
 
     // Cargar el producto cuando el componente se monta
     onMounted(() => {
-      console.log("Component mounted, loading product...")
       loadProductDetails()
     })
 
@@ -78,7 +77,6 @@ export default {
       () => route.params.id,
       (newId) => {
         if (newId) {
-          console.log("Route changed, reloading product...")
           loadProductDetails()
         }
       },
@@ -97,14 +95,12 @@ export default {
         }
 
         const response = await apiService.getProductById(productId)
-        console.log("Product Response:", response)
 
         if (!response || !response.data) {
           throw new Error("No se pudo cargar el producto")
         }
 
         const data = response.data
-        console.log("Product Data:", data)
 
         // Transformar el producto al formato esperado
         productItems.value = {
@@ -123,8 +119,6 @@ export default {
 
         // Cargar productos para el carousel (generales por ahora)
         const productsResponse = await apiService.getAllProducts()
-
-        console.log("All Products Response:", productsResponse)
 
         if (productsResponse?.data) {
           relatedProductsdetails.value = productsResponse.data
@@ -253,7 +247,6 @@ export default {
       () => route.query.id,
       (newId) => {
         if (newId) {
-          console.log("Route query changed, reloading product...")
           loadProductDetails()
         }
       },
