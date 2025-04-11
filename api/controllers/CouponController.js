@@ -1,4 +1,5 @@
 import { Coupon, CouponUsado, Orden } from "../models/index.js"
+import { sequelize } from "../config/database.js"
 import { Op } from "sequelize"
 
 // Obtener todos los cupones
@@ -165,13 +166,13 @@ export const validateCoupon = async (req, res, next) => {
         [Op.or]: [{ fecha_fin: null }, { fecha_fin: { [Op.gte]: new Date() } }],
         [Op.or]: [
           { max_usos: null },
-          { max_usos: { [Op.gt]: sequelize.col('usos_actuales') } },
+          { max_usos: { [Op.gt]: sequelize.literal('usos_actuales') } },
         ]
       },
     })
 
     if (!coupon) {
-      return res.status(404).json({ success: false, message: "Invalid or expired coupon" })
+      return res.status(404).json({ success: false, message: "Cupón no válido o caducado" })
     }
 
     // Verificar si el usuario ya usó este cupón
@@ -183,9 +184,9 @@ export const validateCoupon = async (req, res, next) => {
     })
 
     if (couponUsed) {
-      return res.status(400).json({ 
+      return res.status(200).json({ 
         success: false, 
-        message: "You have already used this coupon" 
+        message: "Ya has utilizado este cupón" 
       })
     }
 
@@ -229,7 +230,7 @@ export const applyCoupon = async (req, res, next) => {
     })
 
     if (!coupon) {
-      return res.status(404).json({ success: false, message: "Invalid or expired coupon" })
+      return res.status(404).json({ success: false, message: "Cupón no válido o caducado" })
     }
 
     // Verificar si el usuario ya usó este cupón
@@ -241,9 +242,9 @@ export const applyCoupon = async (req, res, next) => {
     })
 
     if (couponUsed) {
-      return res.status(400).json({ 
+      return res.status(200).json({ 
         success: false, 
-        message: "You have already used this coupon" 
+        message: "Ya has utilizado este cupón" 
       })
     }
 

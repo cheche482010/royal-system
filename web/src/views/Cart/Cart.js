@@ -7,10 +7,19 @@ import Header from "../../components/Header/Header.vue"
 import Footer from "../../components/Footer/Footer.vue"
 import { apiService } from "../../services/api.service"
 import { useCartService } from "../../services/cart.service"
+import { useCouponService } from "../../services/coupon.service"
 import { useToast } from "../../services/toast.service"
 import ProductCarousel from "../../components/ProductCarousel/ProductCarousel.vue"
-import { MinusIcon, PlusIcon, TrashIcon, ShoppingCartIcon, LockIcon } from "lucide-vue-next"
 import { config } from "../../config/config"
+
+import { 
+  MinusIcon, 
+  PlusIcon, 
+  TrashIcon, 
+  ShoppingCartIcon, 
+  LockIcon, 
+  TagIcon 
+} from "lucide-vue-next"
 
 export default {
   name: "Cart",
@@ -23,6 +32,7 @@ export default {
     Header,
     Footer,
     ProductCarousel,
+    TagIcon,
   },
   props: {
     API_BASE_URL: {
@@ -34,6 +44,7 @@ export default {
     const router = useRouter()
     const toast = useToast()
     const cartService = useCartService()
+    const couponService = useCouponService()
 
     // Carrito de items
     const cartItems = ref([])
@@ -42,6 +53,7 @@ export default {
     const featuredProducts = ref([])
     const promoCode = ref("")
     const appliedPromo = ref(null)
+    const couponError = ref("")
 
     const subtotal = computed(() => {
       const total = cartItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
@@ -64,12 +76,10 @@ export default {
     const total = computed(() => {
       let totalValue = cartItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
-      // Aplicar descuento si hay un código promocional
       if (appliedPromo.value) {
         totalValue -= totalValue * (appliedPromo.value.percentage / 100)
       }
 
-      // Añadir gastos de envío si es necesario
       if (totalValue < 59) {
         totalValue += 4.99
       }
@@ -85,10 +95,9 @@ export default {
       if (newQuantity < 1) return
 
       try {
-        // Actualizar la cantidad en el servidor
+        
         await cartService.updateCartItemQuantity(itemId, newQuantity)
 
-        // Actualizar la UI
         const itemIndex = cartItems.value.findIndex((item) => item.id === itemId)
         if (itemIndex !== -1) {
           cartItems.value[itemIndex].quantity = newQuantity
@@ -107,17 +116,13 @@ export default {
 
     const removeItem = async (itemId) => {
       try {
-        // Eliminar el item del servidor
+        
         const result = await cartService.removeFromCart(itemId)
 
         if (result.success) {
-          // Actualizar la UI eliminando el item del array local
+         
           cartItems.value = cartItems.value.filter((item) => item.id !== itemId)
-          
-          // Actualizar el contador del carrito manualmente
           cartService.updateCartCount(cartItems.value.length)
-          
-          // Notificar a los componentes sobre la actualización
           cartService.notifyCartUpdated()
           
           toast.success("Producto eliminado del carrito", {
@@ -146,7 +151,6 @@ export default {
 
     const loadCartItems = async () => {
       try {
-        // Obtener los items del carrito desde el servidor
         const items = await cartService.getCartItems()
         cartItems.value = items
       } catch (error) {
@@ -164,7 +168,6 @@ export default {
           throw new Error("Respuesta inválida del servidor")
         }
 
-        // Tomar los primeros 5 productos activos como destacados
         featuredProducts.value = response.data
           .filter((p) => p.is_active)
           .slice(0, 8)
@@ -183,28 +186,53 @@ export default {
       }
     }
 
-    // Escuchar evento de actualización del carrito
+    const applyPromoCode = async () => {
+      if (!promoCode.value) {
+        couponError.value = "Por favor ingresa un código promocional"
+        return
+      }
+    
+      try {
+        const result = await couponService.validateCoupon(promoCode.value)
+        
+        if (result.success) {
+          appliedPromo.value = {
+            code: promoCode.value,
+            percentage: result.data.descuento,
+            type: result.data.tipo_descuento
+          }
+          couponError.value = ""
+          toast.success("Cupón aplicado correctamente")
+        } else {
+          couponError.value = result.message
+          appliedPromo.value = null
+        }
+      } catch (error) {
+        console.error("Error al aplicar cupón:", error)
+        couponError.value = "Error al aplicar cupón"
+      }
+    }
+
+    const removePromoCode = () => {
+      appliedPromo.value = null
+      promoCode.value = ""
+      couponError.value = ""
+    }
+
     const handleCartUpdated = () => {
-      // Recargar los items del carrito cuando se actualiza
       loadCartItems()
     }
 
-    // Inicializar
     onMounted(() => {
-      // Cargar datos iniciales
       loadCartItems()
       loadFeaturedProducts()
-
-      // Agregar listener para actualizar carrito cuando se agrega un producto
       window.addEventListener("cart-updated", handleCartUpdated)
     })
 
-    // Limpiar event listeners
     onUnmounted(() => {
       window.removeEventListener("cart-updated", handleCartUpdated)
     })
 
-    // Observar cambios en el carrito para actualizar el contador
     watch(cartItems, (newItems) => {
       cartService.updateCartCount(newItems.length)
     }, { deep: true })
@@ -218,10 +246,14 @@ export default {
       discount,
       total,
       featuredProducts,
+      appliedPromo,
+      couponError,
       formatPrice,
       updateQuantity,
       removeItem,
       checkout,
+      applyPromoCode,
+      removePromoCode,
     }
   },
 }

@@ -25,9 +25,10 @@
     grid-template-columns: 1fr 350px;
     gap: 2rem;
     margin-bottom: 1rem;
+
     .cart-items {
-      max-height: 760px; 
-      overflow-y: auto;  
+      max-height: 760px;
+      overflow-y: auto;
       padding-right: 8px;
 
       &::-webkit-scrollbar {
@@ -59,7 +60,7 @@
         margin-bottom: 1rem;
 
         &:last-child {
-          margin-bottom: 0; 
+          margin-bottom: 0;
         }
 
         .item-image {
@@ -169,6 +170,70 @@
     }
 
     .cart-sidebar {
+
+      .coupon-section {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e9ecef;
+
+        .coupon-input {
+          display: flex;
+          gap: 0.5rem;
+          margin-bottom: 0.5rem;
+
+          input {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+          }
+
+          button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+          }
+
+          .apply-coupon-button {
+            background-color: #00b2e3;
+            color: white;
+
+            &:hover {
+              background-color: #00b2e3;
+            }
+          }
+
+          .remove-coupon-button {
+            background-color: #dc3545;
+            color: white;
+
+            &:hover {
+              background-color: #dc3545;
+            }
+          }
+        }
+
+        .coupon-error {
+          color: #dc3545;
+          font-size: 0.75rem;
+          margin-top: 0.25rem;
+        }
+
+        .coupon-success {
+          color: #28a745;
+          font-size: 0.875rem;
+          margin-top: 0.5rem;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+      }
+
       .cart-summary {
         background-color: white;
         border-radius: 0.5rem;

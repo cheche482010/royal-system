@@ -27,19 +27,20 @@ export const apiService = {
           'Authorization': `Bearer ${token}`
         }
       }
-
+  
       if (data && (method === 'POST' || method === 'PUT')) {
         options.body = JSON.stringify(data)
       }
-
+  
       const response = await fetch(`${config.API_URL}${endpoint}`, options)
       
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || `Error en petición ${method} a ${endpoint}`)
+      const responseData = await response.json()
+      
+      if (!response.ok && response.status !== 400) {
+        throw new Error(responseData.message || `Error en petición ${method} a ${endpoint}`)
       }
       
-      return await response.json()
+      return responseData
     } catch (error) {
       console.error(`Error en ${method} ${endpoint}:`, error)
       throw error
