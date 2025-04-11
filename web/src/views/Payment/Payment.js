@@ -5,6 +5,9 @@ import Footer from '../../components/Footer/Footer.vue';
 import { apiService } from '../../services/api.service';
 import { useCartService } from '../../services/cart.service';
 import { config } from '../../config/config'
+import { useToast } from "../../services/toast.service"
+import { useCouponService } from "../../services/coupon.service"
+
 import {
   UploadIcon,
   FileIcon,
@@ -29,9 +32,12 @@ export default {
     }
   },
   setup(props) {
-    const router = useRouter();
-    const cartService = useCartService();
-    
+    const router = useRouter()
+    const cartService = useCartService()
+    const toast = useToast()
+    const couponService = useCouponService()
+    const checkoutData = ref(null) 
+
     // Datos bancarios
     const bankData = {
       cuenta: {
@@ -60,7 +66,7 @@ export default {
 
     // Información de pago
     const paymentInfo = ref({
-      metodo_pago: '', 
+      metodo_pago: '',
       bank: '',
       reference: '',
       amount: '',
@@ -84,34 +90,43 @@ export default {
     // Cargar datos iniciales
     const loadInitialData = async () => {
       try {
-        // Cargar items del carrito
-        const cartItems = await cartService.getCartItems();
-        orderItems.value = cartItems.map(item => ({
-          id: item.id,
-          name: item.name,
-          brand: item.brand,
-          price: item.price,
-          quantity: item.quantity,
-          image: item.image
-        }));
 
-        // Cargar métodos de pago
+        checkoutData.value = JSON.parse(localStorage.getItem('checkoutData'))
+
         const methodsResponse = await apiService.get('/metodos-pago');
         if (methodsResponse.success && methodsResponse.data) {
           paymentMethods.value = methodsResponse.data;
         }
 
-        // Cargar bancos
         const banksResponse = await apiService.get('/bancos');
         if (banksResponse.success && banksResponse.data) {
           banks.value = banksResponse.data;
         }
+
+        if (checkoutData.value) {
+          orderItems.value = checkoutData.value.items
+          if (checkoutData.value.coupon) {
+            discount.value = checkoutData.value.discount
+          }
+        } else {
+
+          const cartItems = await cartService.getCartItems()
+          orderItems.value = cartItems.map(item => ({
+            id: item.id,
+            name: item.name,
+            brand: item.brand,
+            price: item.price,
+            quantity: item.quantity,
+            image: item.image
+          }))
+        }
+
       } catch (error) {
-        console.error('Error loading initial data:', error);
+        console.error('Error loading initial data:', error)
       } finally {
-        loading.value = false;
+        loading.value = false
       }
-    };
+    }
 
     // Cálculos del pedido
     const subtotal = computed(() => {
@@ -125,12 +140,15 @@ export default {
     });
 
     const discount = computed(() => {
-      // Aquí iría la lógica de descuentos si aplica
-      return null;
-    });
+      return checkoutData.value?.discount || null
+    })
+
+    const coupon = computed(() => {
+      return checkoutData.value?.coupon.code || null
+    })
 
     const total = computed(() => {
-      let totalValue = orderItems.value.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      let totalValue = checkoutData.value?.total || 0;
 
       // Añadir gastos de envío si es necesario
       if (totalValue < 59) {
@@ -138,16 +156,16 @@ export default {
       }
 
       // Actualizar el monto en la información de pago
-      paymentInfo.value.amount = formatPrice(totalValue);
+      paymentInfo.value.amount = totalValue;
 
-      return formatPrice(totalValue);
+      return totalValue;
     });
 
     // Validación del formulario
     const isFormValid = computed(() => {
       return (
         paymentInfo.value.metodo_pago &&
-        (paymentInfo.value.metodo_pago === '1' ? paymentInfo.value.bank : true) && 
+        (paymentInfo.value.metodo_pago === '1' ? paymentInfo.value.bank : true) &&
         paymentInfo.value.reference &&
         fileSelected.value &&
         shippingInfo.value.name &&
@@ -183,19 +201,61 @@ export default {
 
     const confirmPayment = async () => {
       try {
-       
-        console.log('Procesando pago...');
-        console.log('Información de pago:', paymentInfo.value);
-        console.log('Información de envío:', shippingInfo.value);
-        
-      
-        setTimeout(() => {
-          router.push('/confirmation');
-        }, 1500);
+        // Obtener datos del checkout
+        const checkoutData = JSON.parse(localStorage.getItem('checkoutData'))
+
+        // Crear la orden primero
+        const orderResponse = await apiService.post('/ordenes', getToken(), {
+          usuario_id: getUserId(),
+          monto_total: parseFloat(total.value.replace(',', '').replace('$', '')),
+          items: orderItems.value
+        })
+
+        if (!orderResponse.success) {
+          throw new Error(orderResponse.message || "Error al crear la orden")
+        }
+
+        const orderId = orderResponse.data.id
+
+        // Si hay cupón aplicado, registrarlo
+        if (checkoutData?.coupon) {
+          const couponResponse = await couponService.applyCoupon(
+            checkoutData.coupon.code,
+            orderId
+          )
+
+          if (!couponResponse.success) {
+            console.error("Error al aplicar cupón:", couponResponse.message)
+          }
+        }
+
+        // Procesar el pago
+        const paymentResponse = await apiService.post('/pagos', getToken(), {
+          orden_id: orderId,
+          metodo_pago_id: paymentInfo.value.metodo_pago,
+          referencia: paymentInfo.value.reference,
+          monto: parseFloat(paymentInfo.value.amount.replace(',', '').replace('$', '')),
+          comprobante_img: paymentInfo.value.receipt
+        })
+
+        if (!paymentResponse.success) {
+          throw new Error(paymentResponse.message || "Error al procesar el pago")
+        }
+
+        // Limpiar el carrito
+        await cartService.clearCart()
+        localStorage.removeItem('checkoutData')
+
+        // Redirigir a confirmación
+        router.push('/confirmation')
       } catch (error) {
-        console.error('Error al procesar el pago:', error);
+        console.error('Error al procesar el pago:', error)
+        toast.error("Error al procesar el pago", {
+          title: "Error",
+          description: error.message
+        })
       }
-    };
+    }
 
     // Cargar datos al montar el componente
     onMounted(() => {
@@ -214,6 +274,7 @@ export default {
       shipping,
       discount,
       total,
+      coupon,
       isFormValid,
       formatPrice,
       handleFileUpload,

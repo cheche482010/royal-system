@@ -146,6 +146,21 @@ export default {
     }
 
     const checkout = () => {
+
+      const checkoutData = {
+        items: cartItems.value,
+        subtotal: subtotal.value,
+        shipping: shipping.value,
+        discount: discount.value,
+        total: total.value,
+        coupon: appliedPromo.value ? {
+          code: appliedPromo.value.code,
+          percentage: appliedPromo.value.percentage,
+          type: appliedPromo.value.type
+        } : null
+      }
+    
+      localStorage.setItem('checkoutData', JSON.stringify(checkoutData))
       router.push("/payment")
     }
 

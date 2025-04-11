@@ -57,16 +57,16 @@ export const useCouponService = () => {
         toast.error("Debes iniciar sesión para usar cupones")
         return { success: false, message: "Authentication required" }
       }
-
+  
       const response = await apiService.post("/coupons/apply", token, {
         codigo: code,
         orden_id: orderId
       })
-
+  
       if (!response.success) {
         throw new Error(response.message || "Error al aplicar cupón")
       }
-
+  
       return {
         success: true,
         data: response.data,

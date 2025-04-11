@@ -69,7 +69,7 @@
           </div>
           
           <!-- Banco (solo visible si es transferencia) -->
-          <div class="form-group" v-if="paymentInfo.metodo_pago == '3'">
+          <div class="form-group" v-if="paymentInfo.metodo_pago == '1'">
             <label for="bank">Banco</label>
             <select id="bank" v-model="paymentInfo.bank" class="form-control">
               <option value="">Selecciona un banco</option>
@@ -165,7 +165,7 @@
           </div>
 
           <div class="summary-divider"></div>
-
+          
           <div class="summary-row">
             <span>Subtotal</span>
             <span>{{ subtotal }}</span>
@@ -177,7 +177,7 @@
           </div>
 
           <div class="summary-row discount" v-if="discount">
-            <span>Descuento</span>
+            <span>Descuento ({{  coupon }})</span>
             <span>-{{ discount }}</span>
           </div>
 
