@@ -17,7 +17,7 @@ export const useProductsService = () => {
     const getAllProducts = async () => {
         try {
             const response = await apiService.get('/productos/getAll')
-            return response.data || []
+            return response
         } catch (error) {
             console.error("Error fetching all products:", error)
             throw error

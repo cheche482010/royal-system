@@ -10,6 +10,7 @@ import { useCartService } from "../../services/cart.service"
 import { config } from '../../config/config'
 import { useAuth } from "../../composables/useAuth"
 import { useToast } from "../../services/toast.service"
+import { useProductsService } from "../../services/products.service"
 
 import { 
   MinusIcon,
@@ -47,6 +48,7 @@ export default {
     const auth = useAuth()
     const toast = useToast()
     const cartService = useCartService()
+    const productsService = useProductsService()
 
     // Estado para la cantidad
     const quantity = ref(1)
@@ -118,7 +120,7 @@ export default {
         }
 
         // Cargar productos para el carousel (generales por ahora)
-        const productsResponse = await apiService.getAllProducts()
+        const productsResponse = await productsService.getAllProducts()
 
         if (productsResponse?.data) {
           relatedProductsdetails.value = productsResponse.data

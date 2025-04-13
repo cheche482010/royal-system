@@ -11,6 +11,7 @@ import { useCouponService } from "../../services/coupon.service"
 import { useToast } from "../../services/toast.service"
 import ProductCarousel from "../../components/ProductCarousel/ProductCarousel.vue"
 import { config } from "../../config/config"
+import { useProductsService } from "../../services/products.service"
 
 import { 
   MinusIcon, 
@@ -45,7 +46,8 @@ export default {
     const toast = useToast()
     const cartService = useCartService()
     const couponService = useCouponService()
-
+    const productsService = useProductsService()
+    
     // Carrito de items
     const cartItems = ref([])
     const isCartEmpty = computed(() => cartItems.value.length === 0)
@@ -178,7 +180,7 @@ export default {
 
     const loadFeaturedProducts = async () => {
       try {
-        const response = await apiService.getAllProducts()
+        const response = await productsService.getAllProducts()
         if (!response.success || !response.data) {
           throw new Error("Respuesta inválida del servidor")
         }

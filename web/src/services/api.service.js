@@ -2,10 +2,6 @@ import { config } from '../config/config'
 
 export const apiService = {
 
-  async getAllProducts() {
-    return this.get('/productos/getAll')
-  },
-
   async searchProducts(query = '', categoriaId = null, marcaId = null) {
     let endpoint = '/productos/search?'
     if (query) endpoint += `query=${encodeURIComponent(query)}&`

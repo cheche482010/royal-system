@@ -4,6 +4,7 @@ import Header from '../../components/Header/Header.vue';
 import Footer from '../../components/Footer/Footer.vue';
 import ProductCarousel from '../../components/ProductCarousel/ProductCarousel.vue';
 import { apiService } from '../../services/api.service';
+import { useProductsService } from "../../services/products.service"
 import { useToast } from '../../services/toast.service';
 
 export default { 
@@ -21,7 +22,8 @@ export default {
   setup() {
     const activeSlide = ref(0);
     const activeTab = ref('perros');
-    
+    const productsService = useProductsService()
+
     const banners = ref([
       {
         brand: 'TRAVENESS',
@@ -64,7 +66,8 @@ export default {
     // Cargar productos destacados
     const loadFeaturedProducts = async () => {
       try {
-        const response = await apiService.getAllProducts();
+        const response = await productsService.getAllProducts();
+        
         if (!response.success || !response.data) {
           throw new Error('Respuesta inválida del servidor');
         }
