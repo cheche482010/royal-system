@@ -43,7 +43,11 @@ export const getCurrentTasa = async (req, res, next) => {
     })
 
     if (!tasa) {
-      return res.status(404).json({ success: false, message: "No active exchange rate found" })
+      return res.status(200).json({ 
+        success: true, 
+        data: null,
+        message: "No active exchange rate found" 
+      })
     }
 
     return res.status(200).json({ success: true, data: tasa })

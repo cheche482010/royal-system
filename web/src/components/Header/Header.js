@@ -308,9 +308,16 @@ export default {
           dollarSource.value = rateData.source
           dollarLastUpdated.value = rateData.updatedAt
           dollarId.value = rateData.id || null
+        } else {
+          dollarRate.value = null
+          dollarSource.value = 'No disponible'
+          dollarLastUpdated.value = null
         }
       } catch (error) {
         console.error('Error getting dollar rate:', error)
+        dollarRate.value = null
+        dollarSource.value = 'Error al obtener tasa'
+        dollarLastUpdated.value = null
       }
     }
 

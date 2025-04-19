@@ -13,8 +13,9 @@ export const useDolarService = () => {
     const fetchDollarRateFromAPI = async () => {
         try {
             const response = await fetch('https://ve.dolarapi.com/v1/dolares/oficial')
+            if (!response.ok) throw new Error('Failed to fetch from external API')
             const data = await response.json()
-            
+
             if (data.promedio) {
                 return {
                     rate: parseFloat(data.promedio),
@@ -44,10 +45,16 @@ export const useDolarService = () => {
     const getCurrentExchangeRate = async () => {
         try {
             const response = await apiService.get('/dolar-bcv/current', getToken())
+            if (response.data === null) {
+                return null
+            }
             return response.data || null
         } catch (error) {
-            console.error('Error fetching current exchange rate:', error)
-            throw error
+            if (!error.message.includes('No active exchange rate found')) {
+                console.error('Error fetching current exchange rate:', error)
+                throw error
+            }
+            return null
         }
     }
 
@@ -84,29 +91,33 @@ export const useDolarService = () => {
     // Get the most recent dollar rate (combines API and DB checks)
     const getMostRecentDollarRate = async () => {
         try {
-            const [apiRate, dbRate] = await Promise.all([
+            const [apiRate, dbRate] = await Promise.allSettled([
                 fetchDollarRateFromAPI(),
                 getCurrentExchangeRate()
             ])
 
-            // If we have a DB rate and it's newer than API rate (or API failed)
-            if (dbRate && (!apiRate || new Date(dbRate.fecha_inicio) >= apiRate.updatedAt)) {
+            // Extraer valores de las promesas resueltas
+            const apiResult = apiRate.status === 'fulfilled' ? apiRate.value : null
+            const dbResult = dbRate.status === 'fulfilled' ? dbRate.value : null
+
+            // Si tenemos tasa en DB y es más reciente que la API (o la API falló)
+            if (dbResult && (!apiResult || (dbResult.fecha_inicio && new Date(dbResult.fecha_inicio) >= apiResult.updatedAt))) {
                 return {
-                    rate: parseFloat(dbRate.tasa_cambio),
-                    updatedAt: new Date(dbRate.fecha_inicio),
+                    rate: parseFloat(dbResult.tasa_cambio),
+                    updatedAt: new Date(dbResult.fecha_inicio),
                     source: 'DB',
-                    id: dbRate.id
+                    id: dbResult.id
                 }
-            } 
-            // If we have API rate (and either no DB rate or API is newer)
-            else if (apiRate) {
-                return apiRate
+            }
+            // Si tenemos tasa de la API (y no hay en DB o es más reciente)
+            else if (apiResult) {
+                return apiResult
             }
 
             return null
         } catch (error) {
             console.error('Error getting most recent dollar rate:', error)
-            throw error
+            return null
         }
     }
 
