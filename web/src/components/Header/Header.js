@@ -1,8 +1,9 @@
-import { ref, computed, onMounted, onUnmounted } from "vue"
+import { ref, computed, onMounted, onUnmounted, nextTick  } from "vue"
 import { useAuth } from "../../composables/useAuth"
 import { useRouter } from "vue-router"
 import { useCartService } from "../../services/cart.service"
 import { useProductsService } from "../../services/products.service" 
+import { useDolarService } from "../../services/dolar.service"
 import { config } from "../../config/config"
 import {
   SearchIcon,
@@ -49,6 +50,7 @@ export default {
     const cartService = useCartService()
     const cartCount = ref(0)
     const productsService = useProductsService()
+    const dolarService = useDolarService()
 
     // Estado para los menús desplegables
     const showUserMenu = ref(false)
@@ -57,6 +59,15 @@ export default {
     const searchResults = ref([])
     const showSearchResults = ref(false)
     const isSearching = ref(false)
+
+    // Dollar rate state
+    const dollarRate = ref(null)
+    const showDollarMenu = ref(false)
+    const dollarSource = ref('')
+    const dollarLastUpdated = ref(null)
+    const dollarId = ref(null)
+    const dollarInputValue = ref('')
+    const showDollarInput = ref(false)
 
     // Notificaciones de ejemplo
     const notifications = ref([
@@ -182,11 +193,13 @@ export default {
       const notificationIconEl = document.querySelector(".notification-icon")
       const searchResultsEl = document.querySelector(".search-results")
       const searchInputEl = document.querySelector(".search-input")
-
+      const dollarMenuEl = document.querySelector(".dollar-menu")
+      const dollarRateEl = document.querySelector(".dollar-rate-container")
+    
       if (userMenuEl && userInfoEl && !userMenuEl.contains(event.target) && !userInfoEl.contains(event.target)) {
         showUserMenu.value = false
       }
-
+    
       if (
         notificationMenuEl &&
         notificationIconEl &&
@@ -195,7 +208,7 @@ export default {
       ) {
         showNotifications.value = false
       }
-
+    
       if (
         searchResultsEl &&
         searchInputEl &&
@@ -203,6 +216,16 @@ export default {
         !searchInputEl.contains(event.target)
       ) {
         showSearchResults.value = false
+      }
+    
+      if (
+        dollarMenuEl &&
+        dollarRateEl &&
+        !dollarMenuEl.contains(event.target) &&
+        !dollarRateEl.contains(event.target)
+      ) {
+        showDollarMenu.value = false
+        showDollarInput.value = false
       }
     }
 
@@ -246,6 +269,7 @@ export default {
 
       // Inicializar contador del carrito
       updateCartCount()
+      getCurrentDollarRate()
     })
 
     // Limpiar event listeners
@@ -275,6 +299,52 @@ export default {
       return price 
     }
 
+    const getCurrentDollarRate = async () => {
+      try {
+        const rateData = await dolarService.getMostRecentDollarRate()
+        
+        if (rateData) {
+          dollarRate.value = rateData.rate
+          dollarSource.value = rateData.source
+          dollarLastUpdated.value = rateData.updatedAt
+          dollarId.value = rateData.id || null
+        }
+      } catch (error) {
+        console.error('Error getting dollar rate:', error)
+      }
+    }
+
+    // Add new rate to DB
+    const addNewDollarRate = async () => {
+      if (!dollarInputValue.value) return
+      
+      try {
+        const rate = parseFloat(dollarInputValue.value)
+        if (isNaN(rate)) {
+          alert('Por favor ingrese un valor numérico válido')
+          return
+        }
+
+        await dolarService.createExchangeRate(rate)
+        dollarInputValue.value = ''
+        showDollarInput.value = false
+        await getCurrentDollarRate()
+      } catch (error) {
+        console.error('Error adding new dollar rate:', error)
+        alert('Error al agregar nueva tasa')
+      }
+    }
+
+    const startAddingNewRate = () => {
+      showDollarInput.value = true
+      dollarInputValue.value = dollarRate.value?.toFixed(2) || ''
+
+      nextTick(() => {
+        const input = document.querySelector('.dollar-input')
+        if (input) input.focus()
+      })
+    }
+
     return {
       cartCount,
       categories,
@@ -295,7 +365,15 @@ export default {
       isSearching,
       searchProducts,
       navigateToSearchPage,
-      formatPrice
+      formatPrice,
+      dollarRate: computed(() => dollarRate.value ? `${dollarRate.value.toFixed(2)} BS` : '--.-- BS'),
+      showDollarMenu,
+      addNewDollarRate,
+      startAddingNewRate,
+      dollarSource,
+      dollarLastUpdated,
+      dollarInputValue,
+      showDollarInput,
     }
   },
 }
