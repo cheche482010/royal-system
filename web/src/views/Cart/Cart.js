@@ -1,6 +1,3 @@
-
-"use client"
-
 import { ref, computed, onMounted, onUnmounted, watch } from "vue"
 import { useRouter } from "vue-router"
 import Header from "../../components/Header/Header.vue"
@@ -12,6 +9,7 @@ import { useToast } from "../../services/toast.service"
 import ProductCarousel from "../../components/ProductCarousel/ProductCarousel.vue"
 import { config } from "../../config/config"
 import { useProductsService } from "../../services/products.service"
+import { useDolarStore } from '../../stores/dolar'
 
 import { 
   MinusIcon, 
@@ -47,7 +45,9 @@ export default {
     const cartService = useCartService()
     const couponService = useCouponService()
     const productsService = useProductsService()
-    
+    const dolarStore = useDolarStore()
+    const dollarRate = computed(() => dolarStore.dollarRate)
+
     // Carrito de items
     const cartItems = ref([])
     const isCartEmpty = computed(() => cartItems.value.length === 0)
@@ -73,6 +73,25 @@ export default {
       const subtotalValue = cartItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
       const discountAmount = subtotalValue * (appliedPromo.value.percentage / 100)
       return formatPrice(discountAmount)
+    })
+
+    const totalBs = computed(() => {
+      const rate = dollarRate.value?._value || dollarRate.value 
+      if (!rate) return '--.-- BS'
+      
+      let totalValue = cartItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
+      
+      if (appliedPromo.value) {
+        totalValue -= totalValue * (appliedPromo.value.percentage / 100)
+      }
+      if (totalValue < 59) {
+        totalValue += 4.99
+      }
+      
+      return (totalValue * rate.toFixed(2))
+        .toFixed(2)
+        .replace('.', ',')
+        .replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' BS'
     })
 
     const total = computed(() => {
@@ -271,6 +290,8 @@ export default {
       checkout,
       applyPromoCode,
       removePromoCode,
+      totalBs,
+      dollarRate
     }
   },
 }

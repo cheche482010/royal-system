@@ -44,7 +44,7 @@ export const useDolarService = () => {
     // Get current active exchange rate from our DB
     const getCurrentExchangeRate = async () => {
         try {
-            const response = await apiService.get('/dolar-bcv/current', getToken())
+            const response = await apiService.get('/dolar-bcv/current')
             if (response.data === null) {
                 return null
             }

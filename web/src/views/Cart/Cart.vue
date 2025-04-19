@@ -88,6 +88,11 @@
             <span>{{ total }}</span>
           </div>
 
+          <div class="summary-row bs-total" v-if="dollarRate">
+            <span>Total en Bs.</span>
+            <span>{{ totalBs }}</span>
+          </div>
+
           <button class="checkout-button" @click="checkout">
             Finalizar compra
           </button>

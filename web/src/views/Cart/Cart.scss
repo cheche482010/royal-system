@@ -253,6 +253,14 @@
           justify-content: space-between;
           margin-bottom: 1rem;
 
+          .bs-total {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #ddd;
+            font-size: 0.9em;
+            color: #666;
+          }
+          
           &.discount {
             color: #28a745;
           }

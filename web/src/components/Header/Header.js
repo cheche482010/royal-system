@@ -5,6 +5,7 @@ import { useCartService } from "../../services/cart.service"
 import { useProductsService } from "../../services/products.service" 
 import { useDolarService } from "../../services/dolar.service"
 import { config } from "../../config/config"
+import { useDolarStore } from '../../stores/dolar'
 import {
   SearchIcon,
   BellIcon,
@@ -51,7 +52,8 @@ export default {
     const cartCount = ref(0)
     const productsService = useProductsService()
     const dolarService = useDolarService()
-
+    const dolarStore = useDolarStore()
+    
     // Estado para los menús desplegables
     const showUserMenu = ref(false)
     const showNotifications = ref(false)
@@ -308,16 +310,19 @@ export default {
           dollarSource.value = rateData.source
           dollarLastUpdated.value = rateData.updatedAt
           dollarId.value = rateData.id || null
+          dolarStore.setDolarRate(rateData.rate, rateData.source)
         } else {
           dollarRate.value = null
           dollarSource.value = 'No disponible'
           dollarLastUpdated.value = null
+          dolarStore.setDolarRate(null, 'No disponible')
         }
       } catch (error) {
         console.error('Error getting dollar rate:', error)
         dollarRate.value = null
         dollarSource.value = 'Error al obtener tasa'
         dollarLastUpdated.value = null
+        dolarStore.setDolarRate(null, 'Error al obtener tasa')
       }
     }
 
