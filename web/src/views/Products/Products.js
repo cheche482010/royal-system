@@ -6,6 +6,7 @@ import Header from "../../components/Header/Header.vue"
 import Footer from "../../components/Footer/Footer.vue"
 import { apiService } from "../../services/api.service"
 import { useCartService } from "../../services/cart.service"
+import { useDolarStore } from '../../stores/dolar'
 import { config } from '../../config/config'
 import {
   StarIcon,
@@ -51,6 +52,9 @@ export default {
     const router = useRouter()
     const toast = useToast()
     const cartService = useCartService()
+    const dolarStore = useDolarStore()
+    const dollarRate = computed(() => dolarStore.dollarRate)
+
     const category = ref({
       id: "perros",
       name: "Productos para Perros",
@@ -306,6 +310,25 @@ export default {
       loadProducts()
     })
 
+    const formatPriceBs = (price) => {
+      const rate = dollarRate.value?._value || dollarRate.value
+      
+      const numericPrice = typeof price === 'string'
+        ? parseFloat(price.replace(',', '.'))
+        : Number(price)
+
+      if (!rate || isNaN(numericPrice)) {
+        return '--.-- BS'
+      }
+
+      const totalBs = (numericPrice * Number(rate).toFixed(2)).toFixed(2)
+        .replace('.', ',')
+        .replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' BS'
+
+      console.log("Resultado conversión:", totalBs)
+      return totalBs
+    }
+
     return {
       category,
       subcategories,
@@ -328,6 +351,8 @@ export default {
       addToCart,
       formatPrice,
       toast,
+      formatPriceBs,
+      dollarRate
     }
   },
 }

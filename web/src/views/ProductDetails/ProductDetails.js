@@ -11,6 +11,7 @@ import { config } from '../../config/config'
 import { useAuth } from "../../composables/useAuth"
 import { useToast } from "../../services/toast.service"
 import { useProductsService } from "../../services/products.service"
+import { useDolarStore } from '../../stores/dolar'
 
 import { 
   MinusIcon,
@@ -49,6 +50,8 @@ export default {
     const toast = useToast()
     const cartService = useCartService()
     const productsService = useProductsService()
+    const dolarStore = useDolarStore()
+    const dollarRate = computed(() => dolarStore.dollarRate)
 
     // Estado para la cantidad
     const quantity = ref(1)
@@ -145,8 +148,13 @@ export default {
 
     // Calcular el precio total basado en la cantidad
     const totalPrice = computed(() => {
-      if (!productItems.value) return "0.00"
-      return (productItems.value.price * quantity.value).toFixed(2)
+      if (!productItems.value) return formatPrice(0)
+      return formatPrice(productItems.value.price * quantity.value)
+    })
+    
+    const totalPriceBs = computed(() => {
+      if (!productItems.value) return formatPriceBs(0)
+      return formatPriceBs(productItems.value.price * quantity.value)
     })
 
     // Obtener la imagen principal actual
@@ -260,6 +268,24 @@ export default {
       loadProductDetails()
     })
 
+    const formatPrice = (price) => {
+      if (typeof price === 'string') return price
+      return `${price.toFixed(2).replace(".", ",")}$`
+    }
+
+    const formatPriceBs = (price) => {
+      const rate = dollarRate.value?._value || dollarRate.value 
+      const numericPrice = typeof price === 'string' 
+        ? parseFloat(price.replace(',', '.')) 
+        : Number(price)
+      
+      if (!rate || isNaN(numericPrice)) return '--.-- BS'
+      
+      return (numericPrice * Number(rate).toFixed(2)).toFixed(2)
+        .replace('.', ',')
+        .replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' BS'
+    }
+
     return {
       productItems,
       relatedProductsdetails,
@@ -275,6 +301,10 @@ export default {
       toggleZoom,
       closeZoom,
       addToCart,
+      totalPriceBs,
+      formatPrice,
+      formatPriceBs,
+      dollarRate
     }
   },
 }

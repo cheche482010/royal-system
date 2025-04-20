@@ -1,8 +1,9 @@
-import { ref, onMounted, onUnmounted } from "vue"
+import { ref, onMounted, onUnmounted, computed } from "vue"
 import { useRouter } from "vue-router"
 import { ChevronLeftIcon, ChevronRightIcon, StarIcon, EyeIcon, ShoppingCartIcon } from "lucide-vue-next"
 import { useToast } from "../../services/toast.service"
 import { useCartService } from "../../services/cart.service"
+import { useDolarStore } from '../../stores/dolar'
 import { config } from '../../config/config'
 
 export default {
@@ -35,6 +36,8 @@ export default {
     const carouselTrack = ref(null)
     const scrollPosition = ref(0)
     const maxScrollPosition = ref(0)
+    const dolarStore = useDolarStore()
+    const dollarRate = computed(() => dolarStore.dollarRate)
 
     // Calcular la posición máxima de scroll
     const calculateMaxScrollPosition = () => {
@@ -53,7 +56,7 @@ export default {
     const scrollLeft = () => {
       if (!carouselTrack.value) return
 
-      const scrollAmount = carouselTrack.value.clientWidth * 0.8 // Desplazar 80% del ancho visible
+      const scrollAmount = carouselTrack.value.clientWidth * 0.8 
       carouselTrack.value.scrollBy({
         left: -scrollAmount,
         behavior: "smooth",
@@ -64,7 +67,7 @@ export default {
     const scrollRight = () => {
       if (!carouselTrack.value) return
 
-      const scrollAmount = carouselTrack.value.clientWidth * 0.8 // Desplazar 80% del ancho visible
+      const scrollAmount = carouselTrack.value.clientWidth * 0.8
       carouselTrack.value.scrollBy({
         left: scrollAmount,
         behavior: "smooth",
@@ -82,45 +85,35 @@ export default {
     // Agregar al carrito
     const addToCart = async (product) => {
       try {
-        // Verificar si el usuario está autenticado
         if (!cartService.isAuthenticated()) {
-          // Si no está autenticado, mostrar mensaje y redirigir a login
           toast.error("Debes iniciar sesión para agregar productos al carrito", {
             title: "Acceso denegado",
           })
 
-          // Opcional: redirigir al usuario a la página de login
           router.push("/login")
           return
         }
 
-        // Usar el servicio de carrito para agregar el producto
         const result = await cartService.addToCart(product, 1)
 
         if (result.alreadyInCart) {
-          // Si el producto ya está en el carrito, mostrar un mensaje diferente
           toast.info(`${product.name} ya está en tu carrito`, {
             title: "Producto en carrito",
           })
         } else if (result.success) {
-          // Si se agregó correctamente, mostrar mensaje de éxito
           toast.success(`${product.name} ha sido agregado exitosamente`, {
             title: "Producto agregado",
           })
         } else if (result.authenticated === false) {
-          // Si no está autenticado, mostrar mensaje y redirigir a login
           toast.error("Debes iniciar sesión para agregar productos al carrito", {
             title: "Acceso denegado",
           })
 
-          // Opcional: redirigir al usuario a la página de login
           router.push("/login")
         } else {
-          // Si hubo un error, mostrar mensaje de error
           throw new Error(result.message || "Error al agregar al carrito")
         }
       } catch (error) {
-        // Mostrar toast de error
         toast.error(`No se ha podido agregar ${product.name} al carrito`, {
           title: "Error",
         })
@@ -128,7 +121,6 @@ export default {
       }
     }
 
-    // Formatear precio
     const formatPrice = (price) => {
       if (typeof price === "string") {
         return price
@@ -136,31 +128,25 @@ export default {
       return `${price.toFixed(2)}$`
     }
 
-    // Manejar el evento de scroll
     const handleScroll = () => {
       updateScrollPosition()
     }
 
     onMounted(() => {
-      // Inicializar posiciones de scroll
       updateScrollPosition()
 
-      // Agregar listener para actualizar posición al hacer scroll
       if (carouselTrack.value) {
         carouselTrack.value.addEventListener("scroll", handleScroll)
       }
 
-      // Calcular posición máxima inicial
       maxScrollPosition.value = calculateMaxScrollPosition()
 
-      // Recalcular cuando cambia el tamaño de la ventana
       window.addEventListener("resize", () => {
         maxScrollPosition.value = calculateMaxScrollPosition()
       })
     })
 
     onUnmounted(() => {
-      // Limpiar event listeners
       if (carouselTrack.value) {
         carouselTrack.value.removeEventListener("scroll", handleScroll)
       }
@@ -168,6 +154,25 @@ export default {
         maxScrollPosition.value = calculateMaxScrollPosition()
       })
     })
+
+    const formatPriceBs = (price) => {
+      const rate = dollarRate.value?._value || dollarRate.value
+      
+      const numericPrice = typeof price === 'string'
+        ? parseFloat(price.replace(',', '.'))
+        : Number(price)
+
+      if (!rate || isNaN(numericPrice)) {
+        return '--.-- BS'
+      }
+
+      const totalBs = (numericPrice * Number(rate).toFixed(2)).toFixed(2)
+        .replace('.', ',')
+        .replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' BS'
+
+      console.log("Resultado conversión:", totalBs)
+      return totalBs
+    }
 
     return {
       carouselTrack,
@@ -178,6 +183,8 @@ export default {
       viewProductDetails,
       addToCart,
       formatPrice,
+      formatPriceBs,
+      dollarRate
     }
   },
 }

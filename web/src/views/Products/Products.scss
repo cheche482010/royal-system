@@ -317,8 +317,18 @@
   font-weight: 700;
   margin-bottom: 1rem;
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  flex-direction: column;
+
+  .price-usd {
+    font-size: 0.9rem;
+    color: #6c757d;
+  }
+
+  .price-bs {
+    font-size: 1.2rem;
+    color: #212529;
+    font-weight: 700;
+  }
 }
 
 .original-price {
