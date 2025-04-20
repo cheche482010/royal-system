@@ -67,7 +67,7 @@
               </option>
             </select>
           </div>
-          
+
           <!-- Banco (solo visible si es transferencia) -->
           <div class="form-group" v-if="paymentInfo.metodo_pago == '1'">
             <label for="bank">Banco</label>
@@ -87,8 +87,7 @@
 
           <div class="form-group">
             <label for="amount">Monto Pagado</label>
-            <input type="text" id="amount" v-model="paymentInfo.amount" class="form-control" placeholder="0,00$"
-              readonly />
+            <input type="text" id="amount" :value="totalBs" class="form-control" placeholder="0,00 BS" readonly />
           </div>
 
           <div class="form-group">
@@ -165,7 +164,7 @@
           </div>
 
           <div class="summary-divider"></div>
-          
+
           <div class="summary-row">
             <span>Subtotal</span>
             <span>{{ subtotal }}</span>
@@ -177,7 +176,7 @@
           </div>
 
           <div class="summary-row discount" v-if="discount">
-            <span>Descuento ({{  coupon }})</span>
+            <span>Descuento ({{ coupon }})</span>
             <span>-{{ discount }}</span>
           </div>
 
@@ -186,6 +185,10 @@
           <div class="summary-row total">
             <span>Total</span>
             <span>{{ total }}</span>
+          </div>
+          <div class="summary-row total-bs">
+            <span>Total BS</span>
+            <span>{{ totalBs }}</span>
           </div>
 
           <button class="confirm-button" @click="confirmPayment" :disabled="!isFormValid">

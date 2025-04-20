@@ -7,6 +7,7 @@ import { useCartService } from '../../services/cart.service';
 import { config } from '../../config/config'
 import { useToast } from "../../services/toast.service"
 import { useCouponService } from "../../services/coupon.service"
+import { useDolarStore } from '../../stores/dolar'
 
 import {
   UploadIcon,
@@ -36,7 +37,9 @@ export default {
     const cartService = useCartService()
     const toast = useToast()
     const couponService = useCouponService()
-    const checkoutData = ref(null) 
+    const checkoutData = ref(null)
+    const dolarStore = useDolarStore()
+    const dollarRate = computed(() => dolarStore.dollarRate)
 
     // Datos bancarios
     const bankData = {
@@ -150,15 +153,22 @@ export default {
     const total = computed(() => {
       let totalValue = checkoutData.value?.total || 0;
 
-      // Añadir gastos de envío si es necesario
       if (totalValue < 59) {
         totalValue += 4.99;
       }
 
-      // Actualizar el monto en la información de pago
-      paymentInfo.value.amount = totalValue;
+      paymentInfo.value.amount = formatPriceBs(totalValue);
+      return formatPrice(totalValue);
+    });
 
-      return totalValue;
+    const totalBs = computed(() => {
+      let totalValue = checkoutData.value?.total || 0;
+
+      if (totalValue < 59) {
+        totalValue += 4.99;
+      }
+
+      return formatPriceBs(totalValue);
     });
 
     // Validación del formulario
@@ -178,8 +188,22 @@ export default {
 
     // Funciones
     const formatPrice = (price) => {
-      return `${price.toFixed(2).replace('.', ',')}$`;
-    };
+      if (typeof price === 'string') return price
+      return `${price.toFixed(2).replace(".", ",")}$`
+    }
+
+    const formatPriceBs = (price) => {
+      const rate = dollarRate.value?._value || dollarRate.value
+      const numericPrice = typeof price === 'string'
+        ? parseFloat(price.replace(',', '.'))
+        : Number(price)
+
+      if (!rate || isNaN(numericPrice)) return '--.-- BS'
+
+      return (numericPrice * Number(rate).toFixed(2)).toFixed(2)
+        .replace('.', ',')
+        .replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' BS'
+    }
 
     const handleFileUpload = (event) => {
       const file = event.target.files[0];
@@ -282,7 +306,11 @@ export default {
       confirmPayment,
       loading,
       bankData,
-      activeTab
+      activeTab,
+      totalBs,
+      formatPrice,
+      formatPriceBs,
+      dollarRate
     };
   }
 };

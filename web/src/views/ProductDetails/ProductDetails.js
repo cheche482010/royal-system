@@ -1,5 +1,3 @@
-"use client"
-
 import { ref, computed, onMounted, watch } from "vue"
 import { useRouter, useRoute } from "vue-router"
 import Header from "../../components/Header/Header.vue"
@@ -72,12 +70,11 @@ export default {
     // Productos relacionados
     const relatedProductsdetails = ref([])
 
-    // Cargar el producto cuando el componente se monta
+    
     onMounted(() => {
       loadProductDetails()
     })
 
-    // Recargar cuando cambia la ruta
     watch(
       () => route.params.id,
       (newId) => {
@@ -87,7 +84,6 @@ export default {
       },
     )
 
-    // Cargar el producto seleccionado
     const loadProductDetails = async () => {
       loading.value = true
       error.value = null
@@ -107,7 +103,6 @@ export default {
 
         const data = response.data
 
-        // Transformar el producto al formato esperado
         productItems.value = {
           id: data.id,
           name: data.nombre,
@@ -122,7 +117,6 @@ export default {
           images: [data.producto_img],
         }
 
-        // Cargar productos para el carousel (generales por ahora)
         const productsResponse = await productsService.getAllProducts()
 
         if (productsResponse?.data) {
@@ -146,7 +140,6 @@ export default {
       }
     }
 
-    // Calcular el precio total basado en la cantidad
     const totalPrice = computed(() => {
       if (!productItems.value) return formatPrice(0)
       return formatPrice(productItems.value.price * quantity.value)
@@ -157,48 +150,40 @@ export default {
       return formatPriceBs(productItems.value.price * quantity.value)
     })
 
-    // Obtener la imagen principal actual
     const currentImage = computed(() => {
       if (!productItems.value || !productItems.value.images) return ""
       return productItems.value.images[selectedImageIndex.value]
     })
 
-    // Actualizar la cantidad
     const updateQuantity = (newQuantity) => {
       if (newQuantity < 1) return
       quantity.value = newQuantity
     }
 
-    // Incrementar cantidad
     const increaseQuantity = () => {
       quantity.value++
     }
 
-    // Decrementar cantidad
     const decreaseQuantity = () => {
       if (quantity.value > 1) {
         quantity.value--
       }
     }
 
-    // Cambiar la imagen seleccionada
     const selectImage = (index) => {
       selectedImageIndex.value = index
     }
 
-    // Mostrar/ocultar zoom de imagen
     const toggleZoom = () => {
       showZoom.value = !showZoom.value
     }
 
-    // Cerrar zoom al hacer clic fuera de la imagen
     const closeZoom = (event) => {
       if (event.target.classList.contains("zoom-overlay")) {
         showZoom.value = false
       }
     }
 
-    // Agregar al carrito
     const addToCart = async () => {
       try {
         if (!productItems.value) {
@@ -206,45 +191,35 @@ export default {
           return
         }
 
-        // Verificar si el usuario está autenticado
         if (!cartService.isAuthenticated()) {
-          // Si no está autenticado, mostrar mensaje y redirigir a login
           toast.error("Debes iniciar sesión para agregar productos al carrito", {
             title: "Acceso denegado",
           })
 
-          // Opcional: redirigir al usuario a la página de login
           router.push("/login")
           return
         }
 
-        // Usar el servicio de carrito para agregar el producto
         const result = await cartService.addToCart(productItems.value, quantity.value)
 
         if (result.alreadyInCart) {
-          // Si el producto ya está en el carrito, mostrar un mensaje diferente
           toast.info(`${productItems.value.name} ya está en tu carrito`, {
             title: "Producto en carrito",
           })
         } else if (result.success) {
-          // Si se agregó correctamente, mostrar mensaje de éxito
-          toast.success(`${productItems.value.name} ha sido agregado exitosamente`, {
+         toast.success(`${productItems.value.name} ha sido agregado exitosamente`, {
             title: "Producto agregado",
           })
         } else if (result.authenticated === false) {
-          // Si no está autenticado, mostrar mensaje y redirigir a login
           toast.error("Debes iniciar sesión para agregar productos al carrito", {
             title: "Acceso denegado",
           })
 
-          // Opcional: redirigir al usuario a la página de login
           router.push("/login")
         } else {
-          // Si hubo un error, mostrar mensaje de error
           throw new Error(result.message || "Error al agregar al carrito")
         }
       } catch (error) {
-        // Mostrar toast de error
         toast.error(`No se ha podido agregar el producto al carrito`, {
           title: "Error",
         })
@@ -252,7 +227,6 @@ export default {
       }
     }
 
-    // Observar cambios en la ruta para recargar el producto
     watch(
       () => route.query.id,
       (newId) => {
@@ -263,7 +237,6 @@ export default {
       { immediate: true },
     )
 
-    // Inicializar
     onMounted(() => {
       loadProductDetails()
     })
