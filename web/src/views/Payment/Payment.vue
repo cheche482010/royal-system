@@ -58,7 +58,7 @@
 
           <!-- Método de pago -->
           <div class="form-group">
-            <label for="metodo_pago">Método de Pago</label>
+            <label for="metodo_pago" class="form-field-required">Método de Pago</label>
             <select id="metodo_pago" v-model="paymentInfo.metodo_pago" class="form-control"
               @change="paymentInfo.bank = ''">
               <option value="">Selecciona un método de pago</option>
@@ -70,7 +70,7 @@
 
           <!-- Banco (solo visible si es transferencia) -->
           <div class="form-group" v-if="paymentInfo.metodo_pago == '1'">
-            <label for="bank">Banco</label>
+            <label for="bank" class="form-field-required">Banco</label>
             <select id="bank" v-model="paymentInfo.bank" class="form-control">
               <option value="">Selecciona un banco</option>
               <option v-for="bank in banks" :key="bank.id" :value="bank.id">
@@ -80,21 +80,21 @@
           </div>
 
           <div class="form-group">
-            <label for="reference">Referencia</label>
+            <label for="reference" class="form-field-required">Referencia</label>
             <input type="text" id="reference" v-model="paymentInfo.reference" class="form-control"
               :placeholder="paymentInfo.metodo_pago === '1' ? 'Número de referencia bancaria' : 'Número de referencia'" />
           </div>
 
           <div class="form-group">
-            <label for="amount">Monto Pagado</label>
+            <label for="amount" class="form-field-required">Monto Pagado</label>
             <input type="text" id="amount" :value="totalBs" class="form-control" placeholder="0,00 BS" readonly />
           </div>
 
           <div class="form-group">
-            <label for="receipt">Comprobante de Pago</label>
+            <label for="receipt" class="form-field-required">Comprobante de Pago</label>
             <div class="file-upload">
               <input type="file" id="receipt" @change="handleFileUpload" class="file-input" accept="image/*" />
-              <div class="upload-button">
+              <div class="upload-button" :class="{ 'has-file': fileSelected }">
                 <UploadIcon class="upload-icon" />
                 <span>{{ fileSelected ? 'Archivo seleccionado' : 'Subir comprobante' }}</span>
               </div>
@@ -115,31 +115,31 @@
           <h2 class="section-title">Información de Envío</h2>
 
           <div class="form-group">
-            <label for="name">Nombre De Receptor</label>
+            <label for="name" class="form-field-required">Nombre De Receptor</label>
             <input type="text" id="name" v-model="shippingInfo.name" class="form-control"
               placeholder="Tu nombre De Receptor" />
           </div>
 
           <div class="form-row">
             <div class="form-group half">
-              <label for="state">Estado</label>
+              <label for="state" class="form-field-required">Estado</label>
               <input type="text" id="state" v-model="shippingInfo.state" class="form-control" placeholder="Estado" />
             </div>
 
             <div class="form-group half">
-              <label for="city">Ciudad</label>
+              <label for="city" class="form-field-required">Ciudad</label>
               <input type="text" id="city" v-model="shippingInfo.city" class="form-control" placeholder="Ciudad" />
             </div>
           </div>
 
           <div class="form-group">
-            <label for="address">Dirección</label>
+            <label for="address" class="form-field-required">Dirección</label>
             <textarea id="address" v-model="shippingInfo.address" class="form-control"
               placeholder="Tu dirección de envío" rows="3"></textarea>
           </div>
 
           <div class="form-group">
-            <label for="phone">Teléfono</label>
+            <label for="phone" class="form-field-required">Teléfono</label>
             <input type="tel" id="phone" v-model="shippingInfo.phone" class="form-control"
               placeholder="Tu número de teléfono" />
           </div>

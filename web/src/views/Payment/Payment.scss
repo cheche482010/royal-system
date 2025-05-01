@@ -162,6 +162,10 @@ label {
         border-color: #0099e5;
         box-shadow: 0 0 0 2px rgba(0, 153, 229, 0.2);
     }
+    
+    &.invalid {
+        border-color: #ff3b30;
+    }
 }
 
 textarea.form-control {
@@ -200,6 +204,11 @@ textarea.form-control {
 
     &:hover {
         background-color: #eee;
+    }
+    
+    &.has-file {
+        border-color: #0099e5;
+        background-color: rgba(0, 153, 229, 0.1);
     }
 }
 
@@ -401,4 +410,25 @@ textarea.form-control {
 .lock-icon {
     width: 0.875rem;
     height: 0.875rem;
+}
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    font-size: 1.2rem;
+    color: #666;
+}
+
+.error-message {
+    color: #ff3b30;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.form-field-required::after {
+    content: '*';
+    color: #ff3b30;
+    margin-left: 0.25rem;
 }

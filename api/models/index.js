@@ -17,6 +17,7 @@ import CarritoProducto from "./CarritoProducto.js"
 import Coupon from "./Coupon.js"
 import CouponUsado from "./CouponUsado.js"
 import Banco from "./Banco.js"
+import Envio from "./Envio.js"
 
 // Definir relaciones
 Usuario.hasMany(Bitacora, { foreignKey: "usuario_id" })
@@ -28,6 +29,10 @@ Carrito.hasMany(CarritoProducto, { foreignKey: "carrito_id" })
 CarritoProducto.belongsTo(Carrito, { foreignKey: "carrito_id" })
 Producto.hasMany(CarritoProducto, { foreignKey: "producto_id" })
 CarritoProducto.belongsTo(Producto, { foreignKey: "producto_id" })
+
+// Add many-to-many association between Carrito and Producto through CarritoProducto
+Carrito.belongsToMany(Producto, { through: CarritoProducto, foreignKey: "carrito_id" })
+Producto.belongsToMany(Carrito, { through: CarritoProducto, foreignKey: "producto_id" })
 
 Producto.hasMany(HistorialPrecio, { foreignKey: "producto_id" })
 HistorialPrecio.belongsTo(Producto, { foreignKey: "producto_id" })
@@ -69,6 +74,10 @@ CouponUsado.belongsTo(Usuario, { foreignKey: "usuario_id" })
 Orden.hasMany(CouponUsado, { foreignKey: "orden_id" })
 CouponUsado.belongsTo(Orden, { foreignKey: "orden_id" })
 
+// Relación entre Orden y Envio
+Orden.hasOne(Envio, { foreignKey: "orden_id" })
+Envio.belongsTo(Orden, { foreignKey: "orden_id" })
+
 export {
   Usuario,
   Bitacora,
@@ -88,5 +97,6 @@ export {
   CarritoProducto,
   Coupon,
   CouponUsado,
-  Banco
+  Banco,
+  Envio
 }

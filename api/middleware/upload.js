@@ -21,6 +21,12 @@ if (!fs.existsSync(userBaseDir)) {
   fs.mkdirSync(userBaseDir, { recursive: true })
 }
 
+// Ensure payments directory exists
+const paymentsDir = path.join(uploadsDir, "payments")
+if (!fs.existsSync(paymentsDir)) {
+  fs.mkdirSync(paymentsDir, { recursive: true })
+}
+
 // Configure storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -30,8 +36,37 @@ const storage = multer.diskStorage({
       return;
     }
 
+    // Si estamos procesando un pago (comprobante_img), usar un directorio específico para pagos
+    if (file.fieldname === 'comprobante_img') {
+      // Usar el ID de la orden si está disponible, o un timestamp si no
+      const orderId = req.body.orden_id || Date.now().toString();
+      const paymentDir = path.join(paymentsDir, orderId.toString());
+      
+      // Crear el directorio para este pago específico
+      if (!fs.existsSync(paymentDir)) {
+        fs.mkdirSync(paymentDir, { recursive: true });
+      }
+      
+      cb(null, paymentDir);
+      return;
+    }
+
     // Obtener el nombre del usuario y el documento del cuerpo de la solicitud
     const userDocumento = req.body.documento;
+    
+    // Para otros tipos de archivos que requieren documento de usuario
+    if (!userDocumento) {
+      // Si no hay documento, usar un directorio temporal con timestamp
+      const tempDir = path.join(uploadsDir, 'temp', Date.now().toString());
+      
+      // Asegurarnos de que el directorio existe
+      if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir, { recursive: true });
+      }
+      
+      cb(null, tempDir);
+      return;
+    }
 
     // Crear el directorio con el formato deseado: nombre-documento
     const userDir = path.join(userBaseDir, userDocumento);
@@ -93,4 +128,3 @@ const cleanupEmptyDir = (dirPath) => {
 
 export { upload, cleanupEmptyDir }
 export default upload
-

@@ -111,12 +111,9 @@ export const createPago = async (req, res, next) => {
       // Si se subió un archivo, eliminarlo
       if (req.file && fs.existsSync(req.file.path)) {
         fs.unlinkSync(req.file.path)
-      }
-
-      // Limpiar directorio vacío si se creó
-      if (req.pagoUploadDir) {
-        const pagoDir = path.join(__dirname, "..", "uploads", "pago", req.pagoUploadDir)
-        cleanupEmptyDir(pagoDir)
+        // Limpiar directorio vacío si se creó
+        const dirPath = path.dirname(req.file.path)
+        cleanupEmptyDir(dirPath)
       }
 
       return res.status(404).json({ success: false, message: "Orden not found" })
@@ -131,12 +128,9 @@ export const createPago = async (req, res, next) => {
       // Si se subió un archivo, eliminarlo
       if (req.file && fs.existsSync(req.file.path)) {
         fs.unlinkSync(req.file.path)
-      }
-
-      // Limpiar directorio vacío si se creó
-      if (req.pagoUploadDir) {
-        const pagoDir = path.join(__dirname, "..", "uploads", "pago", req.pagoUploadDir)
-        cleanupEmptyDir(pagoDir)
+        // Limpiar directorio vacío si se creó
+        const dirPath = path.dirname(req.file.path)
+        cleanupEmptyDir(dirPath)
       }
 
       return res.status(404).json({ success: false, message: "Método de pago not found" })
@@ -147,6 +141,7 @@ export const createPago = async (req, res, next) => {
       return res.status(400).json({ success: false, message: "Comprobante de pago is required" })
     }
 
+    // Guardar la ruta relativa del archivo
     const comprobante_img = path.relative(path.join(__dirname, ".."), req.file.path)
 
     const pago = await Pago.create({
@@ -155,20 +150,22 @@ export const createPago = async (req, res, next) => {
       fecha: fecha || new Date(),
       comprobante_img,
       numero_referencia,
-      monto,
+      monto
     })
+
+    // Actualizar el estado de la orden si es necesario
+    await orden.update({ estado: 'pagado' })
 
     return res.status(201).json({ success: true, data: pago })
   } catch (error) {
+    console.error("Error creating payment:", error)
+    
     // Si se subió un archivo, eliminarlo en caso de error
     if (req.file && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path)
-    }
-
-    // Limpiar directorio vacío si se creó
-    if (req.pagoUploadDir) {
-      const pagoDir = path.join(__dirname, "..", "uploads", "pago", req.pagoUploadDir)
-      cleanupEmptyDir(pagoDir)
+      // Limpiar directorio vacío si se creó
+      const dirPath = path.dirname(req.file.path)
+      cleanupEmptyDir(dirPath)
     }
 
     next(error)
@@ -189,12 +186,9 @@ export const updatePago = async (req, res, next) => {
       // Si se subió un archivo, eliminarlo
       if (req.file && fs.existsSync(req.file.path)) {
         fs.unlinkSync(req.file.path)
-      }
-
-      // Limpiar directorio vacío si se creó
-      if (req.pagoUploadDir) {
-        const pagoDir = path.join(__dirname, "..", "uploads", "pago", req.pagoUploadDir)
-        cleanupEmptyDir(pagoDir)
+        // Limpiar directorio vacío si se creó
+        const dirPath = path.dirname(req.file.path)
+        cleanupEmptyDir(dirPath)
       }
 
       return res.status(404).json({ success: false, message: "Pago not found" })
@@ -210,12 +204,9 @@ export const updatePago = async (req, res, next) => {
         // Si se subió un archivo, eliminarlo
         if (req.file && fs.existsSync(req.file.path)) {
           fs.unlinkSync(req.file.path)
-        }
-
-        // Limpiar directorio vacío si se creó
-        if (req.pagoUploadDir) {
-          const pagoDir = path.join(__dirname, "..", "uploads", "pago", req.pagoUploadDir)
-          cleanupEmptyDir(pagoDir)
+          // Limpiar directorio vacío si se creó
+          const dirPath = path.dirname(req.file.path)
+          cleanupEmptyDir(dirPath)
         }
 
         return res.status(404).json({ success: false, message: "Método de pago not found" })
@@ -241,20 +232,19 @@ export const updatePago = async (req, res, next) => {
       comprobante_img: comprobante_img_path,
       numero_referencia: numero_referencia !== undefined ? numero_referencia : pago.numero_referencia,
       monto: monto || pago.monto,
-      is_active: is_active !== undefined ? is_active : pago.is_active,
+      is_active: is_active !== undefined ? is_active : pago.is_active
     })
 
     return res.status(200).json({ success: true, data: pago })
   } catch (error) {
+    console.error("Error updating payment:", error)
+    
     // Si se subió un archivo, eliminarlo en caso de error
     if (req.file && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path)
-    }
-
-    // Limpiar directorio vacío si se creó
-    if (req.pagoUploadDir) {
-      const pagoDir = path.join(__dirname, "..", "uploads", "pago", req.pagoUploadDir)
-      cleanupEmptyDir(pagoDir)
+      // Limpiar directorio vacío si se creó
+      const dirPath = path.dirname(req.file.path)
+      cleanupEmptyDir(dirPath)
     }
 
     next(error)

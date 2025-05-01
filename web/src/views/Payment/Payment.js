@@ -7,7 +7,9 @@ import { useCartService } from '../../services/cart.service';
 import { config } from '../../config/config'
 import { useToast } from "../../services/toast.service"
 import { useCouponService } from "../../services/coupon.service"
+import { usePaymentService } from "../../services/payment.service"
 import { useDolarStore } from '../../stores/dolar'
+import { useAuth } from '../../composables/useAuth'
 
 import {
   UploadIcon,
@@ -37,9 +39,20 @@ export default {
     const cartService = useCartService()
     const toast = useToast()
     const couponService = useCouponService()
+    const paymentService = usePaymentService()
     const checkoutData = ref(null)
     const dolarStore = useDolarStore()
     const dollarRate = computed(() => dolarStore.dollarRate)
+    const auth = useAuth()
+
+    // Funciones de autenticación
+    const getToken = () => {
+      return auth.userToken.value
+    }
+
+    const getUserId = () => {
+      return auth.userId.value
+    }
 
     // Datos bancarios
     const bankData = {
@@ -93,7 +106,6 @@ export default {
     // Cargar datos iniciales
     const loadInitialData = async () => {
       try {
-
         checkoutData.value = JSON.parse(localStorage.getItem('checkoutData'))
 
         const methodsResponse = await apiService.get('/metodos-pago');
@@ -112,7 +124,6 @@ export default {
             discount.value = checkoutData.value.discount
           }
         } else {
-
           const cartItems = await cartService.getCartItems()
           orderItems.value = cartItems.map(item => ({
             id: item.id,
@@ -147,7 +158,7 @@ export default {
     })
 
     const coupon = computed(() => {
-      return checkoutData.value?.coupon.code || null
+      return checkoutData.value?.coupon?.code || null
     })
 
     const total = computed(() => {
@@ -225,59 +236,130 @@ export default {
 
     const confirmPayment = async () => {
       try {
+        // Mostrar indicador de carga
+        loading.value = true;
+        
+        // Verificar autenticación
+        if (!getToken() || !getUserId()) {
+          toast.error("Debes iniciar sesión para realizar el pago", {
+            title: "Error de autenticación",
+            description: "Por favor inicia sesión para continuar"
+          });
+          router.push('/login');
+          return;
+        }
+
+        // Verificar que se ha seleccionado un archivo de comprobante
+        if (!paymentInfo.value.receipt) {
+          toast.error("Debes adjuntar un comprobante de pago", {
+            title: "Error en el formulario",
+            description: "Por favor adjunta una imagen del comprobante de pago"
+          });
+          return;
+        }
+
         // Obtener datos del checkout
         const checkoutData = JSON.parse(localStorage.getItem('checkoutData'))
+        if (!checkoutData) {
+          toast.error("No se encontraron datos del pedido", {
+            title: "Error",
+            description: "Por favor regresa al carrito e intenta nuevamente"
+          });
+          router.push('/cart');
+          return;
+        }
 
         // Crear la orden primero
-        const orderResponse = await apiService.post('/ordenes', getToken(), {
-          usuario_id: getUserId(),
-          monto_total: parseFloat(total.value.replace(',', '').replace('$', '')),
-          items: orderItems.value
-        })
+        try {
+          const orderResponse = await apiService.post('/ordenes', getToken(), {
+            usuario_id: getUserId(),
+            monto_total: parseFloat(total.value.replace(',', '').replace('$', '')),
+            items: orderItems.value
+          });
 
-        if (!orderResponse.success) {
-          throw new Error(orderResponse.message || "Error al crear la orden")
-        }
-
-        const orderId = orderResponse.data.id
-
-        // Si hay cupón aplicado, registrarlo
-        if (checkoutData?.coupon) {
-          const couponResponse = await couponService.applyCoupon(
-            checkoutData.coupon.code,
-            orderId
-          )
-
-          if (!couponResponse.success) {
-            console.error("Error al aplicar cupón:", couponResponse.message)
+          if (!orderResponse.success) {
+            throw new Error(orderResponse.message || "Error al crear la orden");
           }
+
+          const orderId = orderResponse.data.id;
+
+          // Si hay cupón aplicado, registrarlo
+          if (checkoutData?.coupon) {
+            try {
+              const couponResponse = await couponService.applyCoupon(
+                checkoutData.coupon.code,
+                orderId
+              );
+
+              if (!couponResponse.success) {
+                console.error("Error al aplicar cupón:", couponResponse.message);
+                // No interrumpimos el flujo si falla la aplicación del cupón
+              }
+            } catch (couponError) {
+              console.error("Error al aplicar cupón:", couponError);
+              // No interrumpimos el flujo si falla la aplicación del cupón
+            }
+          }
+
+          // Crear FormData para enviar el archivo
+          const formData = new FormData();
+          formData.append('orden_id', orderId);
+          formData.append('metodo_pago_id', paymentInfo.value.metodo_pago);
+          formData.append('numero_referencia', paymentInfo.value.reference);
+          formData.append('monto', parseFloat(paymentInfo.value.amount.replace(',', '').replace('BS', '').trim()));
+          formData.append('comprobante_img', paymentInfo.value.receipt);
+          
+          // Información de envío
+          formData.append('shipping_name', shippingInfo.value.name);
+          formData.append('shipping_address', shippingInfo.value.address);
+          formData.append('shipping_city', shippingInfo.value.city);
+          formData.append('shipping_state', shippingInfo.value.state);
+          formData.append('shipping_phone', shippingInfo.value.phone);
+          
+          
+          // Procesar el pago con FormData para manejar el archivo
+          try {
+            const paymentData = await paymentService.processPayment(formData, getToken());
+
+            if (!paymentData.success) {
+              throw new Error(paymentData.message || "Error al procesar el pago");
+            }
+
+            // Limpiar el carrito
+            await cartService.clearCart();
+            localStorage.removeItem('checkoutData');
+
+            // Mostrar mensaje de éxito
+            toast.success("Pago procesado correctamente", {
+              title: "¡Éxito!",
+              description: "Tu pedido ha sido registrado"
+            });
+
+            // Redirigir a confirmación
+            router.push('/confirmation');
+          } catch (paymentError) {
+            console.error('Error al procesar el pago:', paymentError);
+            toast.error(paymentError.message || "Error al procesar el pago. Verifica que el servidor API esté funcionando.", {
+              title: "Error en el pago",
+              description: "Hubo un problema al procesar tu pago. Por favor intenta nuevamente más tarde."
+            });
+          }
+        } catch (orderError) {
+          console.error('Error al crear la orden:', orderError);
+          toast.error(orderError.message || "Error al crear la orden", {
+            title: "Error en la orden",
+            description: "No se pudo crear la orden. Por favor intenta nuevamente."
+          });
         }
-
-        // Procesar el pago
-        const paymentResponse = await apiService.post('/pagos', getToken(), {
-          orden_id: orderId,
-          metodo_pago_id: paymentInfo.value.metodo_pago,
-          referencia: paymentInfo.value.reference,
-          monto: parseFloat(paymentInfo.value.amount.replace(',', '').replace('$', '')),
-          comprobante_img: paymentInfo.value.receipt
-        })
-
-        if (!paymentResponse.success) {
-          throw new Error(paymentResponse.message || "Error al procesar el pago")
-        }
-
-        // Limpiar el carrito
-        await cartService.clearCart()
-        localStorage.removeItem('checkoutData')
-
-        // Redirigir a confirmación
-        router.push('/confirmation')
       } catch (error) {
-        console.error('Error al procesar el pago:', error)
-        toast.error("Error al procesar el pago", {
+        console.error('Error general en el proceso de pago:', error);
+        toast.error(error.message || "Error al procesar el pago", {
           title: "Error",
-          description: error.message
-        })
+          description: "Ocurrió un error inesperado. Por favor intenta nuevamente más tarde."
+        });
+      } finally {
+        // Ocultar indicador de carga
+        loading.value = false;
       }
     }
 
@@ -308,9 +390,10 @@ export default {
       bankData,
       activeTab,
       totalBs,
-      formatPrice,
       formatPriceBs,
-      dollarRate
+      dollarRate,
+      getToken,
+      getUserId
     };
   }
 };

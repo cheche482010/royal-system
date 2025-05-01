@@ -107,6 +107,7 @@ export const createOrden = async (req, res, next) => {
       include: [
         {
           model: Producto,
+          through: { attributes: ['cantidad'] },
           include: [{ model: Inventario }],
         },
       ],
@@ -121,7 +122,7 @@ export const createOrden = async (req, res, next) => {
     // Calcular monto total
     let montoTotal = 0
     for (const item of carritoItems) {
-      montoTotal += item.Producto.precio_unidad * item.cantidad
+      montoTotal += item.Productos[0].precio_unidad * item.Productos[0].CarritoProducto.cantidad
     }
 
     // Crear la orden
@@ -136,30 +137,31 @@ export const createOrden = async (req, res, next) => {
 
     // Crear detalles de la orden
     for (const item of carritoItems) {
+      const producto = item.Productos[0];
       await DetalleOrden.create(
         {
           orden_id: orden.id,
-          producto_id: item.producto_id,
-          cantidad: item.cantidad,
-          precio: item.Producto.precio_unidad,
+          producto_id: producto.id,
+          cantidad: producto.CarritoProducto.cantidad,
+          precio: producto.precio_unidad,
         },
         { transaction }
       )
 
       // Actualizar inventario
-      const inventario = item.Producto.Inventario
-      if (inventario.cantidad_actual < item.cantidad) {
+      const inventario = producto.Inventario
+      if (inventario.cantidad_actual < producto.CarritoProducto.cantidad) {
         await transaction.rollback()
         return res.status(400).json({
           success: false,
-          message: `Insufficient stock for product ${item.Producto.nombre}. Available: ${inventario.cantidad_actual}`,
+          message: `Insufficient stock for product ${producto.nombre}. Available: ${inventario.cantidad_actual}`,
         })
       }
 
       await inventario.update(
         {
-          cantidad_actual: inventario.cantidad_actual - item.cantidad,
-          estado: inventario.cantidad_actual - item.cantidad <= 0 ? "Agotado" : inventario.estado,
+          cantidad_actual: inventario.cantidad_actual - producto.CarritoProducto.cantidad,
+          estado: inventario.cantidad_actual - producto.CarritoProducto.cantidad <= 0 ? "Agotado" : inventario.estado,
         },
         { transaction }
       )
