@@ -325,7 +325,6 @@ export default {
         .replace('.', ',')
         .replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' BS'
 
-      console.log("Resultado conversión:", totalBs)
       return totalBs
     }
 
