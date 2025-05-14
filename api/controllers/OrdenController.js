@@ -73,7 +73,7 @@ export const getOrdenesByUsuario = async (req, res, next) => {
           include: [
             {
               model: Producto,
-              attributes: ["id", "codigo", "nombre"],
+              attributes: ["id", "codigo", "nombre", "descripcion", "producto_img"],
             },
           ],
         },

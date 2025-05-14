@@ -5,8 +5,9 @@ import Header from "../../components/Header/Header.vue"
 import Footer from "../../components/Footer/Footer.vue"
 import { useAuth } from "../../composables/useAuth"
 import { userService } from "../../services/user.service"
+import { ordenService } from "../../services/orden.service"
 import { useToast } from "../../services/toast.service"
-
+import { config } from "../../config/config"
 import {
   PackageIcon,
   MapPinIcon,
@@ -34,12 +35,20 @@ export default {
     Header,
     Footer,
   },
+  props: {
+    API_BASE_URL: {
+      type: String,
+      default: config.API_BASE_URL
+    }
+  },
   setup() {
     const activeSection = ref("orders")
     const isUpdating = ref(false)
     const isUpdatingPassword = ref(false)
     const isLoading = ref(true)
+    const isLoadingOrders = ref(false)
     const error = ref(null)
+    const ordersError = ref(null)
     const toast = useToast()
     const auth = useAuth()
     const userData = ref(null)
@@ -58,88 +67,81 @@ export default {
     // Añadir una nueva propiedad para controlar la pestaña activa de pedidos
     const activeOrdersTab = ref("active")
 
-    // Modificar la estructura de orders para incluir un campo que indique si están finalizados o no
-    const orders = ref([
-      {
-        id: 1,
-        number: "10023456",
-        date: "15/03/2023",
-        status: "delivered",
-        statusText: "Entregado",
-        total: "45,90€",
-        isCompleted: true,
-        products: [
-          {
-            id: 1,
-            name: "Collar Antiparasitario para Perros Pequeño - 8 Kg",
-            price: "36,49€",
-            quantity: 1,
-            image: "https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=80&width=80",
-          },
-        ],
-      },
-      {
-        id: 2,
-        number: "10023455",
-        date: "02/03/2023",
-        status: "shipped",
-        statusText: "Enviado",
-        total: "78,35€",
-        isCompleted: false,
-        products: [
-          {
-            id: 2,
-            name: "Pipetas Tri-Act Solución Spot-On para Perros de 20-40 Kg 3 Pipetas",
-            price: "30,89€",
-            quantity: 1,
-            image: "https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=80&width=80",
-          },
-          {
-            id: 3,
-            name: "Pienso para perros adultos Royal Canin Medium Adult",
-            price: "47,46€",
-            quantity: 1,
-            image: "https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=80&width=80",
-          },
-        ],
-      },
-      {
-        id: 3,
-        number: "10023450",
-        date: "28/02/2023",
-        status: "delivered",
-        statusText: "Entregado",
-        total: "22,95€",
-        isCompleted: true,
-        products: [
-          {
-            id: 4,
-            name: "Arena para Gatos Premium 10kg",
-            price: "22,95€",
-            quantity: 1,
-            image: "https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=80&width=80",
-          },
-        ],
-      },
-      {
-        id: 4,
-        number: "10023458",
-        date: "20/03/2023",
-        status: "processing",
-        statusText: "En Proceso",
-        total: "31,98€",
-        isCompleted: false,
-        products: [
-          {
-            id: 5,
-            name: "Juguete Interactivo para Gatos",
-            price: "15,99€",
-            quantity: 2,
-            image: "https://petsplanet.com.ve/wp-content/uploads/2024/12/8595602528134.jpg?height=80&width=80",
-          },
-        ],
-      },
-    ])
+    // Usar ref para las órdenes que vendrán de la BD
+    const orders = ref([])
+
+    // Función para cargar las órdenes del usuario
+    const loadUserOrders = async () => {
+      if (!auth.isAuthenticated.value || !auth.userId.value) {
+        return
+      }
+
+      isLoadingOrders.value = true
+      ordersError.value = null
+
+      try {
+        const token = auth.sessionToken.value
+        const response = await ordenService.getOrdenesByUsuario(auth.userId.value, token)
+
+        if (response.success && response.data) {
+          
+          // Transformar los datos de la API al formato que espera la UI
+          orders.value = response.data.map(orden => {
+            // Determinar el estado y texto de estado
+            let status = "processing"
+            let statusText = "En Proceso"
+            
+            if (orden.status === "Completa") {
+              status = "delivered"
+              statusText = "Entregado"
+            } else if (orden.status === "Cancelada") {
+              status = "cancelled"
+              statusText = "Cancelado"
+            } else if (orden.status === "Pendiente") {
+              status = "shipped"
+              statusText = "Enviado"
+            }
+
+            // Formatear la fecha
+            const fecha = new Date(orden.created_at)
+            const fechaFormateada = `${fecha.getDate().toString().padStart(2, '0')}/${(fecha.getMonth() + 1).toString().padStart(2, '0')}/${fecha.getFullYear()}`
+
+            // Formatear el total
+            const totalFormateado = `${parseFloat(orden.monto_total).toFixed(2)}$`
+
+            return {
+              id: orden.id,
+              number: `${orden.id}`.padStart(8, '0'),
+              date: fechaFormateada,
+              status: status,
+              statusText: statusText,
+              total: totalFormateado,
+              isCompleted: orden.status === "Completa",
+              products: orden.DetalleOrdens?.map(detalle => ({
+                id: detalle.producto_id,
+                name: detalle.Producto?.nombre || "Producto",
+                price: `${parseFloat(detalle.precio).toFixed(2)}$`,
+                quantity: detalle.cantidad,
+                image: `${config.API_BASE_URL}${detalle.Producto?.producto_img}` || "https://placehold.co/200x200",
+              })) || []
+            }
+          })
+        } else {
+          ordersError.value = "No se pudieron cargar las órdenes"
+          toast.error("Error al cargar las órdenes", {
+            title: "Error",
+          })
+        }
+      } catch (err) {
+        console.error("Error al cargar órdenes:", err)
+        ordersError.value = "Error al cargar las órdenes"
+        toast.error("Error al cargar las órdenes", {
+          title: "Error",
+        })
+      } finally {
+        isLoadingOrders.value = false
+      }
+    }
 
     // Actualizar el profileForm como un ref para que se pueda modificar
     const profileForm = ref(null)
@@ -175,6 +177,9 @@ export default {
             email: userData.value.correo || "",
             phone: userData.value.telefono || "",
           }
+          
+          // Cargar las órdenes del usuario después de cargar sus datos
+          await loadUserOrders()
         } else {
           error.value = "No se pudieron cargar los datos del usuario"
         }
@@ -214,7 +219,6 @@ export default {
       auth.clearUser()
       console.log("Cerrando sesión...")
     }
-
 
     const updateProfile = async () => {
       isUpdating.value = true
@@ -315,13 +319,16 @@ export default {
       isUpdating,
       isUpdatingPassword,
       isLoading,
+      isLoadingOrders,
       error,
+      ordersError,
       setActiveSection,
       setActiveOrdersTab,
       handleLogout,
       updateProfile,
       updatePassword,
       loadUserData,
+      loadUserOrders,
     }
   },
 }
