@@ -215,6 +215,7 @@ export default {
       console.log("Cerrando sesión...")
     }
 
+
     const updateProfile = async () => {
       isUpdating.value = true
 
@@ -250,46 +251,54 @@ export default {
     }
 
     const updatePassword = async () => {
-      isUpdatingPassword.value = true
+      // Validar campos vacíos primero
+      if (!passwordForm.value.current || !passwordForm.value.new || !passwordForm.value.confirm) {
+        toast.error("Por favor complete todos los campos", {
+          title: "Error",
+        });
+        return;
+      }
+
+      isUpdatingPassword.value = true;
 
       try {
         if (passwordForm.value.new !== passwordForm.value.confirm) {
           toast.error("Las contraseñas no coinciden", {
             title: "Error",
-          })
-          return
+          });
+          return;
         }
 
         const passwordData = {
           current_password: passwordForm.value.current,
           new_password: passwordForm.value.new,
-        }
+        };
 
-        const token = auth.sessionToken.value
-        const response = await userService.updatePassword(passwordData, token)
+        const token = auth.sessionToken.value;
+        const response = await userService.updatePassword(passwordData, token);
 
         if (response.success) {
           toast.success("Contraseña actualizada correctamente", {
             title: "Éxito",
-          })
-         
+          });
           passwordForm.value = {
             current: "",
             new: "",
             confirm: "",
-          }
+          };
         } else {
-          console.error("Error al actualizar la contraseña:", response.message)
-          toast.error("Error al actualizar la contraseña", {
-            title: "Error",
-          })  
+           toast.error(response.message, {
+              title: "Error",
+            });
         }
       } catch (error) {
-        console.error("Error al actualizar la contraseña:", error)
+        toast.error("Ocurrió un error al actualizar la contraseña", {
+          title: "Error",
+        });
       } finally {
-        isUpdatingPassword.value = false
+        isUpdatingPassword.value = false;
       }
-    }
+    };
 
     // Añadir las nuevas propiedades y métodos al return
     return {

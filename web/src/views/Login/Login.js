@@ -4,10 +4,10 @@ import { authService } from '../../services/auth.service';
 import { useAuth } from '../../composables/useAuth';
 import { config } from '../../config/config';
 
-import { 
-  EyeIcon, 
+import {
+  EyeIcon,
   EyeOffIcon,
- LoaderIcon 
+  LoaderIcon
 } from 'lucide-vue-next';
 
 export default {
@@ -32,7 +32,7 @@ export default {
     const showPassword = ref(false);
     const isLoading = ref(false);
     const errorMessage = ref('');
-    
+
     const togglePassword = () => {
       showPassword.value = !showPassword.value;
     };
@@ -41,41 +41,37 @@ export default {
       try {
         isLoading.value = true;
         errorMessage.value = '';
-        
-        // Validar campos
+
         if (!documento.value) {
           errorMessage.value = 'Debe ingresar su documento (RIF o Cédula)';
+          isLoading.value = false;
           return;
         }
-        
+
         if (!password.value) {
           errorMessage.value = 'Debe ingresar su contraseña';
+          isLoading.value = false;
           return;
         }
-        
-        // Llamar al servicio de autenticación
+
         const response = await authService.login(documento.value, password.value);
-        
-        // Guardar datos en el estado de autenticación
+
         auth.setUser(response.data);
-        
-        // Si remember está activado, guardar el documento en localStorage
+
         if (rememberMe.value) {
           localStorage.setItem('remembered_documento', documento.value);
         } else {
           localStorage.removeItem('remembered_documento');
         }
-        
-        // Redirección después del login exitoso
+
         router.push('/');
       } catch (error) {
-        console.error('Error de inicio de sesión:', error);
-        errorMessage.value = error.message || 'Error al iniciar sesión';
+        errorMessage.value = error.message;
       } finally {
         isLoading.value = false;
       }
     };
-    
+
     // Verificar si hay un documento recordado al cargar el componente
     const checkRememberedUser = () => {
       const rememberedDocumento = localStorage.getItem('remembered_documento');
@@ -84,10 +80,10 @@ export default {
         rememberMe.value = true;
       }
     };
-    
+
     // Ejecutar al montar el componente
     checkRememberedUser();
-    
+
     return {
       documento,
       password,

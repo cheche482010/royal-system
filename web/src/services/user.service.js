@@ -79,4 +79,22 @@ export const userService = {
       throw error
     }
   },
+
+  async updatePassword(passwordData, token) {
+    try {
+      const userId = this.getUserIdFromToken(token);
+      if (!userId) {
+        throw new Error("No se pudo obtener el ID del usuario desde el token");
+      }
+
+      // Enviar tanto la contraseña actual como la nueva
+      return await apiService.put(`/usuarios/${userId}`, token, {
+        current_password: passwordData.current_password,
+        user_password: passwordData.new_password,
+      });
+    } catch (error) {
+      console.error("Error al actualizar contraseña:", error);
+      throw error;
+    }
+  },
 }

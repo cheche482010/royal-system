@@ -20,22 +20,27 @@ export const apiService = {
         method,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': token ? `Bearer ${token}` : ''
         }
       }
-  
+
       if (data && (method === 'POST' || method === 'PUT')) {
         options.body = JSON.stringify(data)
       }
-  
+
       const response = await fetch(`${config.API_URL}${endpoint}`, options)
-      
       const responseData = await response.json()
-      
+
+      // Si la respuesta tiene success: false, no es un error técnico
+      if (responseData.success === false) {
+        return responseData
+      }
+
+      // Solo lanzar error para respuestas HTTP no exitosas (excepto 400 que puede ser validación)
       if (!response.ok && response.status !== 400) {
         throw new Error(responseData.message || `Error en petición ${method} a ${endpoint}`)
       }
-      
+
       return responseData
     } catch (error) {
       console.error(`Error en ${method} ${endpoint}:`, error)
@@ -46,15 +51,15 @@ export const apiService = {
   get(endpoint, token) {
     return this.request('GET', endpoint, token)
   },
-  
+
   post(endpoint, token, data) {
     return this.request('POST', endpoint, token, data)
   },
-  
+
   put(endpoint, token, data) {
     return this.request('PUT', endpoint, token, data)
   },
-  
+
   delete(endpoint, token) {
     return this.request('DELETE', endpoint, token)
   }
