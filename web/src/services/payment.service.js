@@ -12,7 +12,7 @@ export const usePaymentService = () => {
     try {
 
       // Proceed with payment processing
-      const response = await fetch(`${config.API_URL}/pagos`, {
+      const response = await fetch(`${config.API_URL}/pagos/makepayment`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

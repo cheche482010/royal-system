@@ -12,7 +12,7 @@ import {
   CouponUsado,
   Usuario,
   MetodoPago,
-  Envio
+  Envio,
 } from "../models/index.js"
 import { Op } from "sequelize"
 
@@ -40,7 +40,7 @@ class PaymentFlowService {
       // Get cart items
       const carrito = await Carrito.findOne({
         where: { usuario_id: userId, is_delete: false, is_active: true },
-        transaction
+        transaction,
       })
 
       if (!carrito) {
@@ -53,10 +53,10 @@ class PaymentFlowService {
         include: [
           {
             model: Producto,
-            include: [{ model: Inventario }]
-          }
+            include: [{ model: Inventario }],
+          },
         ],
-        transaction
+        transaction,
       })
 
       if (carritoItems.length === 0) {
@@ -79,16 +79,10 @@ class PaymentFlowService {
             id: couponId,
             is_active: true,
             fecha_inicio: { [Op.lte]: new Date() },
-            [Op.or]: [
-              { fecha_fin: null },
-              { fecha_fin: { [Op.gte]: new Date() } }
-            ],
-            [Op.or]: [
-              { max_usos: null },
-              { max_usos: { [Op.gt]: sequelize.col("usos_actuales") } }
-            ]
+            [Op.or]: [{ fecha_fin: null }, { fecha_fin: { [Op.gte]: new Date() } }],
+            [Op.or]: [{ max_usos: null }, { max_usos: { [Op.gt]: sequelize.col("usos_actuales") } }],
           },
-          transaction
+          transaction,
         })
 
         if (!coupon) {
@@ -100,9 +94,9 @@ class PaymentFlowService {
         const couponUsed = await CouponUsado.findOne({
           where: {
             cupon_id: couponId,
-            usuario_id: userId
+            usuario_id: userId,
           },
-          transaction
+          transaction,
         })
 
         if (couponUsed) {
@@ -112,10 +106,10 @@ class PaymentFlowService {
 
         // Calculate discount
         if (coupon.tipo_descuento === "porcentaje") {
-          const porcentaje = parseFloat(coupon.descuento) / 100
+          const porcentaje = Number.parseFloat(coupon.descuento) / 100
           couponDiscount = montoTotal * porcentaje
         } else {
-          couponDiscount = parseFloat(coupon.descuento.replace("$", ""))
+          couponDiscount = Number.parseFloat(coupon.descuento.replace("$", ""))
         }
 
         montoTotal -= couponDiscount
@@ -126,9 +120,9 @@ class PaymentFlowService {
         {
           usuario_id: userId,
           monto_total: montoTotal,
-          status: "Pendiente"
+          status: "Pendiente",
         },
-        { transaction }
+        { transaction },
       )
 
       // Create order details
@@ -138,9 +132,9 @@ class PaymentFlowService {
             orden_id: orden.id,
             producto_id: item.Producto.id,
             cantidad: item.cantidad,
-            precio: item.Producto.precio_unidad
+            precio: item.Producto.precio_unidad,
           },
-          { transaction }
+          { transaction },
         )
       }
 
@@ -150,9 +144,9 @@ class PaymentFlowService {
           {
             cupon_id: coupon.id,
             usuario_id: userId,
-            orden_id: orden.id
+            orden_id: orden.id,
           },
-          { transaction }
+          { transaction },
         )
 
         // Increment coupon usage counter
@@ -189,7 +183,7 @@ class PaymentFlowService {
       // Verify if the payment method exists
       const metodoPago = await MetodoPago.findOne({
         where: { id: metodo_pago_id, is_delete: false, is_active: true },
-        transaction
+        transaction,
       })
 
       if (!metodoPago) {
@@ -205,66 +199,97 @@ class PaymentFlowService {
           fecha: fecha || new Date(),
           comprobante_img,
           numero_referencia,
-          monto
+          monto,
         },
-        { transaction }
+        { transaction },
       )
 
       // Create shipping information if provided
       let envio = null
       if (shippingData) {
-        // Check if shipping info already exists for this order
-        const existingEnvio = await Envio.findOne({
-          where: { orden_id },
-          transaction
-        })
+        console.log("Procesando datos de envío en PaymentFlowService:", shippingData)
 
-        if (existingEnvio) {
-          await transaction.rollback()
-          throw new Error("Ya existe información de envío para esta orden")
+        try {
+          // Check if shipping info already exists for this order
+          const existingEnvio = await Envio.findOne({
+            where: { orden_id },
+            transaction,
+          })
+
+          if (existingEnvio) {
+            // Update existing shipping info
+            envio = await existingEnvio.update(shippingData, { transaction })
+            console.log("Información de envío actualizada en PaymentFlowService:", envio.id)
+          } else {
+            // Create new shipping info
+            envio = await Envio.create(shippingData, { transaction })
+            console.log("Nueva información de envío creada en PaymentFlowService:", envio.id)
+          }
+        } catch (envioError) {
+          console.error("Error al procesar información de envío en PaymentFlowService:", envioError)
+          // No interrumpimos el flujo si falla la creación del envío
         }
-
-        envio = await Envio.create(shippingData, { transaction })
       }
 
-      // Update inventory
+      // Update inventory - ENSURE THIS RUNS CORRECTLY
       const detallesOrden = await DetalleOrden.findAll({
         where: { orden_id },
         include: [
           {
             model: Producto,
-            include: [{ model: Inventario }]
-          }
+            include: [{ model: Inventario }],
+          },
         ],
-        transaction
+        transaction,
       })
 
+      // Log for debugging
+      console.log(`Updating inventory for ${detallesOrden.length} products in order ${orden_id}`)
+
       for (const detalle of detallesOrden) {
-        const inventario = detalle.Producto.Inventario
+        const producto = detalle.Producto
+        const inventario = producto.Inventario
+
+        if (!inventario) {
+          console.error(`No inventory found for product ${producto.id}`)
+          continue
+        }
+
+        console.log(
+          `Product ${producto.id}: Current inventory ${inventario.cantidad_actual}, reducing by ${detalle.cantidad}`,
+        )
+
         if (inventario.cantidad_actual < detalle.cantidad) {
           await transaction.rollback()
-          throw new Error(`Inventario insuficiente para el producto ${detalle.Producto.nombre}. Disponible: ${inventario.cantidad_actual}`)
+          throw new Error(
+            `Inventario insuficiente para el producto ${producto.nombre}. Disponible: ${inventario.cantidad_actual}`,
+          )
         }
+
+        const newQuantity = inventario.cantidad_actual - detalle.cantidad
+        const newStatus = newQuantity <= 0 ? "Agotado" : "Disponible"
 
         await inventario.update(
           {
-            cantidad_actual: inventario.cantidad_actual - detalle.cantidad,
-            estado: inventario.cantidad_actual - detalle.cantidad <= 0 ? "Agotado" : inventario.estado
+            cantidad_actual: newQuantity,
+            estado: newStatus,
           },
-          { transaction }
+          { transaction },
         )
+
+        console.log(`Updated inventory for product ${producto.id}: New quantity ${newQuantity}, status ${newStatus}`)
       }
 
       // Mark cart items as deleted
       const carrito = await Carrito.findOne({
         where: { usuario_id: orden.usuario_id, is_delete: false, is_active: true },
-        transaction
+        transaction,
       })
 
       if (carrito) {
         const carritoItems = await CarritoProducto.findAll({
           where: { carrito_id: carrito.id, is_delete: false, is_active: true },
-          transaction
+          transaction,
         })
 
         for (const item of carritoItems) {
@@ -275,6 +300,7 @@ class PaymentFlowService {
       await transaction.commit()
       return { pago, envio }
     } catch (error) {
+      console.error("Error in processPayment:", error)
       await transaction.rollback()
       throw error
     }
@@ -294,7 +320,7 @@ class PaymentFlowService {
       const pago = await Pago.findOne({
         where: { id: pagoId, is_delete: false },
         include: [{ model: Orden }],
-        transaction
+        transaction,
       })
 
       if (!pago) {
@@ -316,9 +342,9 @@ class PaymentFlowService {
             numero_factura: numeroFactura,
             fecha_emision: new Date(),
             subtotal: orden.monto_total,
-            status_factura: "Activa"
+            status_factura: "Activa",
           },
-          { transaction }
+          { transaction },
         )
       } else {
         // Update order status to "Cancelada"
@@ -330,10 +356,10 @@ class PaymentFlowService {
           include: [
             {
               model: Producto,
-              include: [{ model: Inventario }]
-            }
+              include: [{ model: Inventario }],
+            },
           ],
-          transaction
+          transaction,
         })
 
         for (const detalle of detallesOrden) {
@@ -341,9 +367,9 @@ class PaymentFlowService {
           await inventario.update(
             {
               cantidad_actual: inventario.cantidad_actual + detalle.cantidad,
-              estado: "Disponible"
+              estado: "Disponible",
             },
-            { transaction }
+            { transaction },
           )
         }
       }
@@ -368,7 +394,7 @@ class PaymentFlowService {
       // Verify if the order exists and is completed
       const orden = await Orden.findOne({
         where: { id: ordenId, status: "Completa" },
-        transaction
+        transaction,
       })
 
       if (!orden) {
@@ -379,7 +405,7 @@ class PaymentFlowService {
       // Check if invoice already exists
       const existingFactura = await Factura.findOne({
         where: { orden_id: ordenId },
-        transaction
+        transaction,
       })
 
       if (existingFactura) {
@@ -397,9 +423,9 @@ class PaymentFlowService {
           numero_factura: numeroFactura,
           fecha_emision: new Date(),
           subtotal: orden.monto_total,
-          status_factura: "Activa"
+          status_factura: "Activa",
         },
-        { transaction }
+        { transaction },
       )
 
       await transaction.commit()
@@ -424,7 +450,7 @@ class PaymentFlowService {
       // Verify if the order exists
       const orden = await Orden.findOne({
         where: { id: ordenId, usuario_id: userId },
-        transaction
+        transaction,
       })
 
       if (!orden) {
@@ -438,16 +464,10 @@ class PaymentFlowService {
           codigo: couponCode,
           is_active: true,
           fecha_inicio: { [Op.lte]: new Date() },
-          [Op.or]: [
-            { fecha_fin: null },
-            { fecha_fin: { [Op.gte]: new Date() } }
-          ],
-          [Op.or]: [
-            { max_usos: null },
-            { max_usos: { [Op.gt]: sequelize.col("usos_actuales") } }
-          ]
+          [Op.or]: [{ fecha_fin: null }, { fecha_fin: { [Op.gte]: new Date() } }],
+          [Op.or]: [{ max_usos: null }, { max_usos: { [Op.gt]: sequelize.col("usos_actuales") } }],
         },
-        transaction
+        transaction,
       })
 
       if (!coupon) {
@@ -459,9 +479,9 @@ class PaymentFlowService {
       const couponUsed = await CouponUsado.findOne({
         where: {
           cupon_id: coupon.id,
-          usuario_id: userId
+          usuario_id: userId,
         },
-        transaction
+        transaction,
       })
 
       if (couponUsed) {
@@ -472,10 +492,10 @@ class PaymentFlowService {
       // Calculate discount
       let descuento = 0
       if (coupon.tipo_descuento === "porcentaje") {
-        const porcentaje = parseFloat(coupon.descuento) / 100
+        const porcentaje = Number.parseFloat(coupon.descuento) / 100
         descuento = orden.monto_total * porcentaje
       } else {
-        descuento = parseFloat(coupon.descuento.replace("$", ""))
+        descuento = Number.parseFloat(coupon.descuento.replace("$", ""))
       }
 
       const nuevoTotal = orden.monto_total - descuento
@@ -485,9 +505,9 @@ class PaymentFlowService {
         {
           cupon_id: coupon.id,
           usuario_id: userId,
-          orden_id: ordenId
+          orden_id: ordenId,
         },
-        { transaction }
+        { transaction },
       )
 
       // Increment coupon usage counter
@@ -501,7 +521,7 @@ class PaymentFlowService {
         orden,
         descuento,
         nuevoTotal,
-        coupon
+        coupon,
       }
     } catch (error) {
       await transaction.rollback()
