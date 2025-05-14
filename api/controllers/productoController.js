@@ -4,7 +4,6 @@ import { Op } from "sequelize"
 import fs from "fs"
 import path from "path"
 import { fileURLToPath } from "url"
-import { cleanupEmptyDir } from "../middleware/upload.js"
 
 // Get current directory name (for ES modules)
 const __filename = fileURLToPath(import.meta.url)
@@ -27,6 +26,12 @@ export const getAllProductos = async (req, res, next) => {
         {
           model: Inventario,
           attributes: ["id", "cantidad_actual", "estado"],
+          where: {
+            cantidad_actual: {
+              [Op.gt]: 0,
+            },
+            is_delete: false,
+          },
         },
       ],
       order: [["nombre", "ASC"]],
@@ -149,7 +154,7 @@ export const createProducto = async (req, res, next) => {
         estado: cantidad_inicial > 0 ? "Disponible" : "Agotado",
         fecha_ingreso: new Date(),
       },
-      { transaction }
+      { transaction },
     )
 
     // Crear producto
@@ -166,7 +171,7 @@ export const createProducto = async (req, res, next) => {
         marca_id,
         categoria_id,
       },
-      { transaction }
+      { transaction },
     )
 
     // Actualizar inventario con el ID del producto
@@ -181,7 +186,7 @@ export const createProducto = async (req, res, next) => {
         precio_distribuidor,
         fecha_update: new Date(),
       },
-      { transaction }
+      { transaction },
     )
 
     await transaction.commit()
@@ -313,7 +318,7 @@ export const updateProducto = async (req, res, next) => {
         categoria_id: categoria_id || producto.categoria_id,
         is_active: is_active !== undefined ? is_active : producto.is_active,
       },
-      { transaction }
+      { transaction },
     )
 
     // Si se actualizaron los precios, crear un nuevo registro en el historial
@@ -326,7 +331,7 @@ export const updateProducto = async (req, res, next) => {
           precio_distribuidor: precio_distribuidor || producto.precio_distribuidor,
           fecha_update: new Date(),
         },
-        { transaction }
+        { transaction },
       )
     }
 
@@ -385,22 +390,19 @@ export const searchProductos = async (req, res, next) => {
     // Búsqueda por precio mejorada
     if (precio) {
       const precioStr = precio.toString()
-      
+
       // Creamos un array para las condiciones de precio
       const precioConditions = []
-      
+
       // Búsqueda parcial en precio_unidad como string
-      precioConditions.push(sequelize.where(
-        sequelize.cast(sequelize.col('precio_unidad'), 'TEXT'),
-        { [Op.like]: `%${precioStr}%` }
-      ))
-      
+      precioConditions.push(
+        sequelize.where(sequelize.cast(sequelize.col("precio_unidad"), "TEXT"), { [Op.like]: `%${precioStr}%` }),
+      )
+
       // Búsqueda exacta numérica
-      const precioNum = parseFloat(precio)
+      const precioNum = Number.parseFloat(precio)
       if (!isNaN(precioNum)) {
-        precioConditions.push(
-          { precio_unidad: precioNum }
-        )
+        precioConditions.push({ precio_unidad: precioNum })
       }
 
       // Si no hay condiciones OR previas, creamos un nuevo array
@@ -408,10 +410,7 @@ export const searchProductos = async (req, res, next) => {
         whereClause[Op.or] = precioConditions
       } else {
         // Si ya hay condiciones OR, las combinamos
-        whereClause[Op.or] = [
-          ...whereClause[Op.or],
-          { [Op.or]: precioConditions }
-        ]
+        whereClause[Op.or] = [...whereClause[Op.or], { [Op.or]: precioConditions }]
       }
     }
 
@@ -437,6 +436,12 @@ export const searchProductos = async (req, res, next) => {
         {
           model: Inventario,
           attributes: ["id", "cantidad_actual", "estado"],
+          where: {
+            cantidad_actual: {
+              [Op.gt]: 0,
+            },
+            is_delete: false,
+          },
         },
       ],
       order: [["nombre", "ASC"]],

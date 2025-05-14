@@ -6,8 +6,8 @@ import Header from "../../components/Header/Header.vue"
 import Footer from "../../components/Footer/Footer.vue"
 import { apiService } from "../../services/api.service"
 import { useCartService } from "../../services/cart.service"
-import { useDolarStore } from '../../stores/dolar'
-import { config } from '../../config/config'
+import { useDolarStore } from "../../stores/dolar"
+import { config } from "../../config/config"
 import {
   StarIcon,
   HeartIcon,
@@ -45,8 +45,8 @@ export default {
   props: {
     API_BASE_URL: {
       type: String,
-      default: config.API_BASE_URL
-    }
+      default: config.API_BASE_URL,
+    },
   },
   setup(props) {
     const router = useRouter()
@@ -111,8 +111,9 @@ export default {
         }
 
         // Transformar los productos para que coincidan con el formato esperado
+        // y filtrar aquellos con inventario en 0
         products.value = response.data
-          .filter((p) => p.is_active)
+          .filter((p) => p.is_active && p.Inventario && p.Inventario.cantidad_actual > 0)
           .map((p) => ({
             id: p.id,
             name: p.nombre,
@@ -125,6 +126,7 @@ export default {
             subcategory: p.Categorium?.id?.toString(),
             brandId: p.Marca?.id?.toString(),
             description: p.descripcion,
+            inventario: p.Inventario,
           }))
       } catch (error) {
         console.error("Error al cargar productos:", error)
@@ -312,18 +314,18 @@ export default {
 
     const formatPriceBs = (price) => {
       const rate = dollarRate.value?._value || dollarRate.value
-      
-      const numericPrice = typeof price === 'string'
-        ? parseFloat(price.replace(',', '.'))
-        : Number(price)
+
+      const numericPrice = typeof price === "string" ? Number.parseFloat(price.replace(",", ".")) : Number(price)
 
       if (!rate || isNaN(numericPrice)) {
-        return '--.-- BS'
+        return "--.-- BS"
       }
 
-      const totalBs = (numericPrice * Number(rate).toFixed(2)).toFixed(2)
-        .replace('.', ',')
-        .replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' BS'
+      const totalBs =
+        (numericPrice * Number(rate).toFixed(2))
+          .toFixed(2)
+          .replace(".", ",")
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " BS"
 
       return totalBs
     }
@@ -351,8 +353,7 @@ export default {
       formatPrice,
       toast,
       formatPriceBs,
-      dollarRate
+      dollarRate,
     }
   },
 }
-

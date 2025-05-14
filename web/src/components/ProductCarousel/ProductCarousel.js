@@ -1,10 +1,12 @@
+"use client"
+
 import { ref, onMounted, onUnmounted, computed } from "vue"
 import { useRouter } from "vue-router"
 import { ChevronLeftIcon, ChevronRightIcon, StarIcon, EyeIcon, ShoppingCartIcon } from "lucide-vue-next"
 import { useToast } from "../../services/toast.service"
 import { useCartService } from "../../services/cart.service"
-import { useDolarStore } from '../../stores/dolar'
-import { config } from '../../config/config'
+import { useDolarStore } from "../../stores/dolar"
+import { config } from "../../config/config"
 
 export default {
   name: "ProductCarousel",
@@ -18,7 +20,7 @@ export default {
   props: {
     API_BASE_URL: {
       type: String,
-      default: config.API_BASE_URL
+      default: config.API_BASE_URL,
     },
     products: {
       type: Array,
@@ -56,7 +58,7 @@ export default {
     const scrollLeft = () => {
       if (!carouselTrack.value) return
 
-      const scrollAmount = carouselTrack.value.clientWidth * 0.8 
+      const scrollAmount = carouselTrack.value.clientWidth * 0.8
       carouselTrack.value.scrollBy({
         left: -scrollAmount,
         behavior: "smooth",
@@ -157,21 +159,27 @@ export default {
 
     const formatPriceBs = (price) => {
       const rate = dollarRate.value?._value || dollarRate.value
-      
-      const numericPrice = typeof price === 'string'
-        ? parseFloat(price.replace(',', '.'))
-        : Number(price)
+
+      const numericPrice = typeof price === "string" ? Number.parseFloat(price.replace(",", ".")) : Number(price)
 
       if (!rate || isNaN(numericPrice)) {
-        return '--.-- BS'
+        return "--.-- BS"
       }
 
-      const totalBs = (numericPrice * Number(rate).toFixed(2)).toFixed(2)
-        .replace('.', ',')
-        .replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' BS'
+      const totalBs =
+        (numericPrice * Number(rate).toFixed(2))
+          .toFixed(2)
+          .replace(".", ",")
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " BS"
 
       return totalBs
     }
+
+    const filteredProducts = computed(() => {
+      return props.products.filter((product) => {
+        return product.Inventario && product.Inventario.cantidad_actual > 0
+      })
+    })
 
     return {
       carouselTrack,
@@ -183,8 +191,8 @@ export default {
       addToCart,
       formatPrice,
       formatPriceBs,
-      dollarRate
+      dollarRate,
+      filteredProducts,
     }
   },
 }
-
