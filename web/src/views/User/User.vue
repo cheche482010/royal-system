@@ -130,45 +130,6 @@
         </div>
       </div>
 
-      <!-- Sección de Direcciones -->
-      <div v-if="activeSection === 'addresses'" class="content-section">
-        <h2 class="section-title">Mis Direcciones</h2>
-
-        <div class="addresses-grid">
-          <div v-for="address in addresses" :key="address.id" class="address-card">
-            <div class="address-header">
-              <h3 class="address-title">{{ address.title }}</h3>
-              <div class="address-actions">
-                <button class="edit-button">
-                  <EditIcon class="edit-icon" />
-                </button>
-                <button class="delete-button">
-                  <TrashIcon class="delete-icon" />
-                </button>
-              </div>
-            </div>
-
-            <div class="address-content">
-              <p class="address-name">{{ address.name }}</p>
-              <p class="address-line">{{ address.street }}</p>
-              <p class="address-line">{{ address.postalCode }} {{ address.city }}</p>
-              <p class="address-line">{{ address.country }}</p>
-              <p class="address-phone">{{ address.phone }}</p>
-            </div>
-
-            <div v-if="address.default" class="default-badge">Predeterminada</div>
-          </div>
-
-          <div class="add-address-card">
-            <button class="add-button">
-              <PlusIcon class="plus-icon" />
-              <span>Añadir nueva dirección</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-
       <!-- Sección de Perfil -->
       <div v-if="activeSection === 'profile'" class="content-section">
         <h2 class="section-title">Mi Perfil</h2>
@@ -178,11 +139,6 @@
             <div class="form-group">
               <label for="profileName">Nombre</label>
               <input type="text" id="profileName" v-model="profileForm.name" placeholder="Tu nombre" />
-            </div>
-
-            <div class="form-group">
-              <label for="profileLastName">Apellidos</label>
-              <input type="text" id="profileLastName" v-model="profileForm.lastName" placeholder="Tus apellidos" />
             </div>
           </div>
 
