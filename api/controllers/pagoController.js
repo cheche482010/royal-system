@@ -116,7 +116,7 @@ export const createPago = async (req, res, next) => {
       direccion,
       ciudad,
       estado,
-      shipping_phone,
+      telefono,
     } = req.body;
 
     // Verificar si la orden existe
@@ -216,7 +216,7 @@ export const createPago = async (req, res, next) => {
 
     // Guardar información de envío si se proporcionó
     let envio = null;
-    if (nombre_receptor && direccion && ciudad && estado && shipping_phone) {
+    if (nombre_receptor && direccion && ciudad && estado && telefono) {
       try {
         // Verificar si ya existe información de envío para esta orden
         const existingEnvio = await Envio.findOne({ where: { orden_id } });
@@ -239,7 +239,7 @@ export const createPago = async (req, res, next) => {
             direccion: direccion,
             ciudad: ciudad,
             estado: estado,
-            telefono: shipping_phone,
+            telefono: telefono,
           });
         }
       } catch (envioError) {
