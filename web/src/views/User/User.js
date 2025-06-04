@@ -40,8 +40,8 @@ export default {
   props: {
     API_BASE_URL: {
       type: String,
-      default: config.API_BASE_URL
-    }
+      default: config.API_BASE_URL,
+    },
   },
   setup() {
     const isUpdating = ref(false)
@@ -55,7 +55,7 @@ export default {
     const userData = ref(null)
     const router = useRouter()
     const route = useRoute()
-    const activeSection = ref(route.path.includes('orders') ? 'orders' : 'profile');
+    const activeSection = ref(route.path.includes("orders") ? "orders" : "profile")
 
     // Reemplazar el objeto user con un computed que use los datos completos
     const user = computed(() => ({
@@ -74,10 +74,20 @@ export default {
     // Usar ref para las órdenes que vendrán de la BD
     const orders = ref([])
 
+    // Agregar estas nuevas propiedades ref después de las existentes (alrededor de la línea donde están los otros ref)
+    const searchQuery = ref("")
+    const currentPage = ref(1)
+    const itemsPerPage = ref(5)
+    const sortBy = ref("date") // 'date', 'total', 'status'
+    const sortOrder = ref("desc") // 'asc', 'desc'
+
     // Observar cambios en la ruta
-    watch(() => route.path, (newPath) => {
-      activeSection.value = newPath.includes('orders') ? 'orders' : 'profile';
-    });
+    watch(
+      () => route.path,
+      (newPath) => {
+        activeSection.value = newPath.includes("orders") ? "orders" : "profile"
+      },
+    )
 
     // Función para cargar las órdenes del usuario
     const loadUserOrders = async () => {
@@ -93,9 +103,8 @@ export default {
         const response = await ordenService.getOrdenesByUsuario(auth.userId.value, token)
 
         if (response.success && response.data) {
-
           // Transformar los datos de la API al formato que espera la UI
-          orders.value = response.data.map(orden => {
+          orders.value = response.data.map((orden) => {
             // Determinar el estado y texto de estado
             let status = "processing"
             let statusText = "En Proceso"
@@ -113,26 +122,27 @@ export default {
 
             // Formatear la fecha
             const fecha = new Date(orden.created_at)
-            const fechaFormateada = `${fecha.getDate().toString().padStart(2, '0')}/${(fecha.getMonth() + 1).toString().padStart(2, '0')}/${fecha.getFullYear()}`
+            const fechaFormateada = `${fecha.getDate().toString().padStart(2, "0")}/${(fecha.getMonth() + 1).toString().padStart(2, "0")}/${fecha.getFullYear()}`
 
             // Formatear el total
-            const totalFormateado = `${parseFloat(orden.monto_total).toFixed(2)}$`
+            const totalFormateado = `${Number.parseFloat(orden.monto_total).toFixed(2)}$`
 
             return {
               id: orden.id,
-              number: `${orden.id}`.padStart(8, '0'),
+              number: `${orden.id}`.padStart(8, "0"),
               date: fechaFormateada,
               status: status,
               statusText: statusText,
               total: totalFormateado,
               isCompleted: orden.status === "Completa",
-              products: orden.DetalleOrdens?.map(detalle => ({
-                id: detalle.producto_id,
-                name: detalle.Producto?.nombre || "Producto",
-                price: `${parseFloat(detalle.precio).toFixed(2)}$`,
-                quantity: detalle.cantidad,
-                image: `${config.API_BASE_URL}${detalle.Producto?.producto_img}` || "https://placehold.co/200x200",
-              })) || []
+              products:
+                orden.DetalleOrdens?.map((detalle) => ({
+                  id: detalle.producto_id,
+                  name: detalle.Producto?.nombre || "Producto",
+                  price: `${Number.parseFloat(detalle.precio).toFixed(2)}$`,
+                  quantity: detalle.cantidad,
+                  image: `${config.API_BASE_URL}${detalle.Producto?.producto_img}` || "https://placehold.co/200x200",
+                })) || [],
             }
           })
         } else {
@@ -154,10 +164,10 @@ export default {
 
     // Actualizar el profileForm como un ref para que se pueda modificar
     const profileForm = ref({
-      name: '',
-      email: '',
-      phone: '',
-      newsletter: false
+      name: "",
+      email: "",
+      phone: "",
+      newsletter: false,
     })
 
     const passwordForm = ref({
@@ -191,7 +201,7 @@ export default {
             email: userData.value.correo || "",
             phone: userData.value.telefono || "",
           }
-          
+
           // Cargar las órdenes del usuario después de cargar sus datos
           await loadUserOrders()
         } else {
@@ -211,16 +221,17 @@ export default {
     })
 
     const setActiveSection = (section) => {
-      if (section === 'orders') {
-        router.push('/user/orders');
+      if (section === "orders") {
+        router.push("/user/orders")
       } else {
-        router.push('/user/profile');
+        router.push("/user/profile")
       }
-    };
+    }
 
     // Añadir método para cambiar entre pestañas de pedidos
     const setActiveOrdersTab = (tab) => {
       activeOrdersTab.value = tab
+      currentPage.value = 1
     }
 
     // Añadir computed properties para filtrar los pedidos
@@ -230,6 +241,192 @@ export default {
 
     const completedOrders = computed(() => {
       return orders.value.filter((order) => order.isCompleted)
+    })
+
+    // Agregar estos computed properties after completedOrders
+    const filteredActiveOrders = computed(() => {
+      let filtered = activeOrders.value
+
+      // Filtrar por búsqueda
+      if (searchQuery.value.trim()) {
+        const query = searchQuery.value.toLowerCase()
+        filtered = filtered.filter(
+          (order) =>
+            order.number.toLowerCase().includes(query) ||
+            order.products.some((product) => product.name.toLowerCase().includes(query)) ||
+            order.statusText.toLowerCase().includes(query),
+        )
+      }
+
+      // Ordenar
+      filtered.sort((a, b) => {
+        let aValue, bValue
+
+        switch (sortBy.value) {
+          case "date":
+            aValue = new Date(a.date.split("/").reverse().join("-"))
+            bValue = new Date(b.date.split("/").reverse().join("-"))
+            break
+          case "total":
+            aValue = Number.parseFloat(a.total.replace("$", ""))
+            bValue = Number.parseFloat(b.total.replace("$", ""))
+            break
+          case "status":
+            aValue = a.statusText
+            bValue = b.statusText
+            break
+          default:
+            return 0
+        }
+
+        if (sortOrder.value === "asc") {
+          return aValue > bValue ? 1 : -1
+        } else {
+          return aValue < bValue ? 1 : -1
+        }
+      })
+
+      return filtered
+    })
+
+    const filteredCompletedOrders = computed(() => {
+      let filtered = completedOrders.value
+
+      // Filtrar por búsqueda
+      if (searchQuery.value.trim()) {
+        const query = searchQuery.value.toLowerCase()
+        filtered = filtered.filter(
+          (order) =>
+            order.number.toLowerCase().includes(query) ||
+            order.products.some((product) => product.name.toLowerCase().includes(query)) ||
+            order.statusText.toLowerCase().includes(query),
+        )
+      }
+
+      // Ordenar
+      filtered.sort((a, b) => {
+        let aValue, bValue
+
+        switch (sortBy.value) {
+          case "date":
+            aValue = new Date(a.date.split("/").reverse().join("-"))
+            bValue = new Date(b.date.split("/").reverse().join("-"))
+            break
+          case "total":
+            aValue = Number.parseFloat(a.total.replace("$", ""))
+            bValue = Number.parseFloat(b.total.replace("$", ""))
+            break
+          case "status":
+            aValue = a.statusText
+            bValue = b.statusText
+            break
+          default:
+            return 0
+        }
+
+        if (sortOrder.value === "asc") {
+          return aValue > bValue ? 1 : -1
+        } else {
+          return aValue < bValue ? 1 : -1
+        }
+      })
+
+      return filtered
+    })
+
+    // Computed para paginación de pedidos activos
+    const paginatedActiveOrders = computed(() => {
+      const start = (currentPage.value - 1) * itemsPerPage.value
+      const end = start + itemsPerPage.value
+      return filteredActiveOrders.value.slice(start, end)
+    })
+
+    // Computed para paginación de pedidos completados
+    const paginatedCompletedOrders = computed(() => {
+      const start = (currentPage.value - 1) * itemsPerPage.value
+      const end = start + itemsPerPage.value
+      return filteredCompletedOrders.value.slice(start, end)
+    })
+
+    // Computed para el total de páginas
+    const totalPages = computed(() => {
+      const currentOrders =
+        activeOrdersTab.value === "active" ? filteredActiveOrders.value : filteredCompletedOrders.value
+      return Math.ceil(currentOrders.length / itemsPerPage.value)
+    })
+
+    // Computed para generar los números de página a mostrar
+    const paginationNumbers = computed(() => {
+      const total = totalPages.value
+      const current = currentPage.value
+      const delta = 2 // Número de páginas a mostrar a cada lado de la página actual
+
+      if (total <= 7) {
+        // Si hay 7 páginas o menos, mostrar todas
+        return Array.from({ length: total }, (_, i) => i + 1)
+      }
+
+      const range = []
+      const rangeWithDots = []
+
+      // Siempre incluir la primera página
+      range.push(1)
+
+      // Calcular el rango alrededor de la página actual
+      for (let i = Math.max(2, current - delta); i <= Math.min(total - 1, current + delta); i++) {
+        range.push(i)
+      }
+
+      // Siempre incluir la última página
+      if (total > 1) {
+        range.push(total)
+      }
+
+      // Agregar puntos suspensivos donde sea necesario
+      let prev = 0
+      for (const page of range) {
+        if (page - prev === 2) {
+          rangeWithDots.push(prev + 1)
+        } else if (page - prev !== 1) {
+          rangeWithDots.push("...")
+        }
+        rangeWithDots.push(page)
+        prev = page
+      }
+
+      return rangeWithDots
+    })
+
+    // Métodos para paginación
+    const goToPage = (page) => {
+      if (page >= 1 && page <= totalPages.value) {
+        currentPage.value = page
+      }
+    }
+
+    const nextPage = () => {
+      if (currentPage.value < totalPages.value) {
+        currentPage.value++
+      }
+    }
+
+    const prevPage = () => {
+      if (currentPage.value > 1) {
+        currentPage.value--
+      }
+    }
+
+    // Método para limpiar filtros
+    const clearFilters = () => {
+      searchQuery.value = ""
+      currentPage.value = 1
+      sortBy.value = "date"
+      sortOrder.value = "desc"
+    }
+
+    // Watcher para resetear página cuando cambia la búsqueda o tab
+    watch([searchQuery, activeOrdersTab], () => {
+      currentPage.value = 1
     })
 
     // Actualizar el método de logout para usar el auth
@@ -277,52 +474,52 @@ export default {
       if (!passwordForm.value.current || !passwordForm.value.new || !passwordForm.value.confirm) {
         toast.error("Por favor complete todos los campos", {
           title: "Error",
-        });
-        return;
+        })
+        return
       }
 
-      isUpdatingPassword.value = true;
+      isUpdatingPassword.value = true
 
       try {
         if (passwordForm.value.new !== passwordForm.value.confirm) {
           toast.error("Las contraseñas no coinciden", {
             title: "Error",
-          });
-          return;
+          })
+          return
         }
 
         const passwordData = {
           current_password: passwordForm.value.current,
           new_password: passwordForm.value.new,
-        };
+        }
 
-        const token = auth.sessionToken.value;
-        const response = await userService.updatePassword(passwordData, token);
+        const token = auth.sessionToken.value
+        const response = await userService.updatePassword(passwordData, token)
 
         if (response.success) {
           toast.success("Contraseña actualizada correctamente", {
             title: "Éxito",
-          });
+          })
           passwordForm.value = {
             current: "",
             new: "",
             confirm: "",
-          };
+          }
         } else {
           toast.error(response.message, {
             title: "Error",
-          });
+          })
         }
       } catch (error) {
         toast.error("Ocurrió un error al actualizar la contraseña", {
           title: "Error",
-        });
+        })
       } finally {
-        isUpdatingPassword.value = false;
+        isUpdatingPassword.value = false
       }
-    };
+    }
 
-    // Añadir las nuevas propiedades y métodos al return
+    // Agregar las nuevas propiedades y métodos al return
     return {
       activeSection,
       activeOrdersTab,
@@ -332,6 +529,17 @@ export default {
       orders,
       activeOrders,
       completedOrders,
+      filteredActiveOrders,
+      filteredCompletedOrders,
+      paginatedActiveOrders,
+      paginatedCompletedOrders,
+      searchQuery,
+      currentPage,
+      itemsPerPage,
+      sortBy,
+      sortOrder,
+      totalPages,
+      paginationNumbers,
       profileForm,
       passwordForm,
       isUpdating,
@@ -342,6 +550,10 @@ export default {
       ordersError,
       setActiveSection,
       setActiveOrdersTab,
+      goToPage,
+      nextPage,
+      prevPage,
+      clearFilters,
       handleLogout,
       updateProfile,
       updatePassword,

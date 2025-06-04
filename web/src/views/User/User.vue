@@ -44,10 +44,50 @@
           </button>
         </div>
 
+        <!-- Controles de búsqueda y filtrado -->
+        <div class="orders-controls">
+          <div class="search-section">
+            <div class="search-input-group">
+              <input 
+                type="text" 
+                v-model="searchQuery" 
+                placeholder="Buscar por número de pedido, producto o estado..."
+                class="search-input"
+              />
+              <button v-if="searchQuery" @click="clearFilters" class="clear-button">
+                Limpiar
+              </button>
+            </div>
+          </div>
+          
+          <div class="filter-section">
+            <div class="sort-controls">
+              <select v-model="sortBy" class="sort-select">
+                <option value="date">Ordenar por fecha</option>
+                <option value="total">Ordenar por total</option>
+                <option value="status">Ordenar por estado</option>
+              </select>
+              <button @click="sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'" class="sort-order-button">
+                {{ sortOrder === 'asc' ? '↑' : '↓' }}
+              </button>
+            </div>
+            
+            <div class="items-per-page">
+              <label>Mostrar:</label>
+              <select v-model="itemsPerPage" class="items-select">
+                <option :value="5">5 por página</option>
+                <option :value="10">10 por página</option>
+                <option :value="20">20 por página</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
         <!-- Pedidos Activos -->
         <div v-if="activeOrdersTab === 'active'">
-          <div v-if="activeOrders.length > 0" class="orders-list">
-            <div v-for="order in activeOrders" :key="order.id" class="order-card">
+          <div v-if="paginatedActiveOrders.length > 0" class="orders-list">
+            <div v-for="order in paginatedActiveOrders" :key="order.id" class="order-card">
+              <!-- El contenido del order-card permanece igual -->
               <div class="order-header">
                 <div class="order-info">
                   <div class="order-number">Pedido #{{ order.number }}</div>
@@ -77,6 +117,52 @@
                 <button class="details-button">Ver detalles</button>
               </div>
             </div>
+            
+            <!-- Controles de paginación -->
+            <div v-if="totalPages > 1" class="pagination">
+              <div class="pagination-controls">
+                <button 
+                  @click="prevPage" 
+                  :disabled="currentPage === 1" 
+                  class="pagination-nav-button"
+                >
+                  ‹
+                </button>
+                
+                <div class="pagination-numbers">
+                  <button
+                    v-for="(page, index) in paginationNumbers"
+                    :key="index"
+                    @click="page !== '...' ? goToPage(page) : null"
+                    :class="{
+                      'pagination-number': page !== '...',
+                      'pagination-dots': page === '...',
+                      'active': page === currentPage
+                    }"
+                    :disabled="page === '...'"
+                  >
+                    {{ page }}
+                  </button>
+                </div>
+                
+                <button 
+                  @click="nextPage" 
+                  :disabled="currentPage === totalPages" 
+                  class="pagination-nav-button"
+                >
+                  ›
+                </button>
+              </div>
+              
+              
+            </div>
+          </div>
+
+          <div v-else-if="searchQuery && filteredActiveOrders.length === 0" class="empty-state">
+            <PackageIcon class="empty-icon" />
+            <h3>No se encontraron pedidos</h3>
+            <p>No hay pedidos que coincidan con tu búsqueda</p>
+            <button @click="clearFilters" class="shop-button">Limpiar filtros</button>
           </div>
 
           <div v-else class="empty-state">
@@ -89,8 +175,9 @@
 
         <!-- Pedidos Finalizados -->
         <div v-if="activeOrdersTab === 'completed'">
-          <div v-if="completedOrders.length > 0" class="orders-list">
-            <div v-for="order in completedOrders" :key="order.id" class="order-card">
+          <div v-if="paginatedCompletedOrders.length > 0" class="orders-list">
+            <div v-for="order in paginatedCompletedOrders" :key="order.id" class="order-card">
+              <!-- El contenido del order-card permanece igual -->
               <div class="order-header">
                 <div class="order-info">
                   <div class="order-number">Pedido #{{ order.number }}</div>
@@ -120,6 +207,56 @@
                 <button class="details-button">Ver detalles</button>
               </div>
             </div>
+            
+            <!-- Controles de paginación -->
+            <div v-if="totalPages > 1" class="pagination">
+              <div class="pagination-controls">
+                <button 
+                  @click="prevPage" 
+                  :disabled="currentPage === 1" 
+                  class="pagination-nav-button"
+                >
+                  ‹ Anterior
+                </button>
+                
+                <div class="pagination-numbers">
+                  <button
+                    v-for="(page, index) in paginationNumbers"
+                    :key="index"
+                    @click="page !== '...' ? goToPage(page) : null"
+                    :class="{
+                      'pagination-number': page !== '...',
+                      'pagination-dots': page === '...',
+                      'active': page === currentPage
+                    }"
+                    :disabled="page === '...'"
+                  >
+                    {{ page }}
+                  </button>
+                </div>
+                
+                <button 
+                  @click="nextPage" 
+                  :disabled="currentPage === totalPages" 
+                  class="pagination-nav-button"
+                >
+                  Siguiente ›
+                </button>
+              </div>
+              
+              <div class="pagination-info">
+                Mostrando {{ ((currentPage - 1) * itemsPerPage) + 1 }} - 
+                {{ Math.min(currentPage * itemsPerPage, activeOrdersTab === 'active' ? filteredActiveOrders.length : filteredCompletedOrders.length) }} 
+                de {{ activeOrdersTab === 'active' ? filteredActiveOrders.length : filteredCompletedOrders.length }} pedidos
+              </div>
+            </div>
+          </div>
+
+          <div v-else-if="searchQuery && filteredCompletedOrders.length === 0" class="empty-state">
+            <PackageIcon class="empty-icon" />
+            <h3>No se encontraron pedidos</h3>
+            <p>No hay pedidos finalizados que coincidan con tu búsqueda</p>
+            <button @click="clearFilters" class="shop-button">Limpiar filtros</button>
           </div>
 
           <div v-else class="empty-state">
