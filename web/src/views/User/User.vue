@@ -51,7 +51,7 @@
               <input 
                 type="text" 
                 v-model="searchQuery" 
-                placeholder="Buscar por número de pedido, producto o estado..."
+                placeholder="Buscar por número, producto, estado, fecha (dd/mm/yyyy) o total..."
                 class="search-input"
               />
               <button v-if="searchQuery" @click="clearFilters" class="clear-button">
@@ -67,7 +67,7 @@
                 <option value="total">Ordenar por total</option>
                 <option value="status">Ordenar por estado</option>
               </select>
-              <button @click="sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'" class="sort-order-button">
+              <button @click="sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'" class="sort-order-button" :title="sortOrder === 'asc' ? 'Orden ascendente' : 'Orden descendente'">
                 {{ sortOrder === 'asc' ? '↑' : '↓' }}
               </button>
             </div>
@@ -126,7 +126,7 @@
                   :disabled="currentPage === 1" 
                   class="pagination-nav-button"
                 >
-                  ‹
+                  ‹ 
                 </button>
                 
                 <div class="pagination-numbers">
@@ -150,11 +150,9 @@
                   :disabled="currentPage === totalPages" 
                   class="pagination-nav-button"
                 >
-                  ›
+                   ›
                 </button>
               </div>
-              
-              
             </div>
           </div>
 

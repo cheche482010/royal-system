@@ -245,17 +245,30 @@ export default {
 
     // Agregar estos computed properties after completedOrders
     const filteredActiveOrders = computed(() => {
-      let filtered = activeOrders.value
+      let filtered = [...activeOrders.value] // Crear una copia para evitar mutaciones
 
-      // Filtrar por búsqueda
+      // Filtrar por búsqueda - incluir fecha y total
       if (searchQuery.value.trim()) {
         const query = searchQuery.value.toLowerCase()
-        filtered = filtered.filter(
-          (order) =>
-            order.number.toLowerCase().includes(query) ||
-            order.products.some((product) => product.name.toLowerCase().includes(query)) ||
-            order.statusText.toLowerCase().includes(query),
-        )
+        filtered = filtered.filter((order) => {
+          // Buscar en número de pedido
+          const matchesNumber = order.number.toLowerCase().includes(query)
+
+          // Buscar en nombres de productos
+          const matchesProduct = order.products.some((product) => product.name.toLowerCase().includes(query))
+
+          // Buscar en estado
+          const matchesStatus = order.statusText.toLowerCase().includes(query)
+
+          // Buscar en fecha (formato dd/mm/yyyy)
+          const matchesDate = order.date.includes(query)
+
+          // Buscar en total (sin el símbolo $)
+          const totalValue = order.total.replace("$", "")
+          const matchesTotal = totalValue.includes(query)
+
+          return matchesNumber || matchesProduct || matchesStatus || matchesDate || matchesTotal
+        })
       }
 
       // Ordenar
@@ -264,25 +277,34 @@ export default {
 
         switch (sortBy.value) {
           case "date":
-            aValue = new Date(a.date.split("/").reverse().join("-"))
-            bValue = new Date(b.date.split("/").reverse().join("-"))
+            // Convertir fecha dd/mm/yyyy a objeto Date para comparación correcta
+            const [dayA, monthA, yearA] = a.date.split("/")
+            const [dayB, monthB, yearB] = b.date.split("/")
+            aValue = new Date(yearA, monthA - 1, dayA)
+            bValue = new Date(yearB, monthB - 1, dayB)
             break
           case "total":
+            // Remover el símbolo $ y convertir a número
             aValue = Number.parseFloat(a.total.replace("$", ""))
             bValue = Number.parseFloat(b.total.replace("$", ""))
             break
           case "status":
-            aValue = a.statusText
-            bValue = b.statusText
+            aValue = a.statusText.toLowerCase()
+            bValue = b.statusText.toLowerCase()
             break
           default:
             return 0
         }
 
+        // Aplicar orden ascendente o descendente
         if (sortOrder.value === "asc") {
-          return aValue > bValue ? 1 : -1
+          if (aValue < bValue) return -1
+          if (aValue > bValue) return 1
+          return 0
         } else {
-          return aValue < bValue ? 1 : -1
+          if (aValue > bValue) return -1
+          if (aValue < bValue) return 1
+          return 0
         }
       })
 
@@ -290,17 +312,30 @@ export default {
     })
 
     const filteredCompletedOrders = computed(() => {
-      let filtered = completedOrders.value
+      let filtered = [...completedOrders.value] // Crear una copia para evitar mutaciones
 
-      // Filtrar por búsqueda
+      // Filtrar por búsqueda - incluir fecha y total
       if (searchQuery.value.trim()) {
         const query = searchQuery.value.toLowerCase()
-        filtered = filtered.filter(
-          (order) =>
-            order.number.toLowerCase().includes(query) ||
-            order.products.some((product) => product.name.toLowerCase().includes(query)) ||
-            order.statusText.toLowerCase().includes(query),
-        )
+        filtered = filtered.filter((order) => {
+          // Buscar en número de pedido
+          const matchesNumber = order.number.toLowerCase().includes(query)
+
+          // Buscar en nombres de productos
+          const matchesProduct = order.products.some((product) => product.name.toLowerCase().includes(query))
+
+          // Buscar en estado
+          const matchesStatus = order.statusText.toLowerCase().includes(query)
+
+          // Buscar en fecha (formato dd/mm/yyyy)
+          const matchesDate = order.date.includes(query)
+
+          // Buscar en total (sin el símbolo $)
+          const totalValue = order.total.replace("$", "")
+          const matchesTotal = totalValue.includes(query)
+
+          return matchesNumber || matchesProduct || matchesStatus || matchesDate || matchesTotal
+        })
       }
 
       // Ordenar
@@ -309,25 +344,34 @@ export default {
 
         switch (sortBy.value) {
           case "date":
-            aValue = new Date(a.date.split("/").reverse().join("-"))
-            bValue = new Date(b.date.split("/").reverse().join("-"))
+            // Convertir fecha dd/mm/yyyy a objeto Date para comparación correcta
+            const [dayA, monthA, yearA] = a.date.split("/")
+            const [dayB, monthB, yearB] = b.date.split("/")
+            aValue = new Date(yearA, monthA - 1, dayA)
+            bValue = new Date(yearB, monthB - 1, dayB)
             break
           case "total":
+            // Remover el símbolo $ y convertir a número
             aValue = Number.parseFloat(a.total.replace("$", ""))
             bValue = Number.parseFloat(b.total.replace("$", ""))
             break
           case "status":
-            aValue = a.statusText
-            bValue = b.statusText
+            aValue = a.statusText.toLowerCase()
+            bValue = b.statusText.toLowerCase()
             break
           default:
             return 0
         }
 
+        // Aplicar orden ascendente o descendente
         if (sortOrder.value === "asc") {
-          return aValue > bValue ? 1 : -1
+          if (aValue < bValue) return -1
+          if (aValue > bValue) return 1
+          return 0
         } else {
-          return aValue < bValue ? 1 : -1
+          if (aValue > bValue) return -1
+          if (aValue < bValue) return 1
+          return 0
         }
       })
 
@@ -426,6 +470,11 @@ export default {
 
     // Watcher para resetear página cuando cambia la búsqueda o tab
     watch([searchQuery, activeOrdersTab], () => {
+      currentPage.value = 1
+    })
+
+    // Watcher para resetear página cuando cambian los filtros de ordenamiento
+    watch([sortBy, sortOrder], () => {
       currentPage.value = 1
     })
 
