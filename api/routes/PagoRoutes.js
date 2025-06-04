@@ -7,7 +7,7 @@ import {
   updatePago,
   deletePago,
   hardDeletePago,
-} from "../controllers/PagoController.js"
+} from "../controllers/PagoController.js" 
 import { protect } from "../middleware/auth.js"
 import upload from "../middleware/upload.js"
 
@@ -85,7 +85,7 @@ router.get("/orden/:orden_id", protect, getPagosByOrden)
 
 /**
  * @swagger
- * /pagos:
+ * /pagos/makepayment:
  *   post:
  *     summary: Create a new pago
  *     description: Create a new pago
@@ -125,7 +125,7 @@ router.get("/orden/:orden_id", protect, getPagosByOrden)
  *       401:
  *         description: Unauthorized
  */
-router.post("/", protect, upload.single("comprobante_img"), createPago)
+router.post("/makepayment", protect, upload.single("comprobante_img"), createPago)
 
 /**
  * @swagger

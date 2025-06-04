@@ -36,15 +36,6 @@ CREATE TABLE `bitacora` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `bitacora`
---
-
-LOCK TABLES `bitacora` WRITE;
-/*!40000 ALTER TABLE `bitacora` DISABLE KEYS */;
-/*!40000 ALTER TABLE `bitacora` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `carrito`
 --
 
@@ -53,30 +44,41 @@ DROP TABLE IF EXISTS `carrito`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `carrito` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `usuario_id` bigint NOT NULL COMMENT 'ID del usuario que agregó el producto',
-  `producto_id` bigint NOT NULL COMMENT 'ID del producto agregado',
+  `usuario_id` bigint NOT NULL COMMENT 'ID del usuario propietario del carrito',
+  `is_active` tinyint(1) DEFAULT '1' COMMENT 'Indica si el carrito está activo',
+  `is_delete` tinyint(1) DEFAULT '0' COMMENT 'Indica si el carrito ha sido marcado como eliminado',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creación del registro',
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha de última actualización',
+  PRIMARY KEY (`id`),
+  KEY `idx_carrito_usuario` (`usuario_id`),
+  CONSTRAINT `carrito_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `carrito_producto`
+--
+
+DROP TABLE IF EXISTS `carrito_producto`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `carrito_producto` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `carrito_id` bigint NOT NULL COMMENT 'ID del carrito al que pertenece el producto',
+  `producto_id` bigint NOT NULL COMMENT 'ID del producto agregado al carrito',
   `cantidad` int NOT NULL COMMENT 'Cantidad del producto en el carrito',
-  `fecha_ingreso` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha en que se agregó al carrito',
   `is_active` tinyint(1) DEFAULT '1' COMMENT 'Indica si el registro está activo',
   `is_delete` tinyint(1) DEFAULT '0' COMMENT 'Indica si el registro ha sido marcado como eliminado',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creación del registro',
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha de última actualización',
   PRIMARY KEY (`id`),
-  KEY `producto_id` (`producto_id`),
-  KEY `idx_carrito_usuario` (`usuario_id`),
-  CONSTRAINT `carrito_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `carrito_ibfk_2` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+  UNIQUE KEY `idx_carrito_producto_unique` (`carrito_id`, `producto_id`),
+  KEY `idx_carrito_producto_carrito` (`carrito_id`),
+  KEY `idx_carrito_producto_producto` (`producto_id`),
+  CONSTRAINT `carrito_producto_ibfk_1` FOREIGN KEY (`carrito_id`) REFERENCES `carrito` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `carrito_producto_ibfk_2` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `carrito`
---
-
-LOCK TABLES `carrito` WRITE;
-/*!40000 ALTER TABLE `carrito` DISABLE KEYS */;
-/*!40000 ALTER TABLE `carrito` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `categorias`
@@ -98,15 +100,6 @@ CREATE TABLE `categorias` (
   KEY `idx_categorias_nombre` (`nombre`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `categorias`
---
-
-LOCK TABLES `categorias` WRITE;
-/*!40000 ALTER TABLE `categorias` DISABLE KEYS */;
-/*!40000 ALTER TABLE `categorias` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `detalles_orden`
@@ -132,15 +125,6 @@ CREATE TABLE `detalles_orden` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `detalles_orden`
---
-
-LOCK TABLES `detalles_orden` WRITE;
-/*!40000 ALTER TABLE `detalles_orden` DISABLE KEYS */;
-/*!40000 ALTER TABLE `detalles_orden` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `dolar_bcv`
 --
 
@@ -161,13 +145,69 @@ CREATE TABLE `dolar_bcv` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `dolar_bcv`
+-- Table structure for table `coupons`
 --
 
-LOCK TABLES `dolar_bcv` WRITE;
-/*!40000 ALTER TABLE `dolar_bcv` DISABLE KEYS */;
-/*!40000 ALTER TABLE `dolar_bcv` ENABLE KEYS */;
-UNLOCK TABLES;
+DROP TABLE IF EXISTS `coupons`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+
+CREATE TABLE `coupons` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `codigo` varchar(255) NOT NULL COMMENT 'Código de promoción',
+  `descuento` varchar(10) NOT NULL COMMENT 'Valor de descuento (ej. 10%, $20, etc.)',
+  `tipo_descuento` enum('porcentaje','monto_fijo') NOT NULL COMMENT 'Tipo de descuento (porcentaje o monto fijo)',
+  `fecha_inicio` datetime NOT NULL COMMENT 'Fecha inicio de vigencia',
+  `fecha_fin` datetime DEFAULT NULL COMMENT 'Fecha fin de vigencia',
+  `max_usos` int DEFAULT NULL COMMENT 'Número máximo de usos permitidos (NULL para ilimitado)',
+  `usos_actuales` int DEFAULT 0 COMMENT 'Número de veces que se ha usado el cupón',
+  `is_active` tinyint(1) DEFAULT '1' COMMENT 'Indica si el cupón está activo',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creación del registro',
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha de última actualización',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `codigo` (`codigo`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `cupones_usados`
+--
+
+DROP TABLE IF EXISTS `cupones_usados`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `cupones_usados` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `cupon_id` bigint NOT NULL COMMENT 'ID del cupón utilizado',
+  `usuario_id` bigint NOT NULL COMMENT 'ID del usuario que utilizó el cupón',
+  `orden_id` bigint DEFAULT NULL COMMENT 'ID de la orden donde se aplicó el cupón',
+  `fecha_uso` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha en que se usó el cupón',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `cupon_usuario_unico` (`cupon_id`, `usuario_id`),
+  KEY `idx_cupon_usuario` (`usuario_id`),
+  KEY `idx_cupon_orden` (`orden_id`),
+  CONSTRAINT `cupones_usados_ibfk_1` FOREIGN KEY (`cupon_id`) REFERENCES `coupons` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `cupones_usados_ibfk_2` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `cupones_usados_ibfk_3` FOREIGN KEY (`orden_id`) REFERENCES `ordenes` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `bancos`
+--
+DROP TABLE IF EXISTS `bancos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+
+CREATE TABLE bancos (
+    id bigint NOT NULL AUTO_INCREMENT,
+    codigo varchar(255) NOT NULL COMMENT 'Código del banco',
+    nombre_banco varchar(255) NOT NULL COMMENT 'Nombre del banco',
+    created_at timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creación del registro',
+    updated_at timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha de última actualización',
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `facturas`
@@ -194,15 +234,6 @@ CREATE TABLE `facturas` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `facturas`
---
-
-LOCK TABLES `facturas` WRITE;
-/*!40000 ALTER TABLE `facturas` DISABLE KEYS */;
-/*!40000 ALTER TABLE `facturas` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `historial_precios`
 --
 
@@ -225,15 +256,6 @@ CREATE TABLE `historial_precios` (
   CONSTRAINT `historial_precios_ibfk_1` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `historial_precios`
---
-
-LOCK TABLES `historial_precios` WRITE;
-/*!40000 ALTER TABLE `historial_precios` DISABLE KEYS */;
-/*!40000 ALTER TABLE `historial_precios` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `inventario`
@@ -261,15 +283,6 @@ CREATE TABLE `inventario` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `inventario`
---
-
-LOCK TABLES `inventario` WRITE;
-/*!40000 ALTER TABLE `inventario` DISABLE KEYS */;
-/*!40000 ALTER TABLE `inventario` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `marcas`
 --
 
@@ -288,15 +301,6 @@ CREATE TABLE `marcas` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `marcas`
---
-
-LOCK TABLES `marcas` WRITE;
-/*!40000 ALTER TABLE `marcas` DISABLE KEYS */;
-/*!40000 ALTER TABLE `marcas` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `metodos_pago`
@@ -318,15 +322,6 @@ CREATE TABLE `metodos_pago` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `metodos_pago`
---
-
-LOCK TABLES `metodos_pago` WRITE;
-/*!40000 ALTER TABLE `metodos_pago` DISABLE KEYS */;
-/*!40000 ALTER TABLE `metodos_pago` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `ordenes`
 --
 
@@ -345,15 +340,6 @@ CREATE TABLE `ordenes` (
   CONSTRAINT `ordenes_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `ordenes`
---
-
-LOCK TABLES `ordenes` WRITE;
-/*!40000 ALTER TABLE `ordenes` DISABLE KEYS */;
-/*!40000 ALTER TABLE `ordenes` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `pagos`
@@ -381,15 +367,6 @@ CREATE TABLE `pagos` (
   CONSTRAINT `pagos_ibfk_2` FOREIGN KEY (`metodo_pago_id`) REFERENCES `metodos_pago` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `pagos`
---
-
-LOCK TABLES `pagos` WRITE;
-/*!40000 ALTER TABLE `pagos` DISABLE KEYS */;
-/*!40000 ALTER TABLE `pagos` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `productos`
@@ -427,15 +404,6 @@ CREATE TABLE `productos` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `productos`
---
-
-LOCK TABLES `productos` WRITE;
-/*!40000 ALTER TABLE `productos` DISABLE KEYS */;
-/*!40000 ALTER TABLE `productos` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `sesiones`
 --
 
@@ -458,15 +426,6 @@ CREATE TABLE `sesiones` (
   CONSTRAINT `sesiones_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `sesiones`
---
-
-LOCK TABLES `sesiones` WRITE;
-/*!40000 ALTER TABLE `sesiones` DISABLE KEYS */;
-/*!40000 ALTER TABLE `sesiones` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `usuarios`
@@ -496,16 +455,27 @@ CREATE TABLE `usuarios` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `usuarios`
---
+DROP TABLE IF EXISTS `envios`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `envios` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `orden_id` bigint NOT NULL COMMENT 'ID de la orden asociada',
+  `nombre_receptor` varchar(100) NOT NULL,
+  `direccion` varchar(200) NOT NULL,
+  `ciudad` varchar(100) NOT NULL,
+  `estado` varchar(100) NOT NULL,
+  `telefono` varchar(20) NOT NULL,
+  `is_active` tinyint(1) DEFAULT '1' COMMENT 'Indica si el envio está activo',
+  `is_delete` tinyint(1) DEFAULT '0' COMMENT 'Indica si el envio ha sido marcado como eliminado',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `orden_id` (`orden_id`),
+  CONSTRAINT `envios_ibfk_1` FOREIGN KEY (`orden_id`) REFERENCES `ordenes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-LOCK TABLES `usuarios` WRITE;
-/*!40000 ALTER TABLE `usuarios` DISABLE KEYS */;
-/*!40000 ALTER TABLE `usuarios` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
-
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
@@ -514,4 +484,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-22 11:37:09
+-- Dump completed on 2025-04-04 11:29:31

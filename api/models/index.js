@@ -13,6 +13,11 @@ import Orden from "./Orden.js"
 import Pago from "./Pago.js"
 import Producto from "./Producto.js"
 import Sesion from "./Sesion.js"
+import CarritoProducto from "./CarritoProducto.js"
+import Coupon from "./Coupon.js"
+import CouponUsado from "./CouponUsado.js"
+import Banco from "./Banco.js"
+import Envio from "./Envio.js"
 
 // Definir relaciones
 Usuario.hasMany(Bitacora, { foreignKey: "usuario_id" })
@@ -20,8 +25,14 @@ Bitacora.belongsTo(Usuario, { foreignKey: "usuario_id" })
 
 Usuario.hasMany(Carrito, { foreignKey: "usuario_id" })
 Carrito.belongsTo(Usuario, { foreignKey: "usuario_id" })
-Producto.hasMany(Carrito, { foreignKey: "producto_id" })
-Carrito.belongsTo(Producto, { foreignKey: "producto_id" })
+Carrito.hasMany(CarritoProducto, { foreignKey: "carrito_id" })
+CarritoProducto.belongsTo(Carrito, { foreignKey: "carrito_id" })
+Producto.hasMany(CarritoProducto, { foreignKey: "producto_id" })
+CarritoProducto.belongsTo(Producto, { foreignKey: "producto_id" })
+
+// Add many-to-many association between Carrito and Producto through CarritoProducto
+Carrito.belongsToMany(Producto, { through: CarritoProducto, foreignKey: "carrito_id" })
+Producto.belongsToMany(Carrito, { through: CarritoProducto, foreignKey: "producto_id" })
 
 Producto.hasMany(HistorialPrecio, { foreignKey: "producto_id" })
 HistorialPrecio.belongsTo(Producto, { foreignKey: "producto_id" })
@@ -54,6 +65,19 @@ Pago.belongsTo(MetodoPago, { foreignKey: "metodo_pago_id" })
 Usuario.hasMany(Sesion, { foreignKey: "usuario_id" })
 Sesion.belongsTo(Usuario, { foreignKey: "usuario_id" })
 
+Coupon.hasMany(CouponUsado, { foreignKey: "cupon_id" })
+CouponUsado.belongsTo(Coupon, { foreignKey: "cupon_id" })
+
+Usuario.hasMany(CouponUsado, { foreignKey: "usuario_id" })
+CouponUsado.belongsTo(Usuario, { foreignKey: "usuario_id" })
+
+Orden.hasMany(CouponUsado, { foreignKey: "orden_id" })
+CouponUsado.belongsTo(Orden, { foreignKey: "orden_id" })
+
+// Relación entre Orden y Envio
+Orden.hasOne(Envio, { foreignKey: "orden_id" })
+Envio.belongsTo(Orden, { foreignKey: "orden_id" })
+
 export {
   Usuario,
   Bitacora,
@@ -70,4 +94,9 @@ export {
   Pago,
   Producto,
   Sesion,
+  CarritoProducto,
+  Coupon,
+  CouponUsado,
+  Banco,
+  Envio
 }

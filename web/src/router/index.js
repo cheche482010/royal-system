@@ -43,9 +43,9 @@ const routes = [
     meta: { requiresAuth: true } // Requiere autenticación
   },
   {
-    path: '/product',
-    name: 'Product',
-    component: () => import('@/views/Product/Product.vue'),
+    path: '/products',
+    name: 'Products',
+    component: () => import('@/views/Products/Products.vue'),
   },
   {
     path: '/productdetails',

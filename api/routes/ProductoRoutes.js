@@ -14,7 +14,7 @@ const router = express.Router()
 
 /**
  * @swagger
- * /products/getAll:
+ * /productos/getAll:
  *   get:
  *     summary: Get all productos
  *     description: Retrieve a list of all productos
@@ -24,14 +24,14 @@ const router = express.Router()
  *       200:
  *         description: A list of productos
  */
-router.get("/getAll", getAllAllProductos)
+router.get("/getAll", getAllProductos)
 
 /**
  * @swagger
  * /productos/search:
  *   get:
  *     summary: Search productos
- *     description: Search productos by query, categoria, or marca
+ *     description: Search productos by query, categoria, marca or precio
  *     tags:
  *       - Productos
  *     parameters:
@@ -50,6 +50,11 @@ router.get("/getAll", getAllAllProductos)
  *         schema:
  *           type: integer
  *         description: Filter by marca ID
+ *       - in: query
+ *         name: precio
+ *         schema:
+ *           type: number
+ *         description: Filter by price (matches unidad, tienda or distribuidor prices)
  *     responses:
  *       200:
  *         description: A list of matching productos

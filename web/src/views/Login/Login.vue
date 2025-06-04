@@ -53,7 +53,7 @@
       <div class="login-logo-container">
         <div class="logo-circle">
           <div class="logo-content">
-            <img :src="logo.image" :alt="logo.name" class="logo-img" />
+            <img :src="ASSETS.image" :alt="ASSETS.name" class="logo-img" />
           </div>
         </div>
       </div>

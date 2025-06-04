@@ -18,14 +18,14 @@
     display: flex;
     overflow-x: auto;
     scroll-behavior: smooth;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; 
+    -ms-overflow-style: none; 
     gap: 1.5rem;
     padding: 0.5rem 0;
     width: 100%;
 
     &::-webkit-scrollbar {
-      display: none; /* Chrome, Safari, Opera */
+      display: none; 
     }
   }
 
@@ -111,6 +111,19 @@
     .product-price {
       font-weight: 700;
       margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+
+      .price-usd {
+        font-size: 0.9rem;
+        color: #6c757d;
+      }
+
+      .price-bs {
+        font-size: 1.2rem;
+        color: #212529;
+        font-weight: 700;
+      }
     }
 
     .product-actions {
@@ -153,7 +166,7 @@
         color: white;
 
         &:hover {
-          background-color: darken(#00b2e3, 5%);
+          background-color: #00b2e3;
         }
       }
     }

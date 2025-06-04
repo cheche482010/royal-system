@@ -1,175 +1,198 @@
-import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { ChevronLeftIcon, ChevronRightIcon, StarIcon, EyeIcon, ShoppingCartIcon } from 'lucide-vue-next';
-import { useToast } from '../../services/toast.service';
+"use client"
+
+import { ref, onMounted, onUnmounted, computed } from "vue"
+import { useRouter } from "vue-router"
+import { ChevronLeftIcon, ChevronRightIcon, StarIcon, EyeIcon, ShoppingCartIcon } from "lucide-vue-next"
+import { useToast } from "../../services/toast.service"
+import { useCartService } from "../../services/cart.service"
+import { useDolarStore } from "../../stores/dolar"
+import { config } from "../../config/config"
 
 export default {
-  name: 'ProductCarousel',
+  name: "ProductCarousel",
   components: {
     ChevronLeftIcon,
     ChevronRightIcon,
     StarIcon,
     EyeIcon,
-    ShoppingCartIcon
+    ShoppingCartIcon,
   },
   props: {
+    API_BASE_URL: {
+      type: String,
+      default: config.API_BASE_URL,
+    },
     products: {
       type: Array,
-      required: true
+      required: true,
     },
     title: {
       type: String,
-      default: ''
-    }
+      default: "",
+    },
   },
   setup(props) {
-    const router = useRouter();
-    const toast = useToast();
-    const carouselRef = ref(null);
-    const showLeftArrow = ref(false);
-    const showRightArrow = ref(false);
-    
-    // Calcular si se deben mostrar las flechas de navegación
-    const updateArrows = () => {
-      if (!carouselRef.value) return;
-      
-      const container = carouselRef.value;
-      
-      // Mostrar flecha izquierda si hay scroll hacia la izquierda
-      showLeftArrow.value = container.scrollLeft > 0;
-      
-      // Mostrar flecha derecha si hay más contenido a la derecha
-      showRightArrow.value = container.scrollLeft < (container.scrollWidth - container.clientWidth - 10);
-    };
-    
+    const router = useRouter()
+    const toast = useToast()
+    const cartService = useCartService()
+    const carouselTrack = ref(null)
+    const scrollPosition = ref(0)
+    const maxScrollPosition = ref(0)
+    const dolarStore = useDolarStore()
+    const dollarRate = computed(() => dolarStore.dollarRate)
+
+    // Calcular la posición máxima de scroll
+    const calculateMaxScrollPosition = () => {
+      if (!carouselTrack.value) return 0
+      return carouselTrack.value.scrollWidth - carouselTrack.value.clientWidth
+    }
+
+    // Actualizar la posición de scroll
+    const updateScrollPosition = () => {
+      if (!carouselTrack.value) return
+      scrollPosition.value = carouselTrack.value.scrollLeft
+      maxScrollPosition.value = calculateMaxScrollPosition()
+    }
+
     // Desplazar a la izquierda
     const scrollLeft = () => {
-      if (!carouselRef.value) return;
-      
-      const container = carouselRef.value;
-      const scrollAmount = container.clientWidth * 0.8; // Desplazar 80% del ancho visible
-      
-      container.scrollBy({
+      if (!carouselTrack.value) return
+
+      const scrollAmount = carouselTrack.value.clientWidth * 0.8
+      carouselTrack.value.scrollBy({
         left: -scrollAmount,
-        behavior: 'smooth'
-      });
-    };
-    
+        behavior: "smooth",
+      })
+    }
+
     // Desplazar a la derecha
     const scrollRight = () => {
-      if (!carouselRef.value) return;
-      
-      const container = carouselRef.value;
-      const scrollAmount = container.clientWidth * 0.8; // Desplazar 80% del ancho visible
-      
-      container.scrollBy({
+      if (!carouselTrack.value) return
+
+      const scrollAmount = carouselTrack.value.clientWidth * 0.8
+      carouselTrack.value.scrollBy({
         left: scrollAmount,
-        behavior: 'smooth'
-      });
-    };
-    
+        behavior: "smooth",
+      })
+    }
+
     // Ver detalles del producto
     const viewProductDetails = (product) => {
       router.push({
-        path: '/productdetails',
-        query: { id: product.id }
-      });
-    };
-    
-    // Agregar al carrito
-    const addToCart = (product) => {
-      try {
-        // Crear el objeto del producto para el carrito
-        const cartItem = {
-          id: product.id,
-          name: product.name,
-          brand: product.brand,
-          price: typeof product.price === 'string' 
-            ? parseFloat(product.price.replace('$', '').replace(',', '.')) 
-            : product.price,
-          quantity: 1,
-          image: product.image
-        };
+        path: "/productdetails",
+        query: { id: product.id },
+      })
+    }
 
-        // Obtener el carrito actual del localStorage
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        
-        // Verificar si el producto ya está en el carrito
-        const existingItemIndex = cart.findIndex(item => item.id === cartItem.id);
-        
-        if (existingItemIndex !== -1) {
-          // Si ya existe, actualizar la cantidad
-          cart[existingItemIndex].quantity += 1;
-        } else {
-          // Si no existe, agregar al carrito
-          cart.push(cartItem);
+    // Agregar al carrito
+    const addToCart = async (product) => {
+      try {
+        if (!cartService.isAuthenticated()) {
+          toast.error("Debes iniciar sesión para agregar productos al carrito", {
+            title: "Acceso denegado",
+          })
+
+          router.push("/login")
+          return
         }
-        
-        // Guardar el carrito actualizado en localStorage
-        localStorage.setItem('cart', JSON.stringify(cart));
-        
-        // Actualizar el contador del carrito en el header
-        updateCartCount();
-        
-        // Mostrar toast de éxito
-        toast.success(`${product.name} ha sido agregado exitosamente`, {
-          title: 'Producto agregado'
-        });
+
+        const result = await cartService.addToCart(product, 1)
+
+        if (result.alreadyInCart) {
+          toast.info(`${product.name} ya está en tu carrito`, {
+            title: "Producto en carrito",
+          })
+        } else if (result.success) {
+          toast.success(`${product.name} ha sido agregado exitosamente`, {
+            title: "Producto agregado",
+          })
+        } else if (result.authenticated === false) {
+          toast.error("Debes iniciar sesión para agregar productos al carrito", {
+            title: "Acceso denegado",
+          })
+
+          router.push("/login")
+        } else {
+          throw new Error(result.message || "Error al agregar al carrito")
+        }
       } catch (error) {
-        // Mostrar toast de error
         toast.error(`No se ha podido agregar ${product.name} al carrito`, {
-          title: 'Error'
-        });
-        console.error('Error al agregar al carrito:', error);
+          title: "Error",
+        })
+        console.error("Error al agregar al carrito:", error)
       }
-    };
-    
-    // Actualizar el contador del carrito
-    const updateCartCount = () => {
-      const cart = JSON.parse(localStorage.getItem('cart')) || [];
-      localStorage.setItem('cartCount', cart.length);
-      window.dispatchEvent(new CustomEvent('cart-updated'));
-    };
-    
-    // Formatear precio
+    }
+
     const formatPrice = (price) => {
-      if (typeof price === 'string') {
-        return price;
+      if (typeof price === "string") {
+        return price
       }
-      return `${price.toFixed(2)}$`;
-    };
-    
-    // Mostrar flechas solo si hay más de 4 productos
-    const shouldShowArrows = computed(() => {
-      return props.products.length > 4;
-    });
-    
+      return `${price.toFixed(2)}$`
+    }
+
+    const handleScroll = () => {
+      updateScrollPosition()
+    }
+
     onMounted(() => {
-      // Inicializar estado de las flechas
-      updateArrows();
-      
-      // Agregar listener para actualizar flechas al hacer scroll
-      if (carouselRef.value) {
-        carouselRef.value.addEventListener('scroll', updateArrows);
+      updateScrollPosition()
+
+      if (carouselTrack.value) {
+        carouselTrack.value.addEventListener("scroll", handleScroll)
       }
-      
-      // Verificar si se deben mostrar las flechas inicialmente
-      if (carouselRef.value) {
-        showRightArrow.value = carouselRef.value.scrollWidth > carouselRef.value.clientWidth;
+
+      maxScrollPosition.value = calculateMaxScrollPosition()
+
+      window.addEventListener("resize", () => {
+        maxScrollPosition.value = calculateMaxScrollPosition()
+      })
+    })
+
+    onUnmounted(() => {
+      if (carouselTrack.value) {
+        carouselTrack.value.removeEventListener("scroll", handleScroll)
       }
-    });
-    
+      window.removeEventListener("resize", () => {
+        maxScrollPosition.value = calculateMaxScrollPosition()
+      })
+    })
+
+    const formatPriceBs = (price) => {
+      const rate = dollarRate.value?._value || dollarRate.value
+
+      const numericPrice = typeof price === "string" ? Number.parseFloat(price.replace(",", ".")) : Number(price)
+
+      if (!rate || isNaN(numericPrice)) {
+        return "--.-- BS"
+      }
+
+      const totalBs =
+        (numericPrice * Number(rate).toFixed(2))
+          .toFixed(2)
+          .replace(".", ",")
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " BS"
+
+      return totalBs
+    }
+
+    const filteredProducts = computed(() => {
+      return props.products.filter((product) => {
+        return product.Inventario && product.Inventario.cantidad_actual > 0
+      })
+    })
+
     return {
-      carouselRef,
-      showLeftArrow,
-      showRightArrow,
+      carouselTrack,
+      scrollPosition,
+      maxScrollPosition,
       scrollLeft,
       scrollRight,
       viewProductDetails,
       addToCart,
       formatPrice,
-      shouldShowArrows,
-      updateArrows
-    };
-  }
-};
+      formatPriceBs,
+      dollarRate,
+      filteredProducts,
+    }
+  },
+}

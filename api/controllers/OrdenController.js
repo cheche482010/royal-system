@@ -73,7 +73,7 @@ export const getOrdenesByUsuario = async (req, res, next) => {
           include: [
             {
               model: Producto,
-              attributes: ["id", "codigo", "nombre"],
+              attributes: ["id", "codigo", "nombre", "descripcion", "producto_img"],
             },
           ],
         },
@@ -107,6 +107,7 @@ export const createOrden = async (req, res, next) => {
       include: [
         {
           model: Producto,
+          through: { attributes: ['cantidad'] },
           include: [{ model: Inventario }],
         },
       ],
@@ -121,7 +122,9 @@ export const createOrden = async (req, res, next) => {
     // Calcular monto total
     let montoTotal = 0
     for (const item of carritoItems) {
-      montoTotal += item.Producto.precio_unidad * item.cantidad
+      for (const producto of item.Productos) {
+        montoTotal += producto.precio_unidad * producto.CarritoProducto.cantidad
+      }
     }
 
     // Crear la orden
@@ -136,33 +139,35 @@ export const createOrden = async (req, res, next) => {
 
     // Crear detalles de la orden
     for (const item of carritoItems) {
-      await DetalleOrden.create(
-        {
-          orden_id: orden.id,
-          producto_id: item.producto_id,
-          cantidad: item.cantidad,
-          precio: item.Producto.precio_unidad,
-        },
-        { transaction }
-      )
+      for (const producto of item.Productos) {
+        await DetalleOrden.create(
+          {
+            orden_id: orden.id,
+            producto_id: producto.id,
+            cantidad: producto.CarritoProducto.cantidad,
+            precio: producto.precio_unidad,
+          },
+          { transaction }
+        )
 
-      // Actualizar inventario
-      const inventario = item.Producto.Inventario
-      if (inventario.cantidad_actual < item.cantidad) {
-        await transaction.rollback()
-        return res.status(400).json({
-          success: false,
-          message: `Insufficient stock for product ${item.Producto.nombre}. Available: ${inventario.cantidad_actual}`,
-        })
+        // Actualizar inventario
+        const inventario = producto.Inventario
+        if (inventario.cantidad_actual < producto.CarritoProducto.cantidad) {
+          await transaction.rollback()
+          return res.status(400).json({
+            success: false,
+            message: `Insufficient stock for product ${producto.nombre}. Available: ${inventario.cantidad_actual}`,
+          })
+        }
+
+        await inventario.update(
+          {
+            cantidad_actual: inventario.cantidad_actual - producto.CarritoProducto.cantidad,
+            estado: inventario.cantidad_actual - producto.CarritoProducto.cantidad <= 0 ? "Agotado" : inventario.estado,
+          },
+          { transaction }
+        )
       }
-
-      await inventario.update(
-        {
-          cantidad_actual: inventario.cantidad_actual - item.cantidad,
-          estado: inventario.cantidad_actual - item.cantidad <= 0 ? "Agotado" : inventario.estado,
-        },
-        { transaction }
-      )
 
       // Marcar item del carrito como eliminado
       await item.update({ is_delete: true, is_active: false }, { transaction })

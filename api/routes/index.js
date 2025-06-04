@@ -2,6 +2,8 @@ import express from "express"
 import UsuarioRoutes from "./UsuarioRoutes.js"
 import BitacoraRoutes from "./BitacoraRoutes.js"
 import CarritoRoutes from "./CarritoRoutes.js"
+import CarritoProductoRoutes from "./CarritoProductoRoutes.js"
+import CouponRoutes from "./CouponRoutes.js"
 import CategoriaRoutes from "./CategoriaRoutes.js"
 import DetalleOrdenRoutes from "./DetalleOrdenRoutes.js"
 import DolarBCVRoutes from "./DolarBCVRoutes.js"
@@ -14,6 +16,9 @@ import OrdenRoutes from "./OrdenRoutes.js"
 import PagoRoutes from "./PagoRoutes.js"
 import ProductoRoutes from "./ProductoRoutes.js"
 import SesionRoutes from "./SesionRoutes.js"
+import BancoRoutes from "./BancoRoutes.js"
+import CouponUsadoRoutes from "./CouponUsadoRoutes.js"
+import EnvioRoutes from "./EnvioRoutes.js"
 
 const router = express.Router()
 
@@ -25,7 +30,8 @@ router.get("/health", (req, res) => {
 // Mount routes
 router.use("/usuarios", UsuarioRoutes)
 router.use("/bitacora", BitacoraRoutes)
-router.use("/carrito", CarritoRoutes)
+router.use("/cart", CarritoRoutes)
+router.use("/cart-products", CarritoProductoRoutes)
 router.use("/categorias", CategoriaRoutes)
 router.use("/detalles-orden", DetalleOrdenRoutes)
 router.use("/dolar-bcv", DolarBCVRoutes)
@@ -38,5 +44,9 @@ router.use("/ordenes", OrdenRoutes)
 router.use("/pagos", PagoRoutes)
 router.use("/productos", ProductoRoutes)
 router.use("/sesiones", SesionRoutes)
+router.use("/bancos", BancoRoutes)
+router.use("/coupons", CouponRoutes)
+router.use("/coupons-used", CouponUsadoRoutes)
+router.use("/envios", EnvioRoutes)
 
 export default router

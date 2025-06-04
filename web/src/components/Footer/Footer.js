@@ -1,4 +1,5 @@
 import { ref, computed } from 'vue';
+import { config } from '../../config/config';
 import { 
   FacebookIcon, 
   InstagramIcon, 
@@ -7,7 +8,8 @@ import {
   PhoneIcon,
   MailIcon,
   ClockIcon,
-  SendIcon
+  SendIcon,
+  MessageCircleIcon
 } from 'lucide-vue-next';
 
 export default {
@@ -20,7 +22,14 @@ export default {
     PhoneIcon,
     MailIcon,
     ClockIcon,
-    SendIcon
+    SendIcon,
+    MessageCircleIcon
+  },
+  props: {
+    ASSETS: {
+      type: Object,
+      default: () => config.ASSETS.LOGO
+    }
   },
   setup() {
     const email = ref('');
@@ -35,14 +44,8 @@ export default {
       email.value = '';
     };
 
-    const logo = ref({
-      image: new URL('../../assets/img/logo.jpg', import.meta.url).href,
-      name: 'Pet Shop'
-    });
-    
     return {
       email,
-      logo,
       currentYear,
       subscribeNewsletter
     };

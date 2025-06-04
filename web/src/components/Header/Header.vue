@@ -3,18 +3,63 @@
         <div class="header__container">
             <div class="header__logo">
                 <router-link to="/">
-                    <img :src="logo.image" :alt="logo.name" class="logo-img" />
+                    <img :src="ASSETS.image" :alt="ASSETS.name" class="logo-img" />
                 </router-link>
             </div>
 
             <div class="header__search">
-                <input type="text" placeholder="¿Qué es lo que buscas?" class="search-input" />
-                <button class="search-button">
+                <input type="text" v-model="searchQuery" @input="searchProducts" @focus="showSearchResults = true"
+                    placeholder="¿Qué es lo que buscas?" class="search-input" />
+                <button class="search-button" @click="navigateToSearchPage">
                     <SearchIcon class="search-icon" />
                 </button>
+
+                <div v-if="showSearchResults && searchResults.length > 0" class="search-results">
+                    <div class="search-results-container">
+                        <div v-for="product in searchResults.slice(0, 5)" :key="product.id" class="search-result-item"
+                            @click="navigateTo(`/productdetails?id=${product.id}`)">
+                            <img :src="`${API_BASE_URL}${product.producto_img || '/placeholder-product.png'}`"
+                                :alt="product.nombre" class="result-image" />
+                            <div class="result-details">
+                                <h4>{{ product.nombre }}</h4>
+                                <p class="price">{{ formatPrice(product.precio_unidad) }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button v-if="searchResults.length > 5" class="view-all-btn" @click="navigateToSearchPage">
+                        Ver todos los resultados ({{ searchResults.length }})
+                    </button>
+                </div>
             </div>
 
             <div class="header__actions">
+                <!-- Dolar -->
+                <div class="action-item dollar-rate-container" v-if="dollarRate"
+                    @click.stop="isAuthenticated && !showDollarMenu && (showDollarMenu = true)">
+                    <span class="dollar-rate">
+                        $ BCV: {{ dollarRate }}
+                    </span>
+
+                    <!-- Dollar rate menu for admin/customer -->
+                    <div v-if="isAuthenticated && showDollarMenu" class="dollar-menu" @click.stop>
+                        <div v-if="!showDollarInput" class="dollar-menu-item" @click="startAddingNewRate">
+                            <span>Agregar nueva tasa</span>
+                        </div>
+
+                        <div v-else class="dollar-input-container">
+                            <input v-model="dollarInputValue" type="number" step="0.01" min="0"
+                                placeholder="Ingrese nueva tasa" class="dollar-input" @click.stop
+                                @keyup.enter="addNewDollarRate">
+                            <button class="dollar-save-btn" @click.stop="addNewDollarRate">
+                                Guardar
+                            </button>
+                        </div>
+
+                        <div class="dollar-source">
+                            Fuente: {{ dollarSource }} - {{ dollarLastUpdated?.toLocaleDateString() }}
+                        </div>
+                    </div>
+                </div>
                 <!-- Notificaciones -->
                 <div v-if="isAuthenticated" class="action-item notification-container">
                     <button class="notification-icon" @click.stop="showNotifications = !showNotifications">
@@ -103,6 +148,11 @@
                 <li v-for="category in categories" :key="category.id" class="nav-item">
                     <router-link :to="`/category/${category.id}`" class="nav-link">
                         {{ category.name }}
+                    </router-link>
+                </li>
+                <li class="nav-item">
+                    <router-link to="/Products" class="nav-link">
+                        Productos
                     </router-link>
                 </li>
                 <li class="nav-item brands">

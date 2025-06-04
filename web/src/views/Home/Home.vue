@@ -45,8 +45,26 @@
       
       <!-- Productos destacados usando el componente ProductCarousel -->
       <ProductCarousel 
+        v-if="featuredProducts.length > 0"
         :products="featuredProducts"
-      />
+      /> 
+      <div v-else class="empty-products-container">
+        <div class="empty-products-content">
+          <div class="empty-products-icon">
+            <ShoppingCartIcon size="64" />
+          </div>
+          <h3 class="empty-products-title">¡Productos agotados temporalmente!</h3>
+          <p class="empty-products-message">
+            Estamos reabasteciendo nuestro inventario con nuevos productos.
+            ¡Vuelve pronto para descubrir nuestras novedades!
+          </p>
+          <div class="empty-products-actions">
+             <button class="notify-button" @click="notifyWhenAvailable">
+              Notificarme cuando haya nuevos productos
+            </button>
+          </div>
+        </div>
+      </div>
     </section>
   </div>
   <Footer />

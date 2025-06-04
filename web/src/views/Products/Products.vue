@@ -110,7 +110,7 @@
             class="product-card"
           >
             <div class="product-image">
-              <img :src="product.image" :alt="product.name" />
+              <img :src="`${API_BASE_URL}${product.image}`" :alt="product.name" />
               <div class="product-badges" v-if="product.badges && product.badges.length > 0">
                 <span 
                   v-for="badge in product.badges" 
@@ -128,8 +128,8 @@
               <div class="product-name">{{ product.name }}</div>
         
               <div class="product-price">
-                <span v-if="product.originalPrice" class="original-price">{{ formatPrice(product.originalPrice) }}</span>
-                <span class="current-price">{{ formatPrice(product.price) }}</span>
+                <div class="price-usd">{{ formatPrice(product.price) }} $</div>
+                <div class="price-bs">{{ formatPriceBs(product.price) }}</div>
               </div>
               
               <div class="product-description" v-if="viewMode === 'list'">
@@ -194,5 +194,5 @@
   <Footer />
 </template>
 
-<script src="./Product.js"></script>
-<style scoped src="./Product.scss" lang="scss"></style>
+<script src="./Products.js"></script>
+<style scoped src="./Products.scss" lang="scss"></style>

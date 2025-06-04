@@ -1,5 +1,7 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { config } from '../../config/config';
+
 import { 
   EyeIcon, 
   EyeOffIcon, 
@@ -18,6 +20,13 @@ export default {
     UploadIcon,
     FileIcon,
     XIcon
+  },
+  props: {
+
+    ASSETS: {
+      type: Object,
+      default: () => config.ASSETS.LOGO
+    }
   },
   setup() {
     const router = useRouter();
@@ -100,11 +109,6 @@ export default {
       return 'Fuerte';
     });
     
-    const logo = ref({
-      image: new URL('../../assets/img/logo.jpg', import.meta.url).href,
-      name: 'Pet Shop'
-    });
-
     // Navegación entre pasos
     const nextStep = () => {
       if (validateCurrentStep()) {
@@ -263,15 +267,15 @@ export default {
         formDataToSend.append('updated_at', now);
         
         // Enviar datos al servidor
-        const response = await fetch('http://localhost:3000/api/usuarios/register', {
+        const response = await fetch(`${config.API_URL}/usuarios/register`, {
           method: 'POST',
           body: formDataToSend
-        });
-        
+        })
+
         const data = await response.json();
         
         if (!response.ok) {
-          throw new Error(data.message || 'Error al registrar usuario');
+          throw new Error(data.message || 'Error al registrar usuario')
         }
         
         // Registro exitoso
@@ -309,7 +313,6 @@ export default {
       passwordStrength,
       strengthClass,
       strengthText,
-      logo,
       nextStep,
       prevStep,
       togglePassword,

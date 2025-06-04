@@ -268,6 +268,27 @@ export const updateUsuario = async (req, res, next) => {
       }
     }
 
+    if (user_password) {
+      // Verificar que la contraseña actual sea correcta
+      const isMatch = await usuario.comparePassword(req.body.current_password);
+      if (!isMatch) {
+        return res.status(400).json({
+          success: false,
+          message: "La contraseña actual es incorrecta"
+        });
+      }
+
+      // Verificar que la nueva contraseña no sea igual a la anterior
+      const isSame = await usuario.comparePassword(user_password);
+      if (isSame) {
+        return res.status(200).json({ 
+          success: false,
+          message: "La nueva contraseña no puede ser igual a la anterior",
+          warning: true
+        });
+      }
+    }
+
     // Using ORM method for update
     await usuario.update({
       documento: documento || usuario.documento,
@@ -386,23 +407,28 @@ export const loginUsuario = async (req, res, next) => {
     })
 
     if (!usuario) {
-      return res.status(401).json({ success: false, message: "Invalid credentials" })
+      return res.status(200).json({ 
+        success: false, 
+        message: "Credenciales inválidas" 
+      })
     }
 
-    // Check if user_password matches
     const isMatch = await usuario.comparePassword(user_password)
 
     if (!isMatch) {
-      return res.status(401).json({ success: false, message: "Invalid credentials" })
+      return res.status(200).json({ 
+        success: false, 
+        message: "Credenciales inválidas" 
+      })
     }
 
     // Crear sesión usando la función interna
     try {
       const ip = req.ip || req.connection.remoteAddress
       const agente_usuario = req.headers['user-agent']
-      
+
       const sesion = await createSesionInternal(usuario.id, ip, agente_usuario)
-      
+
       // Devolver respuesta con ambos tokens
       return res.status(200).json({
         success: true,
@@ -420,7 +446,7 @@ export const loginUsuario = async (req, res, next) => {
       })
     } catch (sesionError) {
       console.error("Error al crear sesión:", sesionError)
-      
+
       return res.status(200).json({
         success: true,
         data: {

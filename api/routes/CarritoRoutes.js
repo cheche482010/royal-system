@@ -1,11 +1,11 @@
 import express from "express"
 import {
-  getAllCarritoItems,
-  getCarritoByUsuario,
-  addToCarrito,
-  updateCarritoItem,
-  removeFromCarrito,
-  clearCarrito,
+  getAllCartItems,
+  getCartByUsuario,
+  addToCart,
+  updateCartItem,
+  removeFromCart,
+  clearCart,
 } from "../controllers/CarritoController.js"
 import { protect } from "../middleware/auth.js"
 
@@ -13,32 +13,32 @@ const router = express.Router()
 
 /**
  * @swagger
- * /carrito:
+ * /cart/getAllCart:
  *   get:
- *     summary: Get all carrito items
- *     description: Retrieve a list of all carrito items
+ *     summary: Get all cart items
+ *     description: Retrieve a list of all cart items
  *     security:
  *       - bearerAuth: []
  *     tags:
- *       - Carrito
+ *       - Cart
  *     responses:
  *       200:
- *         description: A list of carrito items
+ *         description: A list of cart items
  *       401:
  *         description: Unauthorized
  */
-router.get("/", protect, getAllCarritoItems)
+router.get("/getAllCart", protect, getAllCartItems) 
 
 /**
  * @swagger
- * /carrito/usuario/{usuario_id}:
+ * /cart/usuario/{usuario_id}:
  *   get:
- *     summary: Get carrito items by usuario
- *     description: Retrieve carrito items for a specific usuario
+ *     summary: Get cart items by usuario
+ *     description: Retrieve cart items for a specific usuario
  *     security:
  *       - bearerAuth: []
  *     tags:
- *       - Carrito
+ *       - Cart
  *     parameters:
  *       - in: path
  *         name: usuario_id
@@ -47,24 +47,24 @@ router.get("/", protect, getAllCarritoItems)
  *           type: integer
  *     responses:
  *       200:
- *         description: Carrito items for the usuario
+ *         description: Cart items for the usuario
  *       404:
  *         description: Usuario not found
  *       401:
  *         description: Unauthorized
  */
-router.get("/usuario/:usuario_id", protect, getCarritoByUsuario)
+router.get("/usuario/:usuario_id", protect, getCartByUsuario)
 
 /**
  * @swagger
- * /carrito:
+ * /cart/addToCart:
  *   post:
- *     summary: Add item to carrito
- *     description: Add a product to the carrito
+ *     summary: Add item to cart
+ *     description: Add a product to the cart
  *     security:
  *       - bearerAuth: []
  *     tags:
- *       - Carrito
+ *       - Cart
  *     requestBody:
  *       required: true
  *       content:
@@ -80,24 +80,24 @@ router.get("/usuario/:usuario_id", protect, getCarritoByUsuario)
  *                 type: integer
  *     responses:
  *       201:
- *         description: Item added to carrito successfully
+ *         description: Item added to cart successfully
  *       400:
  *         description: Invalid input or insufficient stock
  *       401:
  *         description: Unauthorized
  */
-router.post("/", protect, addToCarrito)
+router.post("/addToCart", protect, addToCart)
 
 /**
  * @swagger
- * /carrito/{id}:
+ * /cart/update/{id}:
  *   put:
- *     summary: Update carrito item
- *     description: Update the quantity of a carrito item
+ *     summary: Update cart item
+ *     description: Update the quantity of a cart item
  *     security:
  *       - bearerAuth: []
  *     tags:
- *       - Carrito
+ *       - Cart
  *     parameters:
  *       - in: path
  *         name: id
@@ -115,26 +115,26 @@ router.post("/", protect, addToCarrito)
  *                 type: integer
  *     responses:
  *       200:
- *         description: Carrito item updated successfully
+ *         description: Cart item updated successfully
  *       400:
  *         description: Invalid input or insufficient stock
  *       404:
- *         description: Carrito item not found
+ *         description: Cart item not found
  *       401:
  *         description: Unauthorized
  */
-router.put("/:id", protect, updateCarritoItem)
+router.put("/update/:id", protect, updateCartItem)
 
 /**
  * @swagger
- * /carrito/{id}:
+ * /cart/removeFromCart/{id}:
  *   delete:
- *     summary: Remove item from carrito
- *     description: Remove an item from the carrito
+ *     summary: Remove item from cart
+ *     description: Remove an item from the cart
  *     security:
  *       - bearerAuth: []
  *     tags:
- *       - Carrito
+ *       - Cart
  *     parameters:
  *       - in: path
  *         name: id
@@ -143,24 +143,24 @@ router.put("/:id", protect, updateCarritoItem)
  *           type: integer
  *     responses:
  *       200:
- *         description: Item removed from carrito successfully
+ *         description: Item removed from cart successfully
  *       404:
- *         description: Carrito item not found
+ *         description: Cart item not found
  *       401:
  *         description: Unauthorized
  */
-router.delete("/:id", protect, removeFromCarrito)
+router.delete("/removeFromCart/:id", protect, removeFromCart)
 
 /**
  * @swagger
- * /carrito/clear/{usuario_id}:
+ * /cart/clearCart/{usuario_id}:
  *   delete:
- *     summary: Clear carrito
- *     description: Remove all items from a usuario's carrito
+ *     summary: Clear cart
+ *     description: Remove all items from a usuario's cart
  *     security:
  *       - bearerAuth: []
  *     tags:
- *       - Carrito
+ *       - Cart
  *     parameters:
  *       - in: path
  *         name: usuario_id
@@ -169,12 +169,12 @@ router.delete("/:id", protect, removeFromCarrito)
  *           type: integer
  *     responses:
  *       200:
- *         description: Carrito cleared successfully
+ *         description: Cart cleared successfully
  *       404:
  *         description: Usuario not found
  *       401:
  *         description: Unauthorized
  */
-router.delete("/clear/:usuario_id", protect, clearCarrito)
+router.delete("/clearCart/:usuario_id", protect, clearCart)
 
 export default router

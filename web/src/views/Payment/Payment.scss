@@ -1,12 +1,36 @@
 .payment-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 2rem 1rem;
+    padding-bottom: 1rem;
 }
 
 .payment-header {
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     text-align: center;
+
+    .payment-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1rem;
+
+        span {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            color: #666;
+
+            &:hover {
+                color: #0099e5;
+            }
+
+            &.active {
+                color: #0099e5;
+                border-bottom-color: #0099e5;
+            }
+        }
+    }
 }
 
 .payment-title {
@@ -19,6 +43,52 @@
 .payment-subtitle {
     font-size: 1rem;
     color: #666;
+}
+
+.payment-tabs-content {
+    margin: 0 auto 2rem;
+    padding: 1rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    .tab-content {
+        text-align: center;
+
+        .bank-content {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .bank-info {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            align-items: center;
+            margin: 0.5rem 0;
+            font-size: 1.1rem;
+            color: #333;
+
+            .bank-label {
+                font-weight: 700;
+                text-align: left;
+            }
+
+            .bank-value {
+                font-family: monospace;
+                text-align: left;
+            }
+        }
+
+        .bank-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .qr-image {
+            max-width: 200px;
+            margin: 1rem auto;
+        }
+    }
 }
 
 .payment-content {
@@ -92,6 +162,10 @@ label {
         border-color: #0099e5;
         box-shadow: 0 0 0 2px rgba(0, 153, 229, 0.2);
     }
+    
+    &.invalid {
+        border-color: #ff3b30;
+    }
 }
 
 textarea.form-control {
@@ -130,6 +204,11 @@ textarea.form-control {
 
     &:hover {
         background-color: #eee;
+    }
+    
+    &.has-file {
+        border-color: #0099e5;
+        background-color: rgba(0, 153, 229, 0.1);
     }
 }
 
@@ -277,14 +356,18 @@ textarea.form-control {
     justify-content: space-between;
     margin-bottom: 0.75rem;
     font-size: 0.875rem;
-    color: #666;
-
+    
     &.total {
+        font-size: 1rem;
+        color: #666;
+        margin-top: 0.5rem;
+      }
+    
+      &.total-bs {
         font-size: 1.125rem;
         font-weight: 700;
-        color: #333;
-        margin-top: 0.5rem;
-    }
+        margin-bottom: 1rem;
+      }
 
     &.discount {
         color: #ff3b30;
@@ -327,4 +410,25 @@ textarea.form-control {
 .lock-icon {
     width: 0.875rem;
     height: 0.875rem;
+}
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    font-size: 1.2rem;
+    color: #666;
+}
+
+.error-message {
+    color: #ff3b30;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.form-field-required::after {
+    content: '*';
+    color: #ff3b30;
+    margin-left: 0.25rem;
 }

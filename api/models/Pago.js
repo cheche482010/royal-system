@@ -30,7 +30,7 @@ const Pago = sequelize.define(
       comment: "Ruta de la imagen del comprobante de pago",
     },
     numero_referencia: {
-      type: DataTypes.STRING(6),
+      type: DataTypes.STRING(50),
       allowNull: true,
       comment: "Número de referencia del pago",
     },
