@@ -1,6 +1,6 @@
 "use client"
 
-import { ref, computed, onMounted } from "vue"
+import { ref, computed, onMounted, watch } from "vue"
 import Header from "../../components/Header/Header.vue"
 import Footer from "../../components/Footer/Footer.vue"
 import { useAuth } from "../../composables/useAuth"
@@ -8,6 +8,8 @@ import { userService } from "../../services/user.service"
 import { ordenService } from "../../services/orden.service"
 import { useToast } from "../../services/toast.service"
 import { config } from "../../config/config"
+import { useRouter, useRoute } from "vue-router"
+
 import {
   PackageIcon,
   MapPinIcon,
@@ -42,7 +44,6 @@ export default {
     }
   },
   setup() {
-    const activeSection = ref("orders")
     const isUpdating = ref(false)
     const isUpdatingPassword = ref(false)
     const isLoading = ref(true)
@@ -52,6 +53,9 @@ export default {
     const toast = useToast()
     const auth = useAuth()
     const userData = ref(null)
+    const router = useRouter()
+    const route = useRoute()
+    const activeSection = ref(route.path.includes('orders') ? 'orders' : 'profile');
 
     // Reemplazar el objeto user con un computed que use los datos completos
     const user = computed(() => ({
@@ -70,6 +74,11 @@ export default {
     // Usar ref para las órdenes que vendrán de la BD
     const orders = ref([])
 
+    // Observar cambios en la ruta
+    watch(() => route.path, (newPath) => {
+      activeSection.value = newPath.includes('orders') ? 'orders' : 'profile';
+    });
+
     // Función para cargar las órdenes del usuario
     const loadUserOrders = async () => {
       if (!auth.isAuthenticated.value || !auth.userId.value) {
@@ -84,13 +93,13 @@ export default {
         const response = await ordenService.getOrdenesByUsuario(auth.userId.value, token)
 
         if (response.success && response.data) {
-          
+
           // Transformar los datos de la API al formato que espera la UI
           orders.value = response.data.map(orden => {
             // Determinar el estado y texto de estado
             let status = "processing"
             let statusText = "En Proceso"
-            
+
             if (orden.status === "Completa") {
               status = "delivered"
               statusText = "Entregado"
@@ -144,7 +153,12 @@ export default {
     }
 
     // Actualizar el profileForm como un ref para que se pueda modificar
-    const profileForm = ref(null)
+    const profileForm = ref({
+      name: '',
+      email: '',
+      phone: '',
+      newsletter: false
+    })
 
     const passwordForm = ref({
       current: "",
@@ -197,8 +211,12 @@ export default {
     })
 
     const setActiveSection = (section) => {
-      activeSection.value = section
-    }
+      if (section === 'orders') {
+        router.push('/user/orders');
+      } else {
+        router.push('/user/profile');
+      }
+    };
 
     // Añadir método para cambiar entre pestañas de pedidos
     const setActiveOrdersTab = (tab) => {
@@ -291,9 +309,9 @@ export default {
             confirm: "",
           };
         } else {
-           toast.error(response.message, {
-              title: "Error",
-            });
+          toast.error(response.message, {
+            title: "Error",
+          });
         }
       } catch (error) {
         toast.error("Ocurrió un error al actualizar la contraseña", {

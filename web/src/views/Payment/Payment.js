@@ -347,7 +347,7 @@ export default {
             })
 
             // Redirigir a confirmación
-            router.push("/confirmation")
+            router.push("/user/orders")
           } catch (paymentError) {
             console.error("Error al procesar el pago:", paymentError)
             toast.error(
