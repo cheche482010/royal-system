@@ -346,6 +346,7 @@ export default {
               description: "Tu pedido ha sido registrado",
             })
 
+            await new Promise(resolve => setTimeout(resolve, 2000))
             // Redirigir a confirmación
             router.push("/user/orders")
           } catch (paymentError) {
