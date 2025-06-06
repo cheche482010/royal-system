@@ -145,6 +145,7 @@ export default {
                 })) || [],
             }
           })
+          console.log(orders)
         } else {
           ordersError.value = "No se pudieron cargar las órdenes"
           toast.error("Error al cargar las órdenes", {

@@ -167,7 +167,7 @@
             <PackageIcon class="empty-icon" />
             <h3>No tienes pedidos activos</h3>
             <p>Explora nuestra tienda y realiza tu primer pedido</p>
-            <router-link to="/" class="shop-button">Ir a la tienda</router-link>
+            <router-link to="/Products" class="shop-button">Ir a la tienda</router-link> 
           </div>
         </div>
 
