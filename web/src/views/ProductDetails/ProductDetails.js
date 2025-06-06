@@ -115,22 +115,33 @@ export default {
           quantity: 1,
           inventory: Number.parseInt(data.Inventario?.cantidad_actual || 0),
           images: [data.producto_img],
+        } 
+
+        const query = ""
+        let categoriaId = null
+        let marcaId = null
+
+        const productsResponse = await apiService.searchProducts(query, categoriaId, marcaId)
+        if (!productsResponse.success || !productsResponse.data) {
+          throw new Error("Respuesta inválida del servidor")
         }
 
-        const productsResponse = await productsService.getAllProducts()
-
-        if (productsResponse?.data) {
-          relatedProductsdetails.value = productsResponse.data
-            .filter((p) => p.id !== data.id)
-            .slice(0, 8)
-            .map((p) => ({
-              id: p.id,
-              name: p.nombre,
-              brand: p.Marca?.nombre || "Sin marca",
-              price: Number.parseFloat(p.precio_unidad),
-              image: p.producto_img,
-            }))
-        }
+        relatedProductsdetails.value = productsResponse.data
+          .filter((p) => p.is_active && p.Inventario)
+          .map((p) => ({
+            id: p.id,
+            name: p.nombre,
+            brand: p.Marca?.nombre || "Sin marca",
+            price: p.precio_unidad,
+            image: p.producto_img,
+            subcategory: p.Categorium?.id?.toString(),
+            brandId: p.Marca?.id?.toString(),
+            description: p.descripcion,
+            inventario: p.Inventario,
+            isOutOfStock: p.Inventario.cantidad_actual === 0 || p.Inventario.estado === "Agotado",
+            stockStatus: p.Inventario.estado,
+            stockQuantity: p.Inventario.cantidad_actual,
+          }))
       } catch (err) {
         console.error("Error al cargar el producto:", err)
         error.value = err.message
