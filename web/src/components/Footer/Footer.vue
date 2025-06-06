@@ -33,7 +33,7 @@
                 <div class="footer-column">
                     <h4 class="footer-title">Mi cuenta</h4>
                     <ul class="footer-links">
-                        <li><a href="/user">Perfil</a></li>
+                        <li><a href="javaScript:void(0);" @click="navigateTo('/user/profile')">Perfil</a></li> 
                         <li><a href="/cart">Carrito</a></li>
                     </ul>
                 </div>
