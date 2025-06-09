@@ -62,7 +62,7 @@ export const useProductsService = () => {
   const getProductById = async (id) => {
     try {
       const response = await apiService.get(`/productos/${id}`);
-      return response.data || null;
+      return response;
     } catch (error) {
       console.error("Error fetching product by ID:", error);
       throw error;

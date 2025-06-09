@@ -87,9 +87,11 @@
               <img :src="`${API_BASE_URL}${product.image}`" :alt="product.name" />
               <div class="product-badges">
                 <!-- Badge de estado de stock -->
-                <span class="badge stock-badge"
-                  :class="{ 'out-of-stock': product.isOutOfStock, 'in-stock': !product.isOutOfStock }">
-                  {{ product.isOutOfStock ? 'Agotado' : 'Disponible' }}
+                <span class="badge stock-badge" :class="{
+                  'out-of-stock': product.isOutOfStock || product.stockStatus === 'Reservado',
+                  'in-stock': !product.isOutOfStock && product.stockStatus !== 'Reservado'
+                }">
+                  {{ (product.isOutOfStock || product.stockStatus === 'Reservado') ? 'Agotado' : 'Disponible' }}
                 </span>
                 <!-- Badges existentes si los hay -->
                 <span v-for="badge in product.badges" :key="badge.type" class="badge" :class="badge.type"
@@ -117,10 +119,11 @@
                   <EyeIcon class="button-icon" />
                   Ver detalles
                 </button>
-                <button class="add-to-cart-button" :class="{ 'disabled': product.isOutOfStock }"
-                  :disabled="product.isOutOfStock" @click="addToCart(product)">
+                <button class="add-to-cart-button"
+                  :class="{ 'disabled': product.isOutOfStock || product.stockStatus === 'Reservado' }"
+                  :disabled="product.isOutOfStock || product.stockStatus === 'Reservado'" @click="addToCart(product)">
                   <ShoppingCartIcon class="button-icon" />
-                  {{ product.isOutOfStock ? 'Agotado' : 'Añadir' }}
+                  {{ (product.isOutOfStock || product.stockStatus === 'Reservado') ? 'Agotado' : 'Añadir' }}
                 </button>
               </div>
             </div>

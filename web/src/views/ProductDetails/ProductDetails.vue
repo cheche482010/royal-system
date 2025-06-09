@@ -70,24 +70,43 @@
 
       <div class="stock-info">
         <div class="stock-icon">
-          <CheckCircle v-if="productItems.inventory > 0" class="check-icon" />
+          <CheckCircle v-if="productItems.inventory > 0 && productItems.stockStatus !== 'Reservado'" class="check-icon" />
           <XCircle v-else class="x-icon" />
         </div>
-        <span class="stock-text" :class="{ 'out-of-stock': productItems.inventory === 0 }">
-          {{ productItems.inventory > 0 ? `${productItems.inventory} disponibles` : 'Agotado' }}
+        <span class="stock-text"
+          :class="{ 'out-of-stock': productItems.inventory === 0 || productItems.stockStatus === 'Reservado' }">
+          {{ productItems.inventory > 0 && productItems.stockStatus !== 'Reservado'
+            ? `${productItems.inventory} disponibles`
+            : 'No disponible' }}
         </span>
       </div>
 
       <div class="add-to-cart">
         <div class="quantity-selector">
-          <button class="quantity-button" @click="decreaseQuantity" :disabled="productItems.inventory === 0">-</button>
-          <input type="number" v-model="quantity" min="1" :max="productItems.inventory" class="quantity-input"
-            :disabled="productItems.inventory === 0" />
-          <button class="quantity-button" @click="increaseQuantity"
-            :disabled="productItems.inventory === 0 || quantity >= productItems.inventory">+</button>
+          <button class="quantity-button" 
+            @click="decreaseQuantity" 
+            :disabled="productItems.inventory === 0 || productItems.stockStatus === 'Reservado'">
+            -
+          </button>
+
+          <input type="number" 
+            v-model="quantity" min="1" 
+            :max="productItems.inventory" 
+            class="quantity-input"
+            :disabled="productItems.inventory === 0 || productItems.stockStatus === 'Reservado'" />
+
+          <button 
+            class="quantity-button" @click="increaseQuantity"
+            :disabled="productItems.inventory === 0 || productItems.stockStatus === 'Reservado' || quantity >= productItems.inventory">
+            +
+          </button>
         </div>
-        <button class="cart-button" @click="addToCart" :disabled="productItems.inventory === 0">
-          {{ productItems.inventory > 0 ? 'Añadir al carrito' : 'Agotado' }}
+        
+        <button 
+          class="cart-button" 
+          @click="addToCart" 
+          :disabled="productItems.inventory === 0 || productItems.stockStatus === 'Reservado'">
+          {{ productItems.inventory > 0 && productItems.stockStatus !== 'Reservado' ? 'Añadir al carrito' : 'No disponible' }}
         </button>
       </div>
 
