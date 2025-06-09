@@ -113,20 +113,20 @@ export default {
         // Transformar los productos para que coincidan con el formato esperado
         // y filtrar aquellos con inventario en 0
         products.value = response.data
-          .filter((p) => p.is_active && p.Inventario && p.Inventario.cantidad_actual > 0)
+          .filter((p) => p.is_active && p.Inventario)
           .map((p) => ({
             id: p.id,
             name: p.nombre,
             brand: p.Marca?.nombre || "Sin marca",
             price: p.precio_unidad,
-            originalPrice: null, // Por ahora no manejamos precios originales
-            rating: 5, // Por ahora hardcoded hasta implementar sistema de ratings
-            reviews: Math.floor(Math.random() * 2000), // Por ahora random hasta implementar sistema de reviews
             image: p.producto_img,
             subcategory: p.Categorium?.id?.toString(),
             brandId: p.Marca?.id?.toString(),
             description: p.descripcion,
             inventario: p.Inventario,
+            isOutOfStock: p.Inventario.cantidad_actual === 0 || p.Inventario.estado === "Agotado",
+            stockStatus: p.Inventario.estado,
+            stockQuantity: p.Inventario.cantidad_actual,
           }))
       } catch (error) {
         console.error("Error al cargar productos:", error)
@@ -250,9 +250,20 @@ export default {
       })
     }
 
-    // Agregar al carrito
+    const canAddToCart = (product) => {
+      return !product.isOutOfStock && product.stockQuantity > 0
+    }
+
     const addToCart = async (product) => {
       try {
+        // Verificar stock antes de continuar
+        if (!canAddToCart(product)) {
+          toast.error("Este producto está agotado", {
+            title: "Producto no disponible",
+          })
+          return
+        }
+
         // Verificar si el usuario está autenticado
         if (!cartService.isAuthenticated()) {
           // Si no está autenticado, mostrar mensaje y redirigir a login
@@ -354,6 +365,7 @@ export default {
       toast,
       formatPriceBs,
       dollarRate,
+      canAddToCart,
     }
   },
 }

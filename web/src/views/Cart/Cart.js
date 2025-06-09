@@ -199,20 +199,30 @@ export default {
 
     const loadFeaturedProducts = async () => {
       try {
-        const response = await productsService.getAllProducts()
+       const query = ""
+        let categoriaId = null
+        let marcaId = null
+
+        const response = await apiService.searchProducts(query, categoriaId, marcaId)
         if (!response.success || !response.data) {
           throw new Error("Respuesta inválida del servidor")
         }
 
         featuredProducts.value = response.data
-          .filter((p) => p.is_active)
-          .slice(0, 8)
+          .filter((p) => p.is_active && p.Inventario)
           .map((p) => ({
             id: p.id,
             name: p.nombre,
             brand: p.Marca?.nombre || "Sin marca",
             price: p.precio_unidad,
             image: p.producto_img,
+            subcategory: p.Categorium?.id?.toString(),
+            brandId: p.Marca?.id?.toString(),
+            description: p.descripcion,
+            inventario: p.Inventario,
+            isOutOfStock: p.Inventario.cantidad_actual === 0 || p.Inventario.estado === "Agotado",
+            stockStatus: p.Inventario.estado,
+            stockQuantity: p.Inventario.cantidad_actual,
           }))
       } catch (error) {
         console.error("Error al cargar productos destacados:", error)

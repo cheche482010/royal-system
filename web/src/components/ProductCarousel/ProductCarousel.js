@@ -84,9 +84,21 @@ export default {
       })
     }
 
+    const canAddToCart = (product) => {
+      return !product.isOutOfStock && product.stockQuantity > 0
+    }
+
     // Agregar al carrito
     const addToCart = async (product) => {
       try {
+
+        if (!canAddToCart(product)) {
+          toast.error("Este producto está agotado", {
+            title: "Producto no disponible",
+          })
+          return
+        }
+
         if (!cartService.isAuthenticated()) {
           toast.error("Debes iniciar sesión para agregar productos al carrito", {
             title: "Acceso denegado",
@@ -193,6 +205,7 @@ export default {
       formatPriceBs,
       dollarRate,
       filteredProducts,
+      canAddToCart,
     }
   },
 }

@@ -115,11 +115,11 @@
 
                     <!-- Menú desplegable de usuario -->
                     <div v-if="showUserMenu" class="user-menu">
-                        <div class="user-menu-item" @click="navigateTo('/user')">
+                        <div class="user-menu-item" @click="navigateTo('/user/profile')">
                             <UserIcon size="16" />
                             <span>Mi Perfil</span>
                         </div>
-                        <div class="user-menu-item" @click="navigateTo('/orders')">
+                        <div class="user-menu-item" @click="navigateTo('/user/orders')">
                             <PackageIcon size="16" />
                             <span>Mis Pedidos</span>
                         </div>

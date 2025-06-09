@@ -27,9 +27,7 @@ export const getAllProductos = async (req, res, next) => {
           model: Inventario,
           attributes: ["id", "cantidad_actual", "estado"],
           where: {
-            cantidad_actual: {
-              [Op.gt]: 0,
-            },
+            is_active: true,
             is_delete: false,
           },
         },
@@ -437,10 +435,8 @@ export const searchProductos = async (req, res, next) => {
           model: Inventario,
           attributes: ["id", "cantidad_actual", "estado"],
           where: {
-            cantidad_actual: {
-              [Op.gt]: 0,
-            },
             is_delete: false,
+            is_active: true,
           },
         },
       ],
