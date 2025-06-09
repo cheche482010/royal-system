@@ -3,6 +3,7 @@
 import { ref, computed, onMounted } from "vue"
 import Header from "../../components/Header/Header.vue"
 import Footer from "../../components/Footer/Footer.vue"
+import PDF from "../../components/PDF/PDF.vue"
 import { useAuth } from "../../composables/useAuth"
 import { userService } from "../../services/user.service"
 import { ordenService } from "../../services/orden.service"
@@ -34,6 +35,7 @@ export default {
     LoaderIcon,
     Header,
     Footer,
+    PDF,
   },
   props: {
     API_BASE_URL: {
@@ -52,6 +54,7 @@ export default {
     const toast = useToast()
     const auth = useAuth()
     const userData = ref(null)
+    const showPDFPopup = ref(false)
 
     // Reemplazar el objeto user con un computed que use los datos completos
     const user = computed(() => ({
@@ -329,6 +332,7 @@ export default {
       updatePassword,
       loadUserData,
       loadUserOrders,
+      showPDFPopup,
     }
   },
 }

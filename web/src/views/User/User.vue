@@ -74,7 +74,7 @@
                   <span>Total:</span>
                   <span class="total-amount">{{ order.total }}</span>
                 </div>
-                <button class="details-button">Ver detalles</button>
+                <button class="details-button" @click="showPDFPopup = true">Ver detalles</button>
               </div>
             </div>
           </div>
@@ -117,7 +117,7 @@
                   <span>Total:</span>
                   <span class="total-amount">{{ order.total }}</span>
                 </div>
-                <button class="details-button">Ver detalles</button>
+                <button class="details-button" @click="showPDFPopup = true">Ver detalles</button>
               </div>
             </div>
           </div>
@@ -196,6 +196,14 @@
     </div>
   </div>
   <Footer />
+
+  <!-- PDF Popup -->
+  <div v-if="showPDFPopup" class="pdf-popup-overlay" @click="showPDFPopup = false">
+    <div class="pdf-popup-content" @click.stop>
+      <button class="close-button" @click="showPDFPopup = false">&times;</button>
+      <PDF class="related-products" />
+    </div>
+  </div>
 </template>
 
 <script src="./User.js"></script>
