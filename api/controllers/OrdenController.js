@@ -1,4 +1,4 @@
-import { Orden, Usuario, DetalleOrden, Producto, Carrito, Inventario } from "../models/index.js"
+import { Orden, Usuario, DetalleOrden, Producto, Carrito, Inventario, Envio } from "../models/index.js"
 import { sequelize } from "../config/database.js"
 
 // Obtener todas las órdenes
@@ -69,6 +69,10 @@ export const getOrdenesByUsuario = async (req, res, next) => {
       where: { usuario_id },
       include: [
         {
+          model: Usuario,
+          attributes: ["id", "nombre", "documento"],
+        },
+        {
           model: DetalleOrden,
           include: [
             {
@@ -76,6 +80,10 @@ export const getOrdenesByUsuario = async (req, res, next) => {
               attributes: ["id", "codigo", "nombre", "descripcion", "producto_img"],
             },
           ],
+        },
+        {
+          model: Envio,
+          attributes: ["id", "nombre_receptor", "direccion", "ciudad", "estado", "telefono"],
         },
       ],
       order: [["created_at", "DESC"]],
