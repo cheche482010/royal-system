@@ -21,6 +21,7 @@ import {
   ChevronRightIcon,
   SearchXIcon,
   EyeIcon,
+  SearchIcon,
 } from "lucide-vue-next"
 import { useToast } from "../../services/toast.service"
 
@@ -39,6 +40,7 @@ export default {
     ChevronRightIcon,
     SearchXIcon,
     EyeIcon,
+    SearchIcon,
     Header,
     Footer,
   },
@@ -78,6 +80,7 @@ export default {
 
     const products = ref([])
 
+    const searchQuery = ref("")
     const selectedSubcategories = ref([])
     const selectedBrands = ref([])
     const selectedRatings = ref([])
@@ -145,6 +148,14 @@ export default {
     const filteredProducts = computed(() => {
       let result = [...products.value]
 
+      // Filtrar por búsqueda de nombre
+      if (searchQuery.value.trim() !== "") {
+        const query = searchQuery.value.toLowerCase().trim()
+        result = result.filter((product) =>
+          product.name.toLowerCase().includes(query)
+        )
+      }
+
       // Filtrar por rating
       if (selectedRatings.value.length > 0) {
         result = result.filter((product) => selectedRatings.value.includes(product.rating))
@@ -173,11 +184,22 @@ export default {
           // En un caso real, ordenaríamos por fecha
           result.reverse()
           break
+        case "availability":
+          result.sort((a, b) => {
+            if (a.stockStatus === b.stockStatus) return 0;
+            const statusOrder = {
+              'Disponible': 1,
+              'Reservado': 2,
+              'Agotado': 3
+            };
+            return statusOrder[a.stockStatus] - statusOrder[b.stockStatus];
+          });
+          break
         default:
           // Relevancia (por defecto)
           break
       }
-
+    
       return result
     })
 
@@ -219,11 +241,17 @@ export default {
     })
 
     const clearFilters = () => {
+      searchQuery.value = ""
       selectedSubcategories.value = []
       selectedBrands.value = []
       selectedRatings.value = []
       priceRange.value = { min: null, max: null }
       sortOption.value = "relevance"
+      currentPage.value = 1
+    }
+
+    const applySearch = () => {
+      // Resetear página actual al buscar
       currentPage.value = 1
     }
 
@@ -348,6 +376,7 @@ export default {
       ratings,
       filteredProducts,
       paginatedProducts,
+      searchQuery,
       selectedSubcategories,
       selectedBrands,
       selectedRatings,
@@ -359,6 +388,7 @@ export default {
       paginationPages,
       clearFilters,
       applyPriceFilter,
+      applySearch,
       viewProductDetails,
       addToCart,
       formatPrice,

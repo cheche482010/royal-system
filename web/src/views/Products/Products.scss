@@ -544,3 +544,39 @@
     width: 100%;
   }
 }
+/* Estilos para la barra de búsqueda */
+.search-box {
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.search-input {
+  flex-grow: 1;
+  padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem 0 0 0.25rem;
+  font-size: 0.9rem;
+}
+
+.search-button {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  border: 1px solid #ced4da;
+  border-left: none;
+  border-radius: 0 0.25rem 0.25rem 0;
+  cursor: pointer;
+}
+
+.search-icon {
+  width: 16px;
+  height: 16px;
+  color: #6c757d;
+}
+
+.search-button:hover {
+  background-color: #e9ecef;
+}

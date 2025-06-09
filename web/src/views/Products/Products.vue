@@ -8,6 +8,23 @@
 
     <div class="products-layout">
       <div class="filters-sidebar">
+        <!-- Barra de búsqueda -->
+        <div class="filter-group">
+          <h3 class="filter-title">Buscar productos</h3>
+          <div class="search-box">
+            <input 
+              type="text" 
+              v-model="searchQuery" 
+              placeholder="Buscar por nombre..." 
+              class="search-input" 
+              @input="applySearch"
+            />
+            <button class="search-button" @click="applySearch">
+              <SearchIcon class="search-icon" />
+            </button>
+          </div>
+        </div>
+
         <div class="filter-group">
           <h3 class="filter-title">Categorías</h3>
           <div class="filter-options">
@@ -68,6 +85,7 @@
               <option value="price-asc">Precio: de menor a mayor</option>
               <option value="price-desc">Precio: de mayor a menor</option>
               <option value="newest">Más recientes</option>
+              <option value="availability">Disponibilidad</option>
             </select>
           </div>
 
