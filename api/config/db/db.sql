@@ -475,6 +475,33 @@ CREATE TABLE `envios` (
   CONSTRAINT `envios_ibfk_1` FOREIGN KEY (`orden_id`) REFERENCES `ordenes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Table structure for table `notificaciones`
+--
+
+DROP TABLE IF EXISTS `notificaciones`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `notificaciones` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `usuario_id` bigint NOT NULL COMMENT 'ID del usuario que recibe la notificación',
+  `orden_id` bigint NOT NULL COMMENT 'ID de la orden relacionada',
+  `tipo` enum('ORDEN_CREADA','ORDEN_COMPLETADA','ORDEN_CANCELADA') NOT NULL COMMENT 'Tipo de notificación',
+  `titulo` varchar(255) NOT NULL COMMENT 'Título de la notificación',
+  `mensaje` text NOT NULL COMMENT 'Mensaje de la notificación',
+  `leida` tinyint(1) DEFAULT '0' COMMENT 'Indica si la notificación ha sido leída',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creación',
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha de actualización',
+  PRIMARY KEY (`id`),
+  KEY `idx_notificaciones_usuario` (`usuario_id`),
+  KEY `idx_notificaciones_orden` (`orden_id`),
+  KEY `idx_notificaciones_leida` (`leida`),
+  CONSTRAINT `notificaciones_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `notificaciones_ibfk_2` FOREIGN KEY (`orden_id`) REFERENCES `ordenes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
