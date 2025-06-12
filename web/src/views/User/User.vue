@@ -105,6 +105,7 @@
                     <div class="product-name">{{ product.name }}</div>
                     <div class="product-price">{{ product.price }}</div>
                     <div class="product-quantity">Cantidad: {{ product.quantity }}</div>
+                    <div class="product-total">Total: {{ product.total }}</div>
                   </div>
                 </div>
               </div>
@@ -114,7 +115,7 @@
                   <span>Total:</span>
                   <span class="total-amount">{{ order.total }}</span>
                 </div>
-                <button class="details-button" @click="showPDFPopup = true">Ver detalles</button>
+                <button class="details-button" @click="openPDFPopup(order.id)">Ver detalles</button>
               </div>
             </div>
             
@@ -193,6 +194,7 @@
                     <div class="product-name">{{ product.name }}</div>
                     <div class="product-price">{{ product.price }}</div>
                     <div class="product-quantity">Cantidad: {{ product.quantity }}</div>
+                    <div class="product-total">Total: {{ product.total }}</div>
                   </div>
                 </div>
               </div>
@@ -201,8 +203,8 @@
                 <div class="order-total">
                   <span>Total:</span>
                   <span class="total-amount">{{ order.total }}</span>
-                </div>
-                <button class="details-button" @click="showPDFPopup = true">Ver detalles</button>
+                </div>         
+                <button class="details-button" @click="openPDFPopup(order.id)">Ver detalles</button>
               </div>
             </div>
             
@@ -336,7 +338,11 @@
   <div v-if="showPDFPopup" class="pdf-popup-overlay" @click="showPDFPopup = false">
     <div class="pdf-popup-content" @click.stop>
       <button class="close-button" @click="showPDFPopup = false">&times;</button>
-      <PDF class="related-products" />
+      <PDF 
+        class="related-products" 
+        :ordenId="selectedOrderId" 
+        :order="selectedOrder"
+      />
     </div>
   </div>
 </template>

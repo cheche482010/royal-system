@@ -59,6 +59,8 @@ export default {
     const route = useRoute()
     const activeSection = ref(route.path.includes("orders") ? "orders" : "profile")
     const showPDFPopup = ref(false)
+    const selectedOrderId = ref(null)
+    const selectedOrder = ref(null)
 
     // Reemplazar el objeto user con un computed que use los datos completos
     const user = computed(() => ({
@@ -139,16 +141,22 @@ export default {
               total: totalFormateado,
               isCompleted: orden.status === "Completa",
               products:
-                orden.DetalleOrdens?.map((detalle) => ({
-                  id: detalle.producto_id,
-                  name: detalle.Producto?.nombre || "Producto",
-                  price: `${Number.parseFloat(detalle.precio).toFixed(2)}$`,
-                  quantity: detalle.cantidad,
-                  image: `${config.API_BASE_URL}${detalle.Producto?.producto_img}` || "https://placehold.co/200x200",
-                })) || [],
+                orden.DetalleOrdens?.map((detalle) => {
+                  const price = Number.parseFloat(detalle.precio);
+                  const quantity = detalle.cantidad;
+                  const total = (price * quantity).toFixed(2);
+                  return {
+                    id: detalle.producto_id,
+                    name: detalle.Producto?.nombre || "Producto",
+                    price: `${price.toFixed(2)}$`,
+                    quantity: detalle.cantidad,
+                    total: `${total}$`,
+                    image: `${config.API_BASE_URL}${detalle.Producto?.producto_img}` || "https://placehold.co/200x200",
+                  }
+                }) || [],
             }
           })
-          console.log(orders)
+          
         } else {
           ordersError.value = "No se pudieron cargar las órdenes"
           toast.error("Error al cargar las órdenes", {
@@ -572,6 +580,14 @@ export default {
       }
     }
 
+    const openPDFPopup = (orderId) => {
+      selectedOrderId.value = orderId
+      // Find the selected order from both active and completed orders
+      const order = [...activeOrders.value, ...completedOrders.value].find(order => order.id === orderId)
+      selectedOrder.value = order
+      showPDFPopup.value = true
+    }
+
     // Agregar las nuevas propiedades y métodos al return
     return {
       activeSection,
@@ -613,6 +629,9 @@ export default {
       loadUserData,
       loadUserOrders,
       showPDFPopup,
+      selectedOrderId,
+      selectedOrder,
+      openPDFPopup,
     }
   },
 }

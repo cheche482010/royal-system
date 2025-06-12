@@ -3,40 +3,49 @@ import html2pdf from "html2pdf.js";
 export default {
   name: "PDF",
   ordenId: '10',
+  props: {
+    ordenId: {
+      type: String,
+      required: true,
+    },
+    order: {
+      type: Object,
+      required: true,
+    },
+  },
   data() {
+    // Función para limpiar el símbolo $ y convertir a número
+    const cleanPrice = (priceString) => {
+      if (typeof priceString === 'string') {
+        return parseFloat(priceString.replace('$', '').trim());
+      }
+      return priceString;
+    };
+
     return {
       invoice: {
         client: {
           name: "AGRO-FINCA DON FERNANDO C.A.",
-          rif: "J502132490",
+          rif: this.ordenId,
           address: "CTRA ANTIGUA DE BARUTA - EL HATILLO CASA Nº S/N SEC SEMINARIO SAN JOSE CARACAS EL HATILLO MIRANDA",
           phone: "0424-1964408",
         },
-        number: "NE00000360",
-        issueDate: "4/6/2025",
-        dueDate: "25/6/2025",
-        items: [
-          {
-            code: "RP020",
-            description: "BRIT DIETA VETERINARIA HIPOALLERGENIC 2KG",
-            quantity: 6,
-            unitPrice: 28,
-          },
-          {
-            code: "RP026",
-            description: "BRIT DIETA VETERINARIA HIPOALLERGENIC 12KG",
-            quantity: 4,
-            unitPrice: 150,
-          },
-        ],
-        subtotal: 768,
+        number: this.order.id,
+        issueDate: this.order.date,
+        items: this.order.products.map(product => ({
+          code: product.code || product.id,
+          description: product.name || product.description,
+          quantity: product.quantity,
+          unitPrice: cleanPrice(product.price || product.unitPrice),
+        })),
+        subtotal: this.order.products.reduce((total, product) => total + cleanPrice(product.price || product.unitPrice) * product.quantity, 0),
         exemptTotal: 0,
         taxableBase: 0,
         note: "",
         taxRate: 0,
         igtfRate: 0,
         paymentMethod: "[ ]",
-        total: 768,
+        total: this.order.products.reduce((total, product) => total + cleanPrice(product.price || product.unitPrice) * product.quantity, 0),
         currency: "Dólar",
       },
     };

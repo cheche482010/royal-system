@@ -47,7 +47,7 @@
             <td>{{ item.description }}</td>
             <td style="text-align: right">{{ item.quantity.toLocaleString() }}</td>
             <td style="text-align: right">{{ item.unitPrice.toLocaleString() }}</td>
-            <td style="text-align: right">{{ (item.quantity * item.unitPrice).toLocaleString() }} (E)</td>
+            <td style="text-align: right">{{ (item.quantity * item.unitPrice).toLocaleString() }}</td>
           </tr>
         </tbody>
       </table>
