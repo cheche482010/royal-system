@@ -8,7 +8,7 @@ import { useCartService } from "../../services/cart.service"
 import { config } from '../../config/config'
 import { useAuth } from "../../composables/useAuth"
 import { useToast } from "../../services/toast.service"
-import { useProductsService } from "../../services/products.service"
+import { useProductsService } from "../../services/products.service" 
 import { useDolarStore } from '../../stores/dolar'
 
 import { 
@@ -47,9 +47,9 @@ export default {
     const auth = useAuth()
     const toast = useToast()
     const cartService = useCartService()
-    const productsService = useProductsService()
     const dolarStore = useDolarStore()
     const dollarRate = computed(() => dolarStore.dollarRate)
+    const productsService = useProductsService()
 
     // Estado para la cantidad
     const quantity = ref(1)
@@ -70,20 +70,6 @@ export default {
     // Productos relacionados
     const relatedProductsdetails = ref([])
 
-    
-    onMounted(() => {
-      loadProductDetails()
-    })
-
-    watch(
-      () => route.params.id,
-      (newId) => {
-        if (newId) {
-          loadProductDetails()
-        }
-      },
-    )
-
     const loadProductDetails = async () => {
       loading.value = true
       error.value = null
@@ -95,8 +81,8 @@ export default {
           return
         }
 
-        const response = await apiService.getProductById(productId)
-
+        const response = await productsService.getProductById(productId) 
+    
         if (!response || !response.data) {
           throw new Error("No se pudo cargar el producto")
         }
@@ -115,7 +101,8 @@ export default {
           quantity: 1,
           inventory: Number.parseInt(data.Inventario?.cantidad_actual || 0),
           images: [data.producto_img],
-        } 
+          stockStatus: data.Inventario?.estado || "Disponible"
+        }
 
         const query = ""
         let categoriaId = null

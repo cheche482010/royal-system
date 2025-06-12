@@ -8,6 +8,23 @@
 
     <div class="products-layout">
       <div class="filters-sidebar">
+        <!-- Barra de búsqueda -->
+        <div class="filter-group">
+          <h3 class="filter-title">Buscar productos</h3>
+          <div class="search-box">
+            <input 
+              type="text" 
+              v-model="searchQuery" 
+              placeholder="Buscar por nombre..." 
+              class="search-input" 
+              @input="applySearch"
+            />
+            <button class="search-button" @click="applySearch">
+              <SearchIcon class="search-icon" />
+            </button>
+          </div>
+        </div>
+
         <div class="filter-group">
           <h3 class="filter-title">Categorías</h3>
           <div class="filter-options">
@@ -68,6 +85,7 @@
               <option value="price-asc">Precio: de menor a mayor</option>
               <option value="price-desc">Precio: de mayor a menor</option>
               <option value="newest">Más recientes</option>
+              <option value="availability">Disponibilidad</option>
             </select>
           </div>
 
@@ -87,9 +105,11 @@
               <img :src="`${API_BASE_URL}${product.image}`" :alt="product.name" />
               <div class="product-badges">
                 <!-- Badge de estado de stock -->
-                <span class="badge stock-badge"
-                  :class="{ 'out-of-stock': product.isOutOfStock, 'in-stock': !product.isOutOfStock }">
-                  {{ product.isOutOfStock ? 'Agotado' : 'Disponible' }}
+                <span class="badge stock-badge" :class="{
+                  'out-of-stock': product.isOutOfStock || product.stockStatus === 'Reservado',
+                  'in-stock': !product.isOutOfStock && product.stockStatus !== 'Reservado'
+                }">
+                  {{ (product.isOutOfStock || product.stockStatus === 'Reservado') ? 'Agotado' : 'Disponible' }}
                 </span>
                 <!-- Badges existentes si los hay -->
                 <span v-for="badge in product.badges" :key="badge.type" class="badge" :class="badge.type"
@@ -117,10 +137,11 @@
                   <EyeIcon class="button-icon" />
                   Ver detalles
                 </button>
-                <button class="add-to-cart-button" :class="{ 'disabled': product.isOutOfStock }"
-                  :disabled="product.isOutOfStock" @click="addToCart(product)">
+                <button class="add-to-cart-button"
+                  :class="{ 'disabled': product.isOutOfStock || product.stockStatus === 'Reservado' }"
+                  :disabled="product.isOutOfStock || product.stockStatus === 'Reservado'" @click="addToCart(product)">
                   <ShoppingCartIcon class="button-icon" />
-                  {{ product.isOutOfStock ? 'Agotado' : 'Añadir' }}
+                  {{ (product.isOutOfStock || product.stockStatus === 'Reservado') ? 'Agotado' : 'Añadir' }}
                 </button>
               </div>
             </div>

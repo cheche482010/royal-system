@@ -76,8 +76,12 @@ export default {
       })
     }
 
-    // Ver detalles del producto
     const viewProductDetails = (product) => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+
       router.push({
         path: "/productdetails",
         query: { id: product.id },
