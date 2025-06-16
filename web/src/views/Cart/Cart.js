@@ -111,6 +111,16 @@ export default {
     const formatPrice = (price) => {
       return `${price.toFixed(2).replace(".", ",")}$`
     }
+    
+    const formatPriceBs = (price) => {
+      const rate = dollarRate.value?._value || dollarRate.value
+      if (!rate) return '--.-- BS'
+      
+      return (price * rate.toFixed(2))
+        .toFixed(2)
+        .replace('.', ',')
+        .replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' BS'
+    }
 
     const updateQuantity = async (itemId, newQuantity) => {
       if (newQuantity < 1) return
@@ -295,6 +305,7 @@ export default {
       appliedPromo,
       couponError,
       formatPrice,
+      formatPriceBs,
       updateQuantity,
       removeItem,
       checkout,

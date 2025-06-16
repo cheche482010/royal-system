@@ -40,6 +40,7 @@
           <div class="item-total">
             <div class="total-label">Total:</div>
             <div class="total-price">{{ formatPrice(item.price * item.quantity) }}</div>
+            <div class="bs-price" v-if="dollarRate">{{ formatPriceBs(item.price * item.quantity) }}</div>
           </div>
         </div>
       </div>
