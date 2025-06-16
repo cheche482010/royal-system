@@ -165,7 +165,7 @@ export const createOrden = async (req, res, next) => {
           await transaction.rollback()
           return res.status(400).json({
             success: false,
-            message: `Insufficient stock for product ${producto.nombre}. Available: ${inventario.cantidad_actual}`,
+            message: `Stock insuficiente para el producto ${producto.nombre}. Disponible: ${inventario.cantidad_actual}`,
           })
         }
 

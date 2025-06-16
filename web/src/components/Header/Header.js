@@ -4,6 +4,7 @@ import { useRouter } from "vue-router"
 import { useCartService } from "../../services/cart.service"
 import { useProductsService } from "../../services/products.service" 
 import { useDolarService } from "../../services/dolar.service"
+import { useNotificacionService } from "../../services/notificacion.service"
 import { config } from "../../config/config"
 import { useDolarStore } from '../../stores/dolar'
 import {
@@ -53,6 +54,7 @@ export default {
     const productsService = useProductsService()
     const dolarService = useDolarService()
     const dolarStore = useDolarStore()
+    const notificacionService = useNotificacionService()
     
     // Estado para los menús desplegables
     const showUserMenu = ref(false)
@@ -71,35 +73,48 @@ export default {
     const dollarInputValue = ref('')
     const showDollarInput = ref(false)
 
-    // Notificaciones de ejemplo
-    const notifications = ref([
-      {
-        id: 1,
-        title: "Pedido confirmado",
-        message: "Tu pedido #12345 ha sido confirmado y está en proceso.",
-        date: "2023-10-15T14:30:00",
-        read: false,
-      },
-      {
-        id: 2,
-        title: "Oferta especial",
-        message: "¡50% de descuento en productos seleccionados!",
-        date: "2023-10-14T09:15:00",
-        read: true,
-      },
-      {
-        id: 3,
-        title: "Envío en camino",
-        message: "Tu pedido #12340 ha sido enviado y llegará pronto.",
-        date: "2023-10-13T16:45:00",
-        read: false,
-      },
-    ])
-
-    // Calcular notificaciones no leídas
-    const unreadNotifications = computed(() => {
-      return notifications.value.filter((notification) => !notification.read).length
-    })
+    // Notificaciones
+    const notifications = ref([])
+    const unreadNotifications = ref(0)
+    
+    // Cargar notificaciones desde la API
+    const loadNotifications = async () => {
+      try {
+        if (!auth.isAuthenticated.value) return
+        
+        const response = await notificacionService.getNotificaciones()
+        if (response.success && response.data) {
+          notifications.value = response.data.map(notif => ({
+            id: notif.id,
+            title: notif.titulo || 'Notificación',
+            message: notif.mensaje || '',
+            date: notif.created_at,
+            read: notif.leida,
+            ordenId: notif.orden_id,
+            orden: notif.Orden
+          }))
+        }
+        
+        // Actualizar contador de no leídas
+        await updateUnreadCount()
+      } catch (error) {
+        console.error('Error al cargar notificaciones:', error)
+      }
+    }
+    
+    // Actualizar contador de notificaciones no leídas
+    const updateUnreadCount = async () => {
+      try {
+        if (!auth.isAuthenticated.value) return
+        
+        const response = await notificacionService.getConteoNoLeidas()
+        if (response.success && response.data) {
+          unreadNotifications.value = response.data.conteo
+        }
+      } catch (error) {
+        console.error('Error al obtener conteo de notificaciones:', error)
+      }
+    }
 
     // Formatear fecha para mostrar en notificaciones
     const formatDate = (dateString) => {
@@ -119,18 +134,36 @@ export default {
     }
 
     // Marcar notificación como leída
-    const markAsRead = (id) => {
-      const notification = notifications.value.find((n) => n.id === id)
-      if (notification) {
-        notification.read = true
+    const markAsRead = async (id) => {
+      try {
+        const response = await notificacionService.marcarComoLeida(id)
+        if (response.success) {
+          const notification = notifications.value.find((n) => n.id === id)
+          if (notification) {
+            notification.read = true
+          }
+          // Actualizar contador de no leídas
+          await updateUnreadCount()
+        }
+      } catch (error) {
+        console.error('Error al marcar notificación como leída:', error)
       }
     }
 
     // Marcar todas como leídas
-    const markAllAsRead = () => {
-      notifications.value.forEach((notification) => {
-        notification.read = true
-      })
+    const markAllAsRead = async () => {
+      try {
+        const response = await notificacionService.marcarTodasComoLeidas()
+        if (response.success) {
+          notifications.value.forEach((notification) => {
+            notification.read = true
+          })
+          // Actualizar contador de no leídas
+          unreadNotifications.value = 0
+        }
+      } catch (error) {
+        console.error('Error al marcar todas las notificaciones como leídas:', error)
+      }
     }
 
     // Método para cerrar sesión
@@ -272,6 +305,21 @@ export default {
       // Inicializar contador del carrito
       updateCartCount()
       getCurrentDollarRate()
+      
+      // Cargar notificaciones
+      loadNotifications()
+      
+      // Configurar intervalo para actualizar notificaciones cada 5 minutos
+      const notificationsInterval = setInterval(() => {
+        if (auth.isAuthenticated.value) {
+          loadNotifications()
+        }
+      }, 5 * 60 * 1000)
+      
+      // Limpiar intervalo al desmontar
+      onUnmounted(() => {
+        clearInterval(notificationsInterval)
+      })
     })
 
     // Limpiar event listeners
@@ -386,6 +434,7 @@ export default {
       dollarLastUpdated,
       dollarInputValue,
       showDollarInput,
+      loadNotifications,
     }
   },
 }

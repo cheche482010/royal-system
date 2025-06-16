@@ -82,6 +82,12 @@
                                 <div class="notification-content">
                                     <h4>{{ notification.title }}</h4>
                                     <p>{{ notification.message }}</p>
+                                    <div v-if="notification.orden" class="notification-order-info">
+                                        <span class="order-status" :class="notification.orden.status.toLowerCase()">
+                                            {{ notification.orden.status }}
+                                        </span>
+                                        <span class="order-amount">{{ formatPrice(notification.orden.monto_total) }}</span>
+                                    </div>
                                     <span class="notification-date">{{ formatDate(notification.date) }}</span>
                                 </div>
                             </div>

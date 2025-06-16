@@ -80,7 +80,7 @@ export const crearNotificacionOrdenCreada = async (orden) => {
   try {
     // Obtener todos los usuarios admin
     const admins = await Usuario.findAll({
-      where: { role: "Admin", is_active: true, is_delete: false },
+      where: { id: orden.usuario_id, is_active: true, is_delete: false },
     })
 
     // Crear notificación para cada admin
@@ -90,7 +90,7 @@ export const crearNotificacionOrdenCreada = async (orden) => {
       tipo: "ORDEN_CREADA",
       titulo: "Nueva Orden Pendiente",
       mensaje: `Se ha creado una nueva orden #${orden.id} por un monto de $${orden.monto_total}. Requiere verificación de pago.`,
-    }))
+    })) 
 
     await Notificacion.bulkCreate(notificaciones)
     console.log(`Notificaciones creadas para ${admins.length} administradores`)
