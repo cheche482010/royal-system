@@ -159,6 +159,7 @@
               <div class="item-info">
                 <div class="item-name">{{ item.name }}</div>
                 <div class="item-price">{{ formatPrice(item.price * item.quantity) }}</div>
+                <div class="item-price-bs" v-if="dollarRate">{{ formatPriceBs(item.price * item.quantity) }}</div>
               </div>
             </div>
           </div>
