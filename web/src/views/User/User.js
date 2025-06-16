@@ -3,6 +3,7 @@
 import { ref, computed, onMounted, watch } from "vue"
 import Header from "../../components/Header/Header.vue"
 import Footer from "../../components/Footer/Footer.vue"
+import PDF from "../../components/PDF/PDF.vue"
 import { useAuth } from "../../composables/useAuth"
 import { userService } from "../../services/user.service"
 import { ordenService } from "../../services/orden.service"
@@ -36,6 +37,7 @@ export default {
     LoaderIcon,
     Header,
     Footer,
+    PDF,
   },
   props: {
     API_BASE_URL: {
@@ -56,6 +58,9 @@ export default {
     const router = useRouter()
     const route = useRoute()
     const activeSection = ref(route.path.includes("orders") ? "orders" : "profile")
+    const showPDFPopup = ref(false)
+    const selectedOrderId = ref(null)
+    const selectedOrder = ref(null)
 
     // Reemplazar el objeto user con un computed que use los datos completos
     const user = computed(() => ({
@@ -136,13 +141,19 @@ export default {
               total: totalFormateado,
               isCompleted: orden.status === "Completa",
               products:
-                orden.DetalleOrdens?.map((detalle) => ({
-                  id: detalle.producto_id,
-                  name: detalle.Producto?.nombre || "Producto",
-                  price: `${Number.parseFloat(detalle.precio).toFixed(2)}$`,
-                  quantity: detalle.cantidad,
-                  image: `${config.API_BASE_URL}${detalle.Producto?.producto_img}` || "https://placehold.co/200x200",
-                })) || [],
+                orden.DetalleOrdens?.map((detalle) => {
+                  const price = Number.parseFloat(detalle.precio);
+                  const quantity = detalle.cantidad;
+                  const total = (price * quantity).toFixed(2);
+                  return {
+                    id: detalle.producto_id,
+                    name: detalle.Producto?.nombre || "Producto",
+                    price: `${price.toFixed(2)}$`,
+                    quantity: detalle.cantidad,
+                    total: `${total}$`,
+                    image: `${config.API_BASE_URL}${detalle.Producto?.producto_img}` || "https://placehold.co/200x200",
+                  }
+                }) || [],
             }
           })
         } else {
@@ -568,6 +579,14 @@ export default {
       }
     }
 
+    const openPDFPopup = (orderId) => {
+      selectedOrderId.value = orderId
+      // Find the selected order from both active and completed orders
+      const order = [...activeOrders.value, ...completedOrders.value].find(order => order.id === orderId)
+      selectedOrder.value = order
+      showPDFPopup.value = true
+    }
+
     // Agregar las nuevas propiedades y métodos al return
     return {
       activeSection,
@@ -608,6 +627,10 @@ export default {
       updatePassword,
       loadUserData,
       loadUserOrders,
+      showPDFPopup,
+      selectedOrderId,
+      selectedOrder,
+      openPDFPopup,
     }
   },
 }

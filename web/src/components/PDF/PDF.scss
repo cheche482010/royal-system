@@ -1,0 +1,116 @@
+.invoice-container {
+  font-family: Arial, sans-serif;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  background: white;
+}
+.invoice-content {
+  border: 2px solid #222;
+  border-radius: 16px;
+  padding: 18px 24px 8px 24px;
+  background: #fff;
+}
+.header-row {
+  display: flex;
+  align-items: flex-start;
+  border: 2px solid #222;
+  border-radius: 16px;
+  padding: 8px 16px 8px 8px;
+  margin-bottom: 12px;
+}
+.logo-box {
+  flex: 0 0 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.logo {
+  width: 110px;
+  height: auto;
+}
+.header-info {
+  margin-top: 23px;
+  flex: 1;
+  padding-left: 16px;
+  text-align: center;
+}
+.header-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0;
+  color: #3a3a3a;
+}
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+.client-info, .invoice-details {
+  width: 48%;
+  background: #f8f8f8;
+  border-radius: 8px;
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+}
+.label {
+  font-weight: bold;
+  color: #222;
+}
+.products-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 18px 0 10px 0;
+  font-size: 14px;
+}
+.products-table th, .products-table td {
+  border: 1.5px solid #222;
+  padding: 7px 6px;
+}
+.products-table th {
+  background-color: #f2f2f2;
+  text-align: center;
+  font-size: 14px;
+}
+.products-table td {
+  background: #fff;
+}
+.totals-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 14px;
+}
+.totals-left {
+  width: 45%;
+  text-align: left;
+}
+.totals-right {
+  width: 45%;
+  text-align: right;
+}
+.footer-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 14px;
+  border-top: 1.5px solid #222;
+  padding-top: 6px;
+}
+.footer-right {
+  font-weight: bold;
+}
+.btn-pdf {
+  display: block;
+  margin: 20px auto 0 auto;
+  padding: 10px 24px;
+  background: #7c3aed;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
