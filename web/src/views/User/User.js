@@ -75,9 +75,9 @@ export default {
     }))
 
     const navItems = ref([
+      { id: "profile", label: "Mi Perfil", icon: UserIcon },
       { id: "orders", label: "Mis Pedidos", icon: PackageIcon },
       { id: "notifications", label: "Notificaciones", icon: BellIcon },
-      { id: "profile", label: "Mi Perfil", icon: UserIcon },
     ])
 
     // Añadir una nueva propiedad para controlar la pestaña activa de pedidos
@@ -569,10 +569,11 @@ export default {
       currentPage.value = 1
     })
 
-    // Actualizar el método de logout para usar el auth
+    // Actualizar el método de logout para usar el auth y redirigir a home
     const handleLogout = () => {
       auth.clearUser()
       console.log("Cerrando sesión...")
+      router.push('/')
     }
 
     const updateProfile = async () => {
