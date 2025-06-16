@@ -27,7 +27,12 @@ const DetalleOrden = sequelize.define(
     precio: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
-      comment: "Precio unitario al momento de la compra",
+      comment: "Precio unitario al momento de la compra en dólares",
+    },
+    precio_total_bs: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: true,
+      comment: "Precio total del producto en bolívares (precio * cantidad * tasa)",
     },
   },
   {

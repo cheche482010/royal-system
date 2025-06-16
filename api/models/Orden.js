@@ -17,7 +17,12 @@ const Orden = sequelize.define(
     monto_total: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
-      comment: "Monto total de la orden",
+      comment: "Monto total de la orden en dólares",
+    },
+    monto_total_bs: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: true,
+      comment: "Monto total de la orden en bolívares",
     },
     status: {
       type: DataTypes.ENUM("Pendiente", "Completa", "Cancelada"),

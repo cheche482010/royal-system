@@ -8,7 +8,7 @@ export const getAllDetallesOrden = async (req, res, next) => {
       include: [
         {
           model: Orden,
-          attributes: ["id", "usuario_id", "monto_total", "status"],
+          attributes: ["id", "usuario_id", "monto_total", "monto_total_bs", "status"],
         },
         {
           model: Producto,
@@ -34,7 +34,7 @@ export const getDetalleOrdenById = async (req, res, next) => {
       include: [
         {
           model: Orden,
-          attributes: ["id", "usuario_id", "monto_total", "status"],
+          attributes: ["id", "usuario_id", "monto_total", "monto_total_bs", "status"],
         },
         {
           model: Producto,

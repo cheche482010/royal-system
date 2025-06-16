@@ -16,7 +16,7 @@ export const getNotificacionesByUsuario = async (req, res, next) => {
       include: [
         {
           model: Orden,
-          attributes: ["id", "monto_total", "status"],
+          attributes: ["id", "monto_total", "monto_total_bs", "status"],
         },
       ],
       order: [["created_at", "DESC"]],
@@ -89,9 +89,9 @@ export const crearNotificacionOrdenCreada = async (orden) => {
       orden_id: orden.id,
       tipo: "ORDEN_CREADA",
       titulo: "Nueva Orden Pendiente",
-      mensaje: `Se ha creado una nueva orden #${orden.id} por un monto de $${orden.monto_total}. Requiere verificación de pago.`,
+      mensaje: `Se ha creado una nueva orden #${String(orden.id).padStart(8, "0")} por un monto de $${orden.monto_total}. Requiere verificación de pago.`,
     })) 
-
+    
     await Notificacion.bulkCreate(notificaciones)
     console.log(`Notificaciones creadas para ${admins.length} administradores`)
   } catch (error) {
