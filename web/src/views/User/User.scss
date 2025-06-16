@@ -956,6 +956,136 @@
   overflow-y: auto;
 }
 
+/* Estilos para la sección de notificaciones */
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.notification-card {
+  border: 1px solid #e9ecef;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background-color: white;
+  transition: all 0.2s ease;
+  
+  &.unread {
+    border-left: 4px solid #00b2e3;
+    background-color: #f8f9fa;
+  }
+  
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+    
+    .notification-title {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin: 0;
+    }
+    
+    .notification-date {
+      color: #6c757d;
+      font-size: 0.85rem;
+    }
+  }
+  
+  .notification-body {
+    p {
+      margin-top: 0;
+      margin-bottom: 0.75rem;
+    }
+    
+    .notification-order-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem;
+      background-color: #f8f9fa;
+      border-radius: 0.25rem;
+      
+      .order-label {
+        font-weight: 500;
+      }
+      
+      .order-status {
+        padding: 0.25rem 0.5rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        
+        &.pendiente {
+          background-color: #fff3cd;
+          color: #856404;
+        }
+        
+        &.completa {
+          background-color: #d4edda;
+          color: #155724;
+        }
+        
+        &.cancelada {
+          background-color: #f8d7da;
+          color: #721c24;
+        }
+      }
+      
+      .order-amount {
+        font-weight: 600;
+        margin-left: auto;
+      }
+    }
+  }
+  
+  .notification-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+    
+    .read-button {
+      padding: 0.5rem 1rem;
+      background-color: #e9ecef;
+      border: none;
+      border-radius: 0.25rem;
+      color: #495057;
+      font-size: 0.875rem;
+      cursor: pointer;
+      
+      &:hover {
+        background-color: #dee2e6;
+      }
+    }
+  }
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  
+  .spinner {
+    width: 40px;
+    height: 40px;
+    color: #00b2e3;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    color: #6c757d;
+  }
+}
+
 .close-button {
   position: absolute;
   top: 10px;

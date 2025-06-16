@@ -98,9 +98,9 @@
                         </div>
 
                         <div class="notification-footer">
-                            <router-link to="/notifications" @click="showNotifications = false">
+                            <a href="#" @click.prevent="navigateTo('/user/notifications'); showNotifications = false">
                                 Ver todas las notificaciones
-                            </router-link>
+                            </a>
                         </div>
                     </div>
                 </div>

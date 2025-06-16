@@ -8,6 +8,7 @@ import { useAuth } from "../../composables/useAuth"
 import { userService } from "../../services/user.service"
 import { ordenService } from "../../services/orden.service"
 import { useToast } from "../../services/toast.service"
+import { useNotificacionService } from "../../services/notificacion.service"
 import { config } from "../../config/config"
 import { useRouter, useRoute } from "vue-router"
 
@@ -21,6 +22,7 @@ import {
   TrashIcon,
   PlusIcon,
   LoaderIcon,
+  BellIcon,
 } from "lucide-vue-next"
 
 export default {
@@ -50,17 +52,21 @@ export default {
     const isUpdatingPassword = ref(false)
     const isLoading = ref(true)
     const isLoadingOrders = ref(false)
+    const isLoadingNotifications = ref(false)
     const error = ref(null)
     const ordersError = ref(null)
+    const notificationsError = ref(null)
     const toast = useToast()
     const auth = useAuth()
     const userData = ref(null)
     const router = useRouter()
     const route = useRoute()
-    const activeSection = ref(route.path.includes("orders") ? "orders" : "profile")
+    const activeSection = ref(route.path.includes("orders") ? "orders" : (route.path.includes("notifications") ? "notifications" : "profile"))
     const showPDFPopup = ref(false)
     const selectedOrderId = ref(null)
     const selectedOrder = ref(null)
+    const notifications = ref([])
+    const notificacionService = useNotificacionService()
 
     // Reemplazar el objeto user con un computed que use los datos completos
     const user = computed(() => ({
@@ -70,6 +76,7 @@ export default {
 
     const navItems = ref([
       { id: "orders", label: "Mis Pedidos", icon: PackageIcon },
+      { id: "notifications", label: "Notificaciones", icon: BellIcon },
       { id: "profile", label: "Mi Perfil", icon: UserIcon },
     ])
 
@@ -90,7 +97,14 @@ export default {
     watch(
       () => route.path,
       (newPath) => {
-        activeSection.value = newPath.includes("orders") ? "orders" : "profile"
+        if (newPath.includes("orders")) {
+          activeSection.value = "orders"
+        } else if (newPath.includes("notifications")) {
+          activeSection.value = "notifications"
+          loadNotifications()
+        } else {
+          activeSection.value = "profile"
+        }
       },
     )
 
@@ -226,14 +240,80 @@ export default {
       }
     }
 
+    // Formatear fecha para mostrar en notificaciones
+    const formatDate = (dateString) => {
+      const date = new Date(dateString)
+      const now = new Date()
+      const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24))
+
+      if (diffDays === 0) {
+        return "Hoy"
+      } else if (diffDays === 1) {
+        return "Ayer"
+      } else if (diffDays < 7) {
+        return `Hace ${diffDays} días`
+      } else {
+        return date.toLocaleDateString()
+      }
+    }
+    
+    // Cargar notificaciones del usuario
+    const loadNotifications = async () => {
+      if (!auth.isAuthenticated.value) {
+        return
+      }
+      
+      isLoadingNotifications.value = true
+      notificationsError.value = null
+      
+      try {
+        const response = await notificacionService.getNotificaciones()
+        if (response.success && response.data) {
+          notifications.value = response.data
+        } else {
+          notificationsError.value = "No se pudieron cargar las notificaciones"
+          toast.error("Error al cargar las notificaciones")
+        }
+      } catch (error) {
+        console.error("Error al cargar notificaciones:", error)
+        notificationsError.value = "Error al cargar las notificaciones"
+      } finally {
+        isLoadingNotifications.value = false
+      }
+    }
+    
+    // Marcar notificación como leída
+    const markAsRead = async (id) => {
+      try {
+        const response = await notificacionService.marcarComoLeida(id)
+        if (response.success) {
+          const notification = notifications.value.find(n => n.id === id)
+          if (notification) {
+            notification.leida = true
+          }
+          toast.success("Notificación marcada como leída")
+        }
+      } catch (error) {
+        console.error("Error al marcar notificación como leída:", error)
+        toast.error("Error al marcar notificación como leída")
+      }
+    }
+    
     // Cargar los datos del usuario cuando el componente se monta
     onMounted(() => {
       loadUserData()
+      
+      // Cargar notificaciones si estamos en la sección de notificaciones
+      if (activeSection.value === "notifications") {
+        loadNotifications()
+      }
     })
 
     const setActiveSection = (section) => {
       if (section === "orders") {
         router.push("/user/orders")
+      } else if (section === "notifications") {
+        router.push("/user/notifications")
       } else {
         router.push("/user/profile")
       }
@@ -631,6 +711,12 @@ export default {
       selectedOrderId,
       selectedOrder,
       openPDFPopup,
+      notifications,
+      isLoadingNotifications,
+      notificationsError,
+      loadNotifications,
+      markAsRead,
+      formatDate,
     }
   },
 }

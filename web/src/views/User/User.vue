@@ -48,18 +48,14 @@
         <div class="orders-controls">
           <div class="search-section">
             <div class="search-input-group">
-              <input 
-                type="text" 
-                v-model="searchQuery" 
-                placeholder="Buscar por número, producto, estado, fecha (dd/mm/yyyy) o total..."
-                class="search-input"
-              />
+              <input type="text" v-model="searchQuery"
+                placeholder="Buscar por número, producto, estado, fecha (dd/mm/yyyy) o total..." class="search-input" />
               <button v-if="searchQuery" @click="clearFilters" class="clear-button">
                 Limpiar
               </button>
             </div>
           </div>
-          
+
           <div class="filter-section">
             <div class="sort-controls">
               <select v-model="sortBy" class="sort-select">
@@ -67,11 +63,12 @@
                 <option value="total">Ordenar por total</option>
                 <option value="status">Ordenar por estado</option>
               </select>
-              <button @click="sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'" class="sort-order-button" :title="sortOrder === 'asc' ? 'Orden ascendente' : 'Orden descendente'">
+              <button @click="sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'" class="sort-order-button"
+                :title="sortOrder === 'asc' ? 'Orden ascendente' : 'Orden descendente'">
                 {{ sortOrder === 'asc' ? '↑' : '↓' }}
               </button>
             </div>
-            
+
             <div class="items-per-page">
               <label>Mostrar:</label>
               <select v-model="itemsPerPage" class="items-select">
@@ -118,40 +115,27 @@
                 <button class="details-button" @click="openPDFPopup(order.id)">Ver detalles</button>
               </div>
             </div>
-            
+
             <!-- Controles de paginación -->
             <div v-if="totalPages > 1" class="pagination">
               <div class="pagination-controls">
-                <button 
-                  @click="prevPage" 
-                  :disabled="currentPage === 1" 
-                  class="pagination-nav-button"
-                >
-                  ‹ 
+                <button @click="prevPage" :disabled="currentPage === 1" class="pagination-nav-button">
+                  ‹
                 </button>
-                
+
                 <div class="pagination-numbers">
-                  <button
-                    v-for="(page, index) in paginationNumbers"
-                    :key="index"
-                    @click="page !== '...' ? goToPage(page) : null"
-                    :class="{
+                  <button v-for="(page, index) in paginationNumbers" :key="index"
+                    @click="page !== '...' ? goToPage(page) : null" :class="{
                       'pagination-number': page !== '...',
                       'pagination-dots': page === '...',
                       'active': page === currentPage
-                    }"
-                    :disabled="page === '...'"
-                  >
+                    }" :disabled="page === '...'">
                     {{ page }}
                   </button>
                 </div>
-                
-                <button 
-                  @click="nextPage" 
-                  :disabled="currentPage === totalPages" 
-                  class="pagination-nav-button"
-                >
-                   ›
+
+                <button @click="nextPage" :disabled="currentPage === totalPages" class="pagination-nav-button">
+                  ›
                 </button>
               </div>
             </div>
@@ -168,7 +152,7 @@
             <PackageIcon class="empty-icon" />
             <h3>No tienes pedidos activos</h3>
             <p>Explora nuestra tienda y realiza tu primer pedido</p>
-            <router-link to="/Products" class="shop-button">Ir a la tienda</router-link> 
+            <router-link to="/Products" class="shop-button">Ir a la tienda</router-link>
           </div>
         </div>
 
@@ -203,51 +187,40 @@
                 <div class="order-total">
                   <span>Total:</span>
                   <span class="total-amount">{{ order.total }}</span>
-                </div>         
+                </div>
                 <button class="details-button" @click="openPDFPopup(order.id)">Ver detalles</button>
               </div>
             </div>
-            
+
             <!-- Controles de paginación -->
             <div v-if="totalPages > 1" class="pagination">
               <div class="pagination-controls">
-                <button 
-                  @click="prevPage" 
-                  :disabled="currentPage === 1" 
-                  class="pagination-nav-button"
-                >
+                <button @click="prevPage" :disabled="currentPage === 1" class="pagination-nav-button">
                   ‹ Anterior
                 </button>
-                
+
                 <div class="pagination-numbers">
-                  <button
-                    v-for="(page, index) in paginationNumbers"
-                    :key="index"
-                    @click="page !== '...' ? goToPage(page) : null"
-                    :class="{
+                  <button v-for="(page, index) in paginationNumbers" :key="index"
+                    @click="page !== '...' ? goToPage(page) : null" :class="{
                       'pagination-number': page !== '...',
                       'pagination-dots': page === '...',
                       'active': page === currentPage
-                    }"
-                    :disabled="page === '...'"
-                  >
+                    }" :disabled="page === '...'">
                     {{ page }}
                   </button>
                 </div>
-                
-                <button 
-                  @click="nextPage" 
-                  :disabled="currentPage === totalPages" 
-                  class="pagination-nav-button"
-                >
+
+                <button @click="nextPage" :disabled="currentPage === totalPages" class="pagination-nav-button">
                   Siguiente ›
                 </button>
               </div>
-              
+
               <div class="pagination-info">
-                Mostrando {{ ((currentPage - 1) * itemsPerPage) + 1 }} - 
-                {{ Math.min(currentPage * itemsPerPage, activeOrdersTab === 'active' ? filteredActiveOrders.length : filteredCompletedOrders.length) }} 
-                de {{ activeOrdersTab === 'active' ? filteredActiveOrders.length : filteredCompletedOrders.length }} pedidos
+                Mostrando {{ ((currentPage - 1) * itemsPerPage) + 1 }} -
+                {{ Math.min(currentPage * itemsPerPage, activeOrdersTab === 'active' ? filteredActiveOrders.length :
+                filteredCompletedOrders.length) }}
+                de {{ activeOrdersTab === 'active' ? filteredActiveOrders.length : filteredCompletedOrders.length }}
+                pedidos
               </div>
             </div>
           </div>
@@ -264,6 +237,47 @@
             <h3>No tienes pedidos finalizados</h3>
             <p>Tus pedidos completados aparecerán aquí</p>
           </div>
+        </div>
+      </div>
+
+      <!-- Sección de Notificaciones -->
+      <div v-if="activeSection === 'notifications'" class="content-section">
+        <h2 class="section-title">Mis Notificaciones</h2>
+
+        <div v-if="isLoadingNotifications" class="loading-state">
+          <LoaderIcon class="spinner" />
+          <p>Cargando notificaciones...</p>
+        </div>
+
+        <div v-else-if="notifications && notifications.length > 0" class="notifications-list">
+          <div v-for="notification in notifications" :key="notification.id" class="notification-card"
+            :class="{ 'unread': !notification.leida }">
+            <div class="notification-header">
+              <h3 class="notification-title">{{ notification.titulo }}</h3>
+              <span class="notification-date">{{ formatDate(notification.created_at) }}</span>
+            </div>
+            <div class="notification-body">
+              <p>{{ notification.mensaje }}</p>
+              <div v-if="notification.Orden" class="notification-order-info">
+                <span class="order-label">Orden #{{ notification.Orden.id }}</span>
+                <span class="order-status" :class="notification.Orden.status.toLowerCase()">
+                  {{ notification.Orden.status }}
+                </span>
+                <span class="order-amount">${{ notification.Orden.monto_total }}</span>
+              </div>
+            </div>
+            <div class="notification-actions">
+              <button v-if="!notification.leida" @click="markAsRead(notification.id)" class="read-button">
+                Marcar como leída
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div v-else class="empty-state">
+          <BellIcon class="empty-icon" />
+          <h3>No tienes notificaciones</h3>
+          <p>Las notificaciones sobre tus pedidos y ofertas aparecerán aquí</p>
         </div>
       </div>
 
@@ -338,11 +352,7 @@
   <div v-if="showPDFPopup" class="pdf-popup-overlay" @click="showPDFPopup = false">
     <div class="pdf-popup-content" @click.stop>
       <button class="close-button" @click="showPDFPopup = false">&times;</button>
-      <PDF 
-        class="related-products" 
-        :ordenId="selectedOrderId" 
-        :order="selectedOrder"
-      />
+      <PDF class="related-products" :ordenId="selectedOrderId" :order="selectedOrder" />
     </div>
   </div>
 </template>
