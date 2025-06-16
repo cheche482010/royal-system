@@ -19,6 +19,7 @@ import SesionRoutes from "./SesionRoutes.js"
 import BancoRoutes from "./BancoRoutes.js"
 import CouponUsadoRoutes from "./CouponUsadoRoutes.js"
 import EnvioRoutes from "./EnvioRoutes.js"
+import NotificacionRoutes from "./NotificacionRoutes.js"
 
 const router = express.Router()
 
@@ -48,5 +49,6 @@ router.use("/bancos", BancoRoutes)
 router.use("/coupons", CouponRoutes)
 router.use("/coupons-used", CouponUsadoRoutes)
 router.use("/envios", EnvioRoutes)
+router.use("/notificaciones", NotificacionRoutes)
 
 export default router

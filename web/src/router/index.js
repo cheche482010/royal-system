@@ -5,12 +5,12 @@ import { authService } from '../services/auth.service'
 const routes = [
   {
     path: '/',
-    redirect: '/home', 
+    redirect: '/home',
   },
   {
     path: '/home',
     name: 'Home',
-    component: () => import('@/views/Home/Home.vue'), 
+    component: () => import('@/views/Home/Home.vue'),
   },
   {
     path: '/login',
@@ -28,7 +28,25 @@ const routes = [
     path: '/user',
     name: 'User',
     component: () => import('@/views/User/User.vue'),
-    meta: { requiresAuth: true } // Requiere autenticación
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: '',
+        redirect: 'profile' 
+      },
+      {
+        path: 'profile',
+        name: 'UserProfile',
+        component: () => import('@/views/User/User.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'orders',
+        name: 'UserOrders',
+        component: () => import('@/views/User/User.vue'),
+        meta: { requiresAuth: true }
+      }
+    ]
   },
   {
     path: '/cart',
@@ -58,7 +76,7 @@ const routes = [
     component: () => import('@/views/terms/terms.vue'),
   },
   {
-    path: '/:pathMatch(.*)*', 
+    path: '/:pathMatch(.*)*',
     name: '404',
     component: () => import('@/views/error/404/404.vue'),
   },
@@ -73,13 +91,13 @@ router.beforeEach(async (to, from, next) => {
   const storedUser = localStorage.getItem('user')
   const storedSessionToken = localStorage.getItem('session_token')
   const isAuthenticated = !!storedUser && !!storedSessionToken
-  
+
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!isAuthenticated) {
       next({ name: 'Login', query: { redirect: to.fullPath } })
       return
     }
-    
+
     try {
       const isValid = await authService.verifyToken(storedSessionToken)
       if (!isValid) {
@@ -88,25 +106,25 @@ router.beforeEach(async (to, from, next) => {
         localStorage.removeItem('user_token')
         localStorage.removeItem('session_token')
         localStorage.removeItem('session_active')
-        
+
         next({ name: 'Login', query: { redirect: to.fullPath } })
         return
       }
-      
+
       next()
     } catch (error) {
       console.error('Error al verificar token:', error)
       next({ name: 'Login', query: { redirect: to.fullPath } })
       return
     }
-  } 
+  }
   else if (to.matched.some(record => record.meta.requiresGuest)) {
     if (isAuthenticated) {
       next({ name: 'Home' })
       return
     }
     next()
-  } 
+  }
   else {
     // Rutas públicas
     next()

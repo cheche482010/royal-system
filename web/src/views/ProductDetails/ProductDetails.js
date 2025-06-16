@@ -8,7 +8,7 @@ import { useCartService } from "../../services/cart.service"
 import { config } from '../../config/config'
 import { useAuth } from "../../composables/useAuth"
 import { useToast } from "../../services/toast.service"
-import { useProductsService } from "../../services/products.service"
+import { useProductsService } from "../../services/products.service" 
 import { useDolarStore } from '../../stores/dolar'
 
 import { 
@@ -47,9 +47,9 @@ export default {
     const auth = useAuth()
     const toast = useToast()
     const cartService = useCartService()
-    const productsService = useProductsService()
     const dolarStore = useDolarStore()
     const dollarRate = computed(() => dolarStore.dollarRate)
+    const productsService = useProductsService()
 
     // Estado para la cantidad
     const quantity = ref(1)
@@ -70,20 +70,6 @@ export default {
     // Productos relacionados
     const relatedProductsdetails = ref([])
 
-    
-    onMounted(() => {
-      loadProductDetails()
-    })
-
-    watch(
-      () => route.params.id,
-      (newId) => {
-        if (newId) {
-          loadProductDetails()
-        }
-      },
-    )
-
     const loadProductDetails = async () => {
       loading.value = true
       error.value = null
@@ -95,8 +81,8 @@ export default {
           return
         }
 
-        const response = await apiService.getProductById(productId)
-
+        const response = await productsService.getProductById(productId) 
+    
         if (!response || !response.data) {
           throw new Error("No se pudo cargar el producto")
         }
@@ -115,22 +101,34 @@ export default {
           quantity: 1,
           inventory: Number.parseInt(data.Inventario?.cantidad_actual || 0),
           images: [data.producto_img],
+          stockStatus: data.Inventario?.estado || "Disponible"
         }
 
-        const productsResponse = await productsService.getAllProducts()
+        const query = ""
+        let categoriaId = null
+        let marcaId = null
 
-        if (productsResponse?.data) {
-          relatedProductsdetails.value = productsResponse.data
-            .filter((p) => p.id !== data.id)
-            .slice(0, 8)
-            .map((p) => ({
-              id: p.id,
-              name: p.nombre,
-              brand: p.Marca?.nombre || "Sin marca",
-              price: Number.parseFloat(p.precio_unidad),
-              image: p.producto_img,
-            }))
+        const productsResponse = await apiService.searchProducts(query, categoriaId, marcaId)
+        if (!productsResponse.success || !productsResponse.data) {
+          throw new Error("Respuesta inválida del servidor")
         }
+
+        relatedProductsdetails.value = productsResponse.data
+          .filter((p) => p.is_active && p.Inventario)
+          .map((p) => ({
+            id: p.id,
+            name: p.nombre,
+            brand: p.Marca?.nombre || "Sin marca",
+            price: p.precio_unidad,
+            image: p.producto_img,
+            subcategory: p.Categorium?.id?.toString(),
+            brandId: p.Marca?.id?.toString(),
+            description: p.descripcion,
+            inventario: p.Inventario,
+            isOutOfStock: p.Inventario.cantidad_actual === 0 || p.Inventario.estado === "Agotado",
+            stockStatus: p.Inventario.estado,
+            stockQuantity: p.Inventario.cantidad_actual,
+          }))
       } catch (err) {
         console.error("Error al cargar el producto:", err)
         error.value = err.message

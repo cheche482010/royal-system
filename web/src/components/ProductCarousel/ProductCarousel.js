@@ -76,17 +76,33 @@ export default {
       })
     }
 
-    // Ver detalles del producto
     const viewProductDetails = (product) => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+
       router.push({
         path: "/productdetails",
         query: { id: product.id },
       })
     }
 
+    const canAddToCart = (product) => {
+      return !product.isOutOfStock && product.stockQuantity > 0
+    }
+
     // Agregar al carrito
     const addToCart = async (product) => {
       try {
+
+        if (!canAddToCart(product)) {
+          toast.error("Este producto está agotado", {
+            title: "Producto no disponible",
+          })
+          return
+        }
+
         if (!cartService.isAuthenticated()) {
           toast.error("Debes iniciar sesión para agregar productos al carrito", {
             title: "Acceso denegado",
@@ -193,6 +209,7 @@ export default {
       formatPriceBs,
       dollarRate,
       filteredProducts,
+      canAddToCart,
     }
   },
 }

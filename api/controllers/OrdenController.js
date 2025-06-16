@@ -1,5 +1,6 @@
-import { Orden, Usuario, DetalleOrden, Producto, Carrito, Inventario } from "../models/index.js"
+import { Orden, Usuario, DetalleOrden, Producto, Carrito, Inventario, Envio } from "../models/index.js"
 import { sequelize } from "../config/database.js"
+import { crearNotificacionOrdenCreada, crearNotificacionCambioEstado } from "./NotificacionController.js"
 
 // Obtener todas las órdenes
 export const getAllOrdenes = async (req, res, next) => {
@@ -69,6 +70,10 @@ export const getOrdenesByUsuario = async (req, res, next) => {
       where: { usuario_id },
       include: [
         {
+          model: Usuario,
+          attributes: ["id", "nombre", "documento"],
+        },
+        {
           model: DetalleOrden,
           include: [
             {
@@ -76,6 +81,10 @@ export const getOrdenesByUsuario = async (req, res, next) => {
               attributes: ["id", "codigo", "nombre", "descripcion", "producto_img"],
             },
           ],
+        },
+        {
+          model: Envio,
+          attributes: ["id", "nombre_receptor", "direccion", "ciudad", "estado", "telefono"],
         },
       ],
       order: [["created_at", "DESC"]],
@@ -107,7 +116,7 @@ export const createOrden = async (req, res, next) => {
       include: [
         {
           model: Producto,
-          through: { attributes: ['cantidad'] },
+          through: { attributes: ["cantidad"] },
           include: [{ model: Inventario }],
         },
       ],
@@ -134,7 +143,7 @@ export const createOrden = async (req, res, next) => {
         monto_total: montoTotal,
         status: "Pendiente",
       },
-      { transaction }
+      { transaction },
     )
 
     // Crear detalles de la orden
@@ -147,7 +156,7 @@ export const createOrden = async (req, res, next) => {
             cantidad: producto.CarritoProducto.cantidad,
             precio: producto.precio_unidad,
           },
-          { transaction }
+          { transaction },
         )
 
         // Actualizar inventario
@@ -165,7 +174,7 @@ export const createOrden = async (req, res, next) => {
             cantidad_actual: inventario.cantidad_actual - producto.CarritoProducto.cantidad,
             estado: inventario.cantidad_actual - producto.CarritoProducto.cantidad <= 0 ? "Agotado" : inventario.estado,
           },
-          { transaction }
+          { transaction },
         )
       }
 
@@ -174,6 +183,9 @@ export const createOrden = async (req, res, next) => {
     }
 
     await transaction.commit()
+
+    // Crear notificaciones para administradores después de confirmar la transacción
+    await crearNotificacionOrdenCreada(orden)
 
     return res.status(201).json({ success: true, data: orden })
   } catch (error) {
@@ -198,7 +210,15 @@ export const updateOrdenStatus = async (req, res, next) => {
       return res.status(400).json({ success: false, message: "Invalid status" })
     }
 
+    // Guardar el estado anterior para comparar
+    const estadoAnterior = orden.status
+
     await orden.update({ status })
+
+    // Crear notificación solo si el estado cambió y no es "Pendiente"
+    if (estadoAnterior !== status && status !== "Pendiente") {
+      await crearNotificacionCambioEstado(orden, status)
+    }
 
     return res.status(200).json({ success: true, data: orden })
   } catch (error) {
@@ -252,7 +272,7 @@ export const cancelOrden = async (req, res, next) => {
           cantidad_actual: inventario.cantidad_actual + detalle.cantidad,
           estado: "Disponible",
         },
-        { transaction }
+        { transaction },
       )
     }
 
@@ -260,6 +280,9 @@ export const cancelOrden = async (req, res, next) => {
     await orden.update({ status: "Cancelada" }, { transaction })
 
     await transaction.commit()
+
+    // Crear notificación de cancelación
+    await crearNotificacionCambioEstado(orden, "Cancelada")
 
     return res.status(200).json({ success: true, message: "Orden cancelada correctamente" })
   } catch (error) {

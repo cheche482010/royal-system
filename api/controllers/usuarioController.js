@@ -50,9 +50,6 @@ export const getUsuarioById = async (req, res, next) => {
 // Create a new usuario
 export const createUsuario = async (req, res, next) => {
   try {
-    console.log("Request body:", req.body)
-    console.log("Request files:", req.files)
-
     const {
       documento,
       nombre,

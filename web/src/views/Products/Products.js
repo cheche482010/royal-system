@@ -21,6 +21,7 @@ import {
   ChevronRightIcon,
   SearchXIcon,
   EyeIcon,
+  SearchIcon,
 } from "lucide-vue-next"
 import { useToast } from "../../services/toast.service"
 
@@ -39,6 +40,7 @@ export default {
     ChevronRightIcon,
     SearchXIcon,
     EyeIcon,
+    SearchIcon,
     Header,
     Footer,
   },
@@ -78,6 +80,7 @@ export default {
 
     const products = ref([])
 
+    const searchQuery = ref("")
     const selectedSubcategories = ref([])
     const selectedBrands = ref([])
     const selectedRatings = ref([])
@@ -113,20 +116,20 @@ export default {
         // Transformar los productos para que coincidan con el formato esperado
         // y filtrar aquellos con inventario en 0
         products.value = response.data
-          .filter((p) => p.is_active && p.Inventario && p.Inventario.cantidad_actual > 0)
+          .filter((p) => p.is_active && p.Inventario)
           .map((p) => ({
             id: p.id,
             name: p.nombre,
             brand: p.Marca?.nombre || "Sin marca",
             price: p.precio_unidad,
-            originalPrice: null, // Por ahora no manejamos precios originales
-            rating: 5, // Por ahora hardcoded hasta implementar sistema de ratings
-            reviews: Math.floor(Math.random() * 2000), // Por ahora random hasta implementar sistema de reviews
             image: p.producto_img,
             subcategory: p.Categorium?.id?.toString(),
             brandId: p.Marca?.id?.toString(),
             description: p.descripcion,
             inventario: p.Inventario,
+            isOutOfStock: p.Inventario.cantidad_actual === 0 || p.Inventario.estado === "Agotado",
+            stockStatus: p.Inventario.estado,
+            stockQuantity: p.Inventario.cantidad_actual,
           }))
       } catch (error) {
         console.error("Error al cargar productos:", error)
@@ -144,6 +147,14 @@ export default {
     // Productos filtrados
     const filteredProducts = computed(() => {
       let result = [...products.value]
+
+      // Filtrar por búsqueda de nombre
+      if (searchQuery.value.trim() !== "") {
+        const query = searchQuery.value.toLowerCase().trim()
+        result = result.filter((product) =>
+          product.name.toLowerCase().includes(query)
+        )
+      }
 
       // Filtrar por rating
       if (selectedRatings.value.length > 0) {
@@ -173,11 +184,22 @@ export default {
           // En un caso real, ordenaríamos por fecha
           result.reverse()
           break
+        case "availability":
+          result.sort((a, b) => {
+            if (a.stockStatus === b.stockStatus) return 0;
+            const statusOrder = {
+              'Disponible': 1,
+              'Reservado': 2,
+              'Agotado': 3
+            };
+            return statusOrder[a.stockStatus] - statusOrder[b.stockStatus];
+          });
+          break
         default:
           // Relevancia (por defecto)
           break
       }
-
+    
       return result
     })
 
@@ -219,11 +241,17 @@ export default {
     })
 
     const clearFilters = () => {
+      searchQuery.value = ""
       selectedSubcategories.value = []
       selectedBrands.value = []
       selectedRatings.value = []
       priceRange.value = { min: null, max: null }
       sortOption.value = "relevance"
+      currentPage.value = 1
+    }
+
+    const applySearch = () => {
+      // Resetear página actual al buscar
       currentPage.value = 1
     }
 
@@ -250,9 +278,20 @@ export default {
       })
     }
 
-    // Agregar al carrito
+    const canAddToCart = (product) => {
+      return !product.isOutOfStock && product.stockQuantity > 0
+    }
+
     const addToCart = async (product) => {
       try {
+        // Verificar stock antes de continuar
+        if (!canAddToCart(product)) {
+          toast.error("Este producto está agotado", {
+            title: "Producto no disponible",
+          })
+          return
+        }
+
         // Verificar si el usuario está autenticado
         if (!cartService.isAuthenticated()) {
           // Si no está autenticado, mostrar mensaje y redirigir a login
@@ -337,6 +376,7 @@ export default {
       ratings,
       filteredProducts,
       paginatedProducts,
+      searchQuery,
       selectedSubcategories,
       selectedBrands,
       selectedRatings,
@@ -348,12 +388,14 @@ export default {
       paginationPages,
       clearFilters,
       applyPriceFilter,
+      applySearch,
       viewProductDetails,
       addToCart,
       formatPrice,
       toast,
       formatPriceBs,
       dollarRate,
+      canAddToCart,
     }
   },
 }

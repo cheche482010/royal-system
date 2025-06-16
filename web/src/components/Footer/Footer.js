@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue';
 import { config } from '../../config/config';
+import { useRouter } from "vue-router"
 import { 
   FacebookIcon, 
   InstagramIcon, 
@@ -33,7 +34,8 @@ export default {
   },
   setup() {
     const email = ref('');
-    
+    const router = useRouter()
+
     const currentYear = computed(() => {
       return new Date().getFullYear();
     });
@@ -44,10 +46,15 @@ export default {
       email.value = '';
     };
 
+    const navigateTo = (route) => {
+      router.push(route)
+    }
+
     return {
       email,
       currentYear,
-      subscribeNewsletter
+      subscribeNewsletter,
+      navigateTo
     };
   }
 };

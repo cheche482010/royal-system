@@ -109,7 +109,7 @@
       <ShoppingCartIcon class="empty-icon" />
       <h2 class="empty-title">Tu carrito está vacío</h2>
       <p class="empty-message">Parece que aún no has añadido productos a tu carrito</p>
-      <router-link to="/" class="continue-shopping">Continuar comprando</router-link>
+      <router-link to="/Products" class="continue-shopping">Continuar comprando</router-link>
     </div>
 
     <ProductCarousel v-if="featuredProducts.length > 0" title="También te puede interesar"
