@@ -66,6 +66,7 @@ export default {
     const user = computed(() => ({
       name: userData.value?.nombre || auth.userName,
       email: userData.value?.correo || auth.user.value?.correo || "",
+      role: userData.value?.role || auth.user.value?.role || "",
     }))
 
     const navItems = ref([
@@ -105,8 +106,15 @@ export default {
 
       try {
         const token = auth.sessionToken.value
-        const response = await ordenService.getOrdenesByUsuario(auth.userId.value, token)
+        let response;
         
+        if (user.value?.role === 'Admin') {
+          response = await ordenService.getAllOrdenes()
+        } else {
+          response = await ordenService.getOrdenesByUsuario(auth.userId.value, token)
+        }
+        
+
         if (response.success && response.data) {
           // Transformar los datos de la API al formato que espera la UI
           orders.value = response.data.map((orden) => {
@@ -122,7 +130,7 @@ export default {
               statusText = "Cancelado"
             } else if (orden.status === "Pendiente") {
               status = "shipped"
-              statusText = "Pediente"
+              statusText = "Pendiente"
             }
 
             // Formatear la fecha
