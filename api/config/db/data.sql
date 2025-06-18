@@ -1,8 +1,8 @@
 -- Insertar datos de prueba en la tabla usuarios
 INSERT INTO usuarios (documento, documento_img, nombre, direccion, registro_mercantil_img, correo, telefono, user_password, role, token) VALUES
-('V-12345678', '/uploads/user/doc1.jpg', 'Juan Pérez', 'Calle Principal 123, Caracas', '/uploads/user/reg1.jpg', 'juan@example.com', '+584141234567', '$2a$10$abcdefghijklmnopqrstuv', 'Admin', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'),
-('J-87654321', '/uploads/user/doc2.jpg', 'María Rodríguez', 'Avenida Libertador 456, Maracaibo', '/uploads/user/reg2.jpg', 'maria@example.com', '+584261234567', '$2a$10$vwxyzabcdefghijklmnopq', 'Employee', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ0'),
-('V-98765432', '/uploads/user/doc3.jpg', 'Carlos Gómez', 'Urbanización El Paraíso 789, Valencia', '/uploads/user/reg3.jpg', 'carlos@example.com', '+584161234567', '$2a$10$rstuvwxyzabcdefghijklm', 'Customer', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ1');
+('V-12345678', '/uploads/user/doc1.jpg', 'Juan Pérez', 'Calle Principal 123, Caracas', '/uploads/user/reg1.jpg', 'juan@example.com', '+584141234567', '$2b$10$zkei561XvBFKk8bwKiGyLuG797NXZL0zRWx8RY.Ip/R1psEojq6mO', 'Admin', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'),
+('J-87654321', '/uploads/user/doc2.jpg', 'María Rodríguez', 'Avenida Libertador 456, Maracaibo', '/uploads/user/reg2.jpg', 'maria@example.com', '+584261234567', '$2b$10$zkei561XvBFKk8bwKiGyLuG797NXZL0zRWx8RY.Ip/R1psEojq6mO', 'Employee', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ0'),
+('V-98765432', '/uploads/user/doc3.jpg', 'Carlos Gómez', 'Urbanización El Paraíso 789, Valencia', '/uploads/user/reg3.jpg', 'carlos@example.com', '+584161234567', '$2b$10$zkei561XvBFKk8bwKiGyLuG797NXZL0zRWx8RY.Ip/R1psEojq6mO', 'Customer', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ1');
 
 -- Insertar datos de prueba en la tabla sesiones
 INSERT INTO sesiones (usuario_id, token, ip, expiracion, agente_usuario) VALUES
@@ -65,33 +65,10 @@ INSERT INTO historial_precios (producto_id, precio_unidad, precio_tienda, precio
 (7, 130.00, 100.00, 85.00, '2022-12-01'),
 (8, 130.00, 100.00, 85.00, '2022-12-01');
 
--- Insertar datos de prueba en la tabla ordenes
-INSERT INTO ordenes (usuario_id, monto_total, status) VALUES
-(3, 859.97, 'Completa'),
-(2, 149.99, 'Pendiente'),
-(1, 29.99, 'Completa');
-
--- Insertar datos de prueba en la tabla detalles_orden
-INSERT INTO detalles_orden (orden_id, producto_id, cantidad, precio) VALUES
-(1, 1, 1, 799.99),
-(1, 2, 2, 29.99),
-(2, 3, 1, 149.99),
-(3, 2, 1, 29.99);
-
 -- Insertar datos de prueba en la tabla metodos_pago
 INSERT INTO metodos_pago (nombre, descripcion) VALUES
 ('Transferencia Bancaria', 'Pago mediante transferencia a cuenta bancaria'),
 ('Pago Móvil', 'Pago mediante aplicación de pago móvil');
-
--- Insertar datos de prueba en la tabla pagos
-INSERT INTO pagos (orden_id, metodo_pago_id, fecha, comprobante_img, numero_referencia, monto) VALUES
-(1, 1, '2023-04-15 10:30:00', '/uploads/receipt/pago_test.webp', '123456', 859.97);
-
--- Insertar datos de prueba en la tabla facturas
-INSERT INTO facturas (orden_id, numero_factura, fecha_emision, subtotal) VALUES
-(1, 'FAC-2023-001', '2023-04-15', 859.97),
-(2, 'FAC-2023-002', '2023-04-16', 149.99),
-(3, 'FAC-2023-003', '2023-04-17', 29.99);
 
 -- Insertar datos de prueba en la tabla bitacora
 INSERT INTO bitacora (usuario_id, fecha, hora, accion) VALUES
@@ -134,36 +111,8 @@ INSERT INTO bancos (id, codigo, nombre_banco) VALUES
 (27, '0191', 'Banco Nacional de Crédito C.A.'),
 (28, '0601', 'Instituto Municipal de Crédito Popular');
 
--- Insertar datos de prueba en la tabla carrito
-INSERT INTO carrito (usuario_id, is_active) VALUES
-(1, 1), -- Carrito para Juan Pérez (Admin)
-(2, 1), -- Carrito para María Rodríguez (Employee)
-(3, 1); -- Carrito para Carlos Gómez (Customer)
-
--- Insertar datos de prueba en la tabla carrito_producto
--- Productos en el carrito de Juan Pérez (Admin)
-INSERT INTO carrito_producto (carrito_id, producto_id, cantidad) VALUES
-(1, 1, 2), -- 2 unidades de BRIT DIETA BETERINARIA HYPOALLERGENIC 2KG
-(1, 3, 1), -- 1 unidad de BRIT DIETA BETERINARIA HEPATIC 2KG
-(1, 6, 1); -- 1 unidad de BRIT DIETA BETERINARIA GASTROINTESTINAL 12KG
-
--- Productos en el carrito de María Rodríguez (Employee)
-INSERT INTO carrito_producto (carrito_id, producto_id, cantidad) VALUES
-(2, 2, 3), -- 3 unidades de BRIT DIETA BETERINARIA GASTROINTESTINAL 2KG
-(2, 5, 2); -- 2 unidades de BRIT DIETA BETERINARIA STRUVITE 2KG
-
--- Productos en el carrito de Carlos Gómez (Customer)
-INSERT INTO carrito_producto (carrito_id, producto_id, cantidad) VALUES
-(3, 7, 1), -- 1 unidad de BRIT DIETA BETERINARIA HYPOALLERGENIC 12KG
-(3, 4, 2), -- 2 unidades de BRIT DIETA BETERINARIA RENAL 2KG
-(3, 8, 1); -- 1 unidad de BRIT DIETA BETERINARIA RENAL 12KG
-
 -- Insertar datos de prueba en la tabla cupones
 INSERT INTO coupons (codigo, descuento, tipo_descuento, fecha_inicio, fecha_fin, max_usos) VALUES
 ('CUPON1', '10', 'porcentaje', '2023-04-01 00:00:00', '2023-04-30 23:59:59', 10),
 ('CUPON2', '20', 'monto_fijo', '2023-04-01 00:00:00', '2023-04-30 23:59:59', 5),
 ('CUPON3', '15', 'porcentaje', '2023-04-01 00:00:00', '2023-04-30 23:59:59', 15);
-
--- Insertar datos de prueba en la tabla cupones_usados
-INSERT INTO cupones_usados (cupon_id, usuario_id, orden_id, fecha_uso) VALUES
-(1, 1, 1, '2023-04-15 10:30:00');
