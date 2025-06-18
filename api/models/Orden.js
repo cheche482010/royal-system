@@ -14,20 +14,20 @@ const Orden = sequelize.define(
       allowNull: false,
       comment: "ID del usuario que realizó la orden",
     },
-    monto_total: {
-      type: DataTypes.DECIMAL(10, 2),
-      allowNull: false,
-      comment: "Monto total de la orden en dólares",
-    },
-    monto_total_bs: {
-      type: DataTypes.DECIMAL(10, 2),
-      allowNull: true,
-      comment: "Monto total de la orden en bolívares",
-    },
     status: {
       type: DataTypes.ENUM("Pendiente", "Completa", "Cancelada"),
       defaultValue: "Pendiente",
       comment: "Estado de la orden",
+    },
+    is_active: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      comment: "Indica si la orden está activa",
+    },
+    is_delete: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      comment: "Indica si la orden ha sido marcada como eliminada",
     },
   },
   {

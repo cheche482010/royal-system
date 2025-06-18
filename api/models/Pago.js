@@ -30,14 +30,19 @@ const Pago = sequelize.define(
       comment: "Ruta de la imagen del comprobante de pago",
     },
     numero_referencia: {
-      type: DataTypes.STRING(50),
+      type: DataTypes.STRING(6),
       allowNull: true,
       comment: "Número de referencia del pago",
     },
-    monto: {
+    monto_total: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
-      comment: "Monto pagado",
+      comment: "Monto pagado en dólares (cantidad de productos * precio del producto)",
+    },
+    monto_total_bs: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      comment: "Monto pagado en bolívares ((monto total en dólares * tasa de cambio))",
     },
     is_active: {
       type: DataTypes.BOOLEAN,

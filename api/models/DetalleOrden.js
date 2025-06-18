@@ -24,15 +24,15 @@ const DetalleOrden = sequelize.define(
       allowNull: false,
       comment: "Cantidad del producto",
     },
-    precio: {
+    tipo_precio: {
+      type: DataTypes.ENUM("unidad", "tienda", "distribuidor"),
+      allowNull: false,
+      comment: "Tipo de precio aplicado al producto",
+    },
+    precio_bs: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
-      comment: "Precio unitario al momento de la compra en dólares",
-    },
-    precio_total_bs: {
-      type: DataTypes.DECIMAL(10, 2),
-      allowNull: true,
-      comment: "Precio total del producto en bolívares (precio * cantidad * tasa)",
+      comment: "Precio del producto en bolívares ((precio del producto * cantidad de productos)) * tasa_cambio",
     },
   },
   {
