@@ -11,6 +11,15 @@ export const getAllOrdenes = async (req, res, next) => {
           model: Usuario,
           attributes: ["id", "nombre", "correo"],
         },
+        {
+          model: DetalleOrden,
+          include: [
+            {
+              model: Producto,
+              attributes: ["id", "codigo", "nombre", "descripcion", "producto_img"],
+            },
+          ],
+        },
       ],
       order: [["created_at", "DESC"]],
     })
