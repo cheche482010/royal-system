@@ -106,7 +106,7 @@ export default {
       try {
         const token = auth.sessionToken.value
         const response = await ordenService.getOrdenesByUsuario(auth.userId.value, token)
-
+        
         if (response.success && response.data) {
           // Transformar los datos de la API al formato que espera la UI
           orders.value = response.data.map((orden) => {
@@ -122,7 +122,7 @@ export default {
               statusText = "Cancelado"
             } else if (orden.status === "Pendiente") {
               status = "shipped"
-              statusText = "Enviado"
+              statusText = "Pediente"
             }
 
             // Formatear la fecha
@@ -140,6 +140,7 @@ export default {
               statusText: statusText,
               total: totalFormateado,
               isCompleted: orden.status === "Completa",
+              envio: orden.Envio,
               products:
                 orden.DetalleOrdens?.map((detalle) => {
                   const price = Number.parseFloat(detalle.precio);

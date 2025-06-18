@@ -64,7 +64,7 @@ export default {
 
     const shipping = computed(() => {
       const subtotalValue = cartItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
-      return subtotalValue >= 59 ? "Gratis" : formatPrice(4.99)
+      return subtotalValue >= 1 ? "Gratis" : formatPrice(4.99)
     })
 
     const discount = computed(() => {
@@ -77,7 +77,7 @@ export default {
 
     const totalBs = computed(() => {
       const rate = dollarRate.value?._value || dollarRate.value 
-      if (!rate) return '--.-- BS'
+      if (!rate) return '--.-- Bs'
       
       let totalValue = cartItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
       
@@ -91,8 +91,26 @@ export default {
       return (totalValue * rate.toFixed(2))
         .toFixed(2)
         .replace('.', ',')
-        .replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' BS'
+        .replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' Bs'
     })
+
+    const formatPriceBs = (price) => {
+      const rate = dollarRate.value?._value || dollarRate.value
+
+      const numericPrice = typeof price === "string" ? Number.parseFloat(price.replace(",", ".")) : Number(price)
+
+      if (!rate || isNaN(numericPrice)) {
+        return "--.-- BS"
+      }
+
+      const totalBs =
+        (numericPrice * Number(rate).toFixed(2))
+          .toFixed(2)
+          .replace(".", ",")
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " Bs"
+
+      return totalBs
+    }
 
     const total = computed(() => {
       let totalValue = cartItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
@@ -300,6 +318,7 @@ export default {
       checkout,
       applyPromoCode,
       removePromoCode,
+      formatPriceBs,
       totalBs,
       dollarRate
     }

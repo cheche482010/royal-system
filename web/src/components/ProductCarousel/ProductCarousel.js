@@ -186,7 +186,7 @@ export default {
         (numericPrice * Number(rate).toFixed(2))
           .toFixed(2)
           .replace(".", ",")
-          .replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " BS"
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " Bs"
 
       return totalBs
     }
