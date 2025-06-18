@@ -84,7 +84,7 @@ export const getDetallesByOrden = async (req, res, next) => {
 // Crear un nuevo detalle de orden
 export const createDetalleOrden = async (req, res, next) => {
   try {
-    const { orden_id, producto_id, cantidad, precio } = req.body
+    const { orden_id, producto_id, cantidad, tipo_precio, precio_bs } = req.body
 
     // Verificar si la orden existe
     const orden = await Orden.findByPk(orden_id)
@@ -106,20 +106,19 @@ export const createDetalleOrden = async (req, res, next) => {
       orden_id,
       producto_id,
       cantidad,
-      precio: precio || producto.precio_unidad,
+      tipo_precio,
+      precio_bs,
     })
 
     // Actualizar el monto total de la orden
-    const detalles = await DetalleOrden.findAll({
-      where: { orden_id },
-    })
+    const detalles = await DetalleOrden.findAll({ where: { orden_id } })
 
-    let montoTotal = 0
+    let montoTotalBs = 0
     for (const item of detalles) {
-      montoTotal += item.precio * item.cantidad
+      montoTotalBs += Number(item.precio_bs)
     }
 
-    await orden.update({ monto_total: montoTotal })
+    await orden.update({ monto_total_bs: montoTotalBs })
 
     return res.status(201).json({ success: true, data: detalle })
   } catch (error) {

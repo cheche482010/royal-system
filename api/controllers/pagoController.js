@@ -111,7 +111,8 @@ export const createPago = async (req, res, next) => {
       metodo_pago_id,
       fecha,
       numero_referencia,
-      monto,
+      monto_total,
+      monto_total_bs,
       nombre_receptor,
       direccion,
       ciudad,
@@ -208,7 +209,8 @@ export const createPago = async (req, res, next) => {
       fecha: fecha || new Date(),
       comprobante_img,
       numero_referencia,
-      monto,
+      monto_total,
+      monto_total_bs,
     });
 
     // Actualizar el estado de la orden si es necesario

@@ -101,7 +101,7 @@ export const createOrden = async (req, res, next) => {
   const transaction = await sequelize.transaction()
 
   try {
-    const { usuario_id } = req.body
+    const { usuario_id, monto_total, monto_total_bs } = req.body
 
     // Verificar si el usuario existe
     const usuario = await Usuario.findByPk(usuario_id, { transaction })
@@ -128,19 +128,12 @@ export const createOrden = async (req, res, next) => {
       return res.status(400).json({ success: false, message: "El carrito está vacío" })
     }
 
-    // Calcular monto total
-    let montoTotal = 0
-    for (const item of carritoItems) {
-      for (const producto of item.Productos) {
-        montoTotal += producto.precio_unidad * producto.CarritoProducto.cantidad
-      }
-    }
-
     // Crear la orden
     const orden = await Orden.create(
       {
         usuario_id,
-        monto_total: montoTotal,
+        monto_total: monto_total,
+        monto_total_bs: monto_total_bs,
         status: "Pendiente",
       },
       { transaction },
@@ -153,8 +146,9 @@ export const createOrden = async (req, res, next) => {
           {
             orden_id: orden.id,
             producto_id: producto.id,
+            tipo_precio: producto.tipo_precio,
             cantidad: producto.CarritoProducto.cantidad,
-            precio: producto.precio_unidad,
+            precio_bs: producto.precio_unidad,
           },
           { transaction },
         )
