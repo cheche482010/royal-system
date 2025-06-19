@@ -131,14 +131,14 @@ export default {
             let statusText = "En Proceso"
 
             if (orden.status === "Completa") {
-              status = "delivered"
+              status = orden.status
               statusText = "Entregado"
             } else if (orden.status === "Cancelada") {
               status = "cancelled"
-              statusText = "Cancelado"
+              statusText = orden.status
             } else if (orden.status === "Pendiente") {
               status = "shipped"
-              statusText = "Enviado"
+              statusText = orden.status
             }
 
             // Formatear la fecha
