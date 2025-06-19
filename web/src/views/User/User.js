@@ -67,6 +67,8 @@ export default {
     const selectedOrder = ref(null)
     const notifications = ref([])
     const notificacionService = useNotificacionService()
+    const showComprobantePopup = ref(false)
+    const comprobanteImgUrl = ref("")
 
     // Reemplazar el objeto user con un computed que use los datos completos
     const user = computed(() => ({
@@ -143,8 +145,9 @@ export default {
             const fecha = new Date(orden.created_at)
             const fechaFormateada = `${fecha.getDate().toString().padStart(2, "0")}/${(fecha.getMonth() + 1).toString().padStart(2, "0")}/${fecha.getFullYear()}`
 
-            // Formatear el total
-            const totalFormateado = `${Number.parseFloat(orden.monto_total).toFixed(2)}$`
+            // Formatear los totales
+            const montoTotal = orden.Pagos?.[0]?.monto_total || "0.00"
+            const montoTotalBs = orden.Pagos?.[0]?.monto_total_bs || "0.00"
 
             return {
               id: orden.id,
@@ -152,22 +155,27 @@ export default {
               date: fechaFormateada,
               status: status,
               statusText: statusText,
-              total: totalFormateado,
+              total: `${parseFloat(montoTotal).toFixed(2)}$`,
+              totalBs: formatBs(montoTotalBs),
               isCompleted: orden.status === "Completa",
               products:
                 orden.DetalleOrdens?.map((detalle) => {
-                  const price = Number.parseFloat(detalle.precio);
-                  const quantity = detalle.cantidad;
-                  const total = (price * quantity).toFixed(2);
+                  const price = Number.parseFloat(detalle.Producto?.precio_producto || "0")
+                  const quantity = detalle.cantidad
+                  const total = (price * quantity).toFixed(2)
+                  const precioBs = detalle.precio_bs || "0.00"
                   return {
                     id: detalle.producto_id,
                     name: detalle.Producto?.nombre || "Producto",
                     price: `${price.toFixed(2)}$`,
-                    quantity: detalle.cantidad,
+                    quantity: quantity,
+                    tipoPrecio: detalle.tipo_precio,
                     total: `${total}$`,
+                    totalPagado: formatBs(precioBs),
                     image: `${config.API_BASE_URL}${detalle.Producto?.producto_img}` || "https://placehold.co/200x200",
                   }
                 }) || [],
+              Pagos: orden.Pagos,
             }
           })
         } else {
@@ -238,6 +246,16 @@ export default {
       } finally {
         isLoading.value = false
       }
+    }
+
+    // Función para formatear montos en Bs
+    function formatBs(amount) {
+      if (!amount) return "0,00 Bs"
+      return (
+        Number(amount)
+          .toLocaleString("es-VE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) +
+        " Bs"
+      )
     }
 
     // Formatear fecha para mostrar en notificaciones
@@ -668,6 +686,15 @@ export default {
       showPDFPopup.value = true
     }
 
+    function openComprobantePopup(order) {
+      // Toma el primer pago, puedes ajustar si hay varios pagos
+      const pago = order.Pagos?.[0]
+      if (pago && pago.comprobante_img) {
+        comprobanteImgUrl.value = config.API_BASE_URL + "/" + pago.comprobante_img.replace(/\\/g, "/")
+        showComprobantePopup.value = true
+      }
+    }
+
     // Agregar las nuevas propiedades y métodos al return
     return {
       activeSection,
@@ -718,6 +745,9 @@ export default {
       loadNotifications,
       markAsRead,
       formatDate,
+      showComprobantePopup,
+      comprobanteImgUrl,
+      openComprobantePopup,
     }
   },
 }

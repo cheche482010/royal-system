@@ -103,6 +103,7 @@
                     <div class="product-price">{{ product.price }}</div>
                     <div class="product-quantity">Cantidad: {{ product.quantity }}</div>
                     <div class="product-total">Total: {{ product.total }}</div>
+                    <div class="product-total-pagado">Total pagado: {{ product.totalPagado }}</div>
                   </div>
                 </div>
               </div>
@@ -111,8 +112,18 @@
                 <div class="order-total">
                   <span>Total:</span>
                   <span class="total-amount">{{ order.total }}</span>
+                  <div class="total-amount-bs">
+                    <span>Monto pagado:</span>
+                    <span class="total-amount">{{ order.totalBs }}</span>
+                  </div>
                 </div>
-                <button class="details-button" @click="openPDFPopup(order.id)">Ver detalles</button>
+                <div class="button-container">
+                  <button v-if="order.Pagos && order.Pagos[0] && order.Pagos[0].comprobante_img"
+                    class="comprobante-button" @click="openComprobantePopup(order)" style="margin-right: 10px;">
+                    Ver comprobante
+                  </button>
+                  <button class="details-button" @click="openPDFPopup(order.id)">Ver detalles</button>
+                </div>
               </div>
             </div>
 
@@ -178,7 +189,9 @@
                     <div class="product-name">{{ product.name }}</div>
                     <div class="product-price">{{ product.price }}</div>
                     <div class="product-quantity">Cantidad: {{ product.quantity }}</div>
+                    <div class="product-tipo-precio">Tipo de precio: {{ product.tipoPrecio }}</div>
                     <div class="product-total">Total: {{ product.total }}</div>
+                    <div class="product-total-pagado">Total pagado: {{ product.totalPagado }}</div>
                   </div>
                 </div>
               </div>
@@ -187,6 +200,10 @@
                 <div class="order-total">
                   <span>Total:</span>
                   <span class="total-amount">{{ order.total }}</span>
+                  <div class="total-amount-bs">
+                    <span>Monto pagado:</span>
+                    <span>{{ order.totalBs }}</span>
+                  </div>
                 </div>
                 <button class="details-button" @click="openPDFPopup(order.id)">Ver detalles</button>
               </div>
@@ -218,7 +235,7 @@
               <div class="pagination-info">
                 Mostrando {{ ((currentPage - 1) * itemsPerPage) + 1 }} -
                 {{ Math.min(currentPage * itemsPerPage, activeOrdersTab === 'active' ? filteredActiveOrders.length :
-                filteredCompletedOrders.length) }}
+                  filteredCompletedOrders.length) }}
                 de {{ activeOrdersTab === 'active' ? filteredActiveOrders.length : filteredCompletedOrders.length }}
                 pedidos
               </div>
@@ -353,6 +370,15 @@
     <div class="pdf-popup-content" @click.stop>
       <button class="close-button" @click="showPDFPopup = false">&times;</button>
       <PDF class="related-products" :ordenId="selectedOrderId" :order="selectedOrder" />
+    </div>
+  </div>
+
+  <!-- Popup para comprobante -->
+  <div v-if="showComprobantePopup" class="pdf-popup-overlay" @click="showComprobantePopup = false">
+    <div class="pdf-popup-content" @click.stop>
+      <button class="close-button" @click="showComprobantePopup = false">&times;</button>
+      <img :src="comprobanteImgUrl" alt="Comprobante de pago"
+        style="max-width:100%;max-height:70vh;display:block;margin:auto;" />
     </div>
   </div>
 </template>
