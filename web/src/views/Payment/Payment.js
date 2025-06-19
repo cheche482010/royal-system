@@ -359,7 +359,7 @@ export default {
           formData.append("telefono", shippingInfo.value.phone)
 
           // Al crear el pago, enviar monto_total y monto_total_bs ya calculados
-          formData.append("monto_total", monto_total_bs)
+          formData.append("monto_total", monto_total)
           formData.append("monto_total_bs", monto_total_bs)
 
           // Procesar el pago con FormData para manejar el archivo

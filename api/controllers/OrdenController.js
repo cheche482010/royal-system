@@ -1,4 +1,14 @@
-import { Orden, Usuario, DetalleOrden, Producto, Carrito, Inventario, Envio } from "../models/index.js"
+import {
+  Orden,
+  Usuario,
+  DetalleOrden,
+  Producto,
+  Carrito,
+  Inventario,
+  Envio,
+  Pago,
+  MetodoPago
+} from "../models/index.js"
 import { sequelize } from "../config/database.js"
 import { crearNotificacionOrdenCreada, crearNotificacionCambioEstado } from "./NotificacionController.js"
 
@@ -76,10 +86,27 @@ export const getOrdenesByUsuario = async (req, res, next) => {
         },
         {
           model: DetalleOrden,
+          attributes: [
+            "id",
+            "producto_id",
+            "cantidad",
+            "tipo_precio",
+            "precio_bs",
+            "created_at",
+          ],
           include: [
             {
               model: Producto,
-              attributes: ["id", "codigo", "nombre", "descripcion", "producto_img"],
+              attributes: [
+                "id",
+                "codigo",
+                "nombre",
+                "descripcion",
+                "producto_img",
+                "precio_unidad",
+                "precio_tienda",
+                "precio_distribuidor"
+              ],
             },
           ],
         },
@@ -87,11 +114,60 @@ export const getOrdenesByUsuario = async (req, res, next) => {
           model: Envio,
           attributes: ["id", "nombre_receptor", "direccion", "ciudad", "estado", "telefono"],
         },
+        {
+          model: Pago,
+          attributes: [
+            "id",
+            "fecha",
+            "comprobante_img",
+            "numero_referencia",
+            "monto_total",
+            "monto_total_bs",
+            "is_active",
+            "is_delete",
+            "created_at",
+          ],
+          include: [
+            {
+              model: MetodoPago,
+              attributes: ["nombre", "descripcion"]
+            }
+          ]
+        }
       ],
       order: [["created_at", "DESC"]],
     })
 
-    return res.status(200).json({ success: true, data: ordenes })
+    const ordenesProcesadas = ordenes.map(orden => {
+      const detalleOrdens = orden.DetalleOrdens.map(detalle => {
+        let precio_producto = null
+
+        if (detalle.Producto) {
+          if (detalle.tipo_precio === "unidad") {
+            precio_producto = detalle.Producto.precio_unidad
+          } else if (detalle.tipo_precio === "tienda") {
+            precio_producto = detalle.Producto.precio_tienda
+          } else if (detalle.tipo_precio === "distribuidor") {
+            precio_producto = detalle.Producto.precio_distribuidor
+          }
+        }
+
+        const { precio_unidad, precio_tienda, precio_distribuidor, ...productoSinPrecios } = detalle.Producto ? detalle.Producto.toJSON() : {}
+        return {
+          ...detalle.toJSON(),
+          Producto: {
+            ...productoSinPrecios,
+            precio_producto
+          }
+        }
+      })
+      return {
+        ...orden.toJSON(),
+        DetalleOrdens: detalleOrdens
+      }
+    })
+
+    return res.status(200).json({ success: true, data: ordenesProcesadas })
   } catch (error) {
     next(error)
   }
@@ -104,12 +180,12 @@ export const createOrden = async (req, res, next) => {
     const {
       usuario_id,
       monto_total,
-      monto_total_bs, 
-      items 
+      monto_total_bs,
+      items
     } = req.body
-    
+
     const usuario = await Usuario.findByPk(usuario_id, { transaction })
-    
+
     if (!usuario) {
       await transaction.rollback()
       return res.status(404).json({ success: false, message: "Usuario not found" })

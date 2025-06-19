@@ -16,7 +16,7 @@ export const getNotificacionesByUsuario = async (req, res, next) => {
       include: [
         {
           model: Orden,
-          attributes: ["id", "monto_total", "monto_total_bs", "status"],
+          attributes: ["id", "status", "is_active", "is_delete"],
         },
       ],
       order: [["created_at", "DESC"]],
@@ -24,6 +24,7 @@ export const getNotificacionesByUsuario = async (req, res, next) => {
 
     return res.status(200).json({ success: true, data: notificaciones })
   } catch (error) {
+    console.error("Error al obtener notificaciones:", error)
     next(error)
   }
 }
