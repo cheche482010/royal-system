@@ -68,6 +68,7 @@ export const getOrdenesByUsuario = async (req, res, next) => {
 
     const ordenes = await Orden.findAll({
       where: { usuario_id },
+      attributes: ["id", "status", "is_active", "is_delete", "created_at"],
       include: [
         {
           model: Usuario,
@@ -99,11 +100,9 @@ export const getOrdenesByUsuario = async (req, res, next) => {
 // Crear una nueva orden desde el carrito
 export const createOrden = async (req, res, next) => {
   const transaction = await sequelize.transaction()
-
   try {
-    const { usuario_id, monto_total, monto_total_bs } = req.body
-
-    // Verificar si el usuario existe
+    const { usuario_id, monto_total, monto_total_bs, items } = req.body
+    console.log("body:", req.body)
     const usuario = await Usuario.findByPk(usuario_id, { transaction })
     if (!usuario) {
       await transaction.rollback()
@@ -128,53 +127,75 @@ export const createOrden = async (req, res, next) => {
       return res.status(400).json({ success: false, message: "El carrito está vacío" })
     }
 
-    // Crear la orden
+    // Crear la orden con los nuevos campos
     const orden = await Orden.create(
       {
         usuario_id,
-        monto_total: monto_total,
-        monto_total_bs: monto_total_bs,
+        monto_total,
+        monto_total_bs,
         status: "Pendiente",
+        is_active: true,
+        is_delete: false,
       },
       { transaction },
     )
 
-    // Crear detalles de la orden
-    for (const item of carritoItems) {
-      for (const producto of item.Productos) {
-        await DetalleOrden.create(
-          {
-            orden_id: orden.id,
-            producto_id: producto.id,
-            tipo_precio: producto.tipo_precio,
-            cantidad: producto.CarritoProducto.cantidad,
-            precio_bs: producto.precio_unidad,
-          },
-          { transaction },
-        )
+    // Crear detalles de la orden usando los datos enviados
+    for (const item of items) {
+      // Crear detalle de orden
+      await DetalleOrden.create(
+        {
+          orden_id: orden.id,
+          producto_id: item.producto_id,
+          cantidad: item.cantidad,
+          tipo_precio: item.tipo_precio,
+          precio_bs: item.precio_bs,
+        },
+        { transaction },
+      )
 
-        // Actualizar inventario
-        const inventario = producto.Inventario
-        if (inventario.cantidad_actual < producto.CarritoProducto.cantidad) {
-          await transaction.rollback()
-          return res.status(400).json({
-            success: false,
-            message: `Stock insuficiente para el producto ${producto.nombre}. Disponible: ${inventario.cantidad_actual}`,
-          })
-        }
-
-        await inventario.update(
-          {
-            cantidad_actual: inventario.cantidad_actual - producto.CarritoProducto.cantidad,
-            estado: inventario.cantidad_actual - producto.CarritoProducto.cantidad <= 0 ? "Agotado" : inventario.estado,
-          },
-          { transaction },
-        )
+      // Buscar el producto y su inventario
+      const producto = await Producto.findByPk(item.producto_id, {
+        include: [{ model: Inventario }],
+        transaction,
+      })
+      if (!producto) {
+        await transaction.rollback()
+        return res.status(404).json({
+          success: false,
+          message: `Producto con id ${item.producto_id} no encontrado.`,
+        })
+      }
+      const inventario = producto.Inventario
+      if (!inventario) {
+        await transaction.rollback()
+        return res.status(404).json({
+          success: false,
+          message: `Inventario no encontrado para el producto ${producto.nombre}.`,
+        })
+      }
+      if (inventario.cantidad_actual < item.cantidad) {
+        await transaction.rollback()
+        return res.status(400).json({
+          success: false,
+          message: `Stock insuficiente para el producto ${producto.nombre}. Disponible: ${inventario.cantidad_actual}`,
+        })
       }
 
-      // Marcar item del carrito como eliminado
-      await item.update({ is_delete: true, is_active: false }, { transaction })
+      await inventario.update(
+        {
+          cantidad_actual: inventario.cantidad_actual - item.cantidad,
+          estado: inventario.cantidad_actual - item.cantidad <= 0 ? "Agotado" : inventario.estado,
+        },
+        { transaction },
+      )
     }
+
+    // Marcar items del carrito como eliminados
+    await Carrito.update(
+      { is_delete: true, is_active: false },
+      { where: { usuario_id, is_delete: false, is_active: true }, transaction }
+    )
 
     await transaction.commit()
 
@@ -183,6 +204,7 @@ export const createOrden = async (req, res, next) => {
 
     return res.status(201).json({ success: true, data: orden })
   } catch (error) {
+    console.error("Error al crear la orden:", error)
     await transaction.rollback()
     next(error)
   }

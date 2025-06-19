@@ -203,6 +203,7 @@ export const createPago = async (req, res, next) => {
     // Guardar la ruta relativa del archivo
     const comprobante_img = path.relative(path.join(__dirname, ".."), filePath);
 
+    // Crear el pago con los nuevos campos
     const pago = await Pago.create({
       orden_id,
       metodo_pago_id,
@@ -211,6 +212,8 @@ export const createPago = async (req, res, next) => {
       numero_referencia,
       monto_total,
       monto_total_bs,
+      is_active: true,
+      is_delete: false,
     });
 
     // Actualizar el estado de la orden si es necesario

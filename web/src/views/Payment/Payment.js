@@ -122,6 +122,7 @@ export default {
           }
         } else {
           const cartItems = await cartService.getCartItems()
+
           orderItems.value = cartItems.map((item) => ({
             id: item.id,
             name: item.name,
@@ -170,11 +171,6 @@ export default {
 
     const totalBs = computed(() => {
       let totalValue = checkoutData.value?.total || 0
-
-      if (totalValue < 59) {
-        totalValue += 4.99
-      }
-
       return formatPriceBs(totalValue)
     })
 
@@ -285,10 +281,44 @@ export default {
 
         // Crear la orden primero
         try {
+        
+          const orderItemsPayload = orderItems.value.map(item => {
+            // Determinar tipo_precio según el campo usado en el producto
+            let tipo_precio = "unidad"
+            if (item.price === item.priceStore) tipo_precio = "tienda"
+            if (item.price === item.priceDistributor) tipo_precio = "distribuidor"
+
+            // Calcular el total en bs: precio * cantidad * tasa
+            const price = Number.parseFloat(item.price)
+            const quantity = Number(item.quantity)
+            const rate = Number(dollarRate.value?._value || dollarRate.value).toFixed(2)
+
+            const precio_bs = (!isNaN(price) && !isNaN(quantity) && !isNaN(rate))
+              ? (price * quantity * rate).toFixed(2)
+              : "0.00"
+
+            return {
+              producto_id: item.id,
+              cantidad: item.quantity,
+              tipo_precio,
+              precio_bs,
+            }
+          })
+
+          // Calcular monto_total y monto_total_bs correctamente
+          const rate = Number(dollarRate.value?._value || dollarRate.value).toFixed(2)
+
+          const monto_total = orderItems.value.reduce((sum, item) => {
+            const price = Number(item.price)
+            const quantity = Number(item.quantity)
+            return sum + (isNaN(price) || isNaN(quantity) ? 0 : price * quantity)
+          }, 0)
+
+          const monto_total_bs = (monto_total * rate).toFixed(2)
+
           const orderResponse = await apiService.post("/ordenes", getToken(), {
-            usuario_id: getUserId(),
-            monto_total: Number.parseFloat(total.value.replace(",", "").replace("$", "")),
-            items: orderItems.value,
+            usuario_id: getUserId(), 
+            items: orderItemsPayload,
           })
 
           if (!orderResponse.success) {
@@ -327,6 +357,10 @@ export default {
           formData.append("ciudad", shippingInfo.value.city)
           formData.append("estado", shippingInfo.value.state)
           formData.append("telefono", shippingInfo.value.phone)
+
+          // Al crear el pago, enviar monto_total y monto_total_bs ya calculados
+          formData.append("monto_total", monto_total_bs)
+          formData.append("monto_total_bs", monto_total_bs)
 
           // Procesar el pago con FormData para manejar el archivo
           try {

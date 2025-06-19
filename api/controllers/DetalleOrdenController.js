@@ -101,7 +101,7 @@ export const createDetalleOrden = async (req, res, next) => {
       return res.status(404).json({ success: false, message: "Producto not found" })
     }
 
-    // Crear el detalle de orden
+    // Crear el detalle de orden con los nuevos campos
     const detalle = await DetalleOrden.create({
       orden_id,
       producto_id,

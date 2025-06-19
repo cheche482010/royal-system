@@ -42,6 +42,8 @@ export const useCartService = () => {
         name: item.Producto?.nombre || "Producto",
         brand: item.Producto?.Marca?.nombre || "Sin marca",
         price: item.Producto?.precio_unidad || 0,
+        priceStore: item.Producto?.precio_tienda || 0,
+        priceDistributor: item.Producto?.precio_distribuidor || 0,
         quantity: item.cantidad,
         image: item.Producto?.producto_img || "/placeholder.jpg",
       }))
