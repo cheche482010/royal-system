@@ -119,8 +119,7 @@ export const createPago = async (req, res, next) => {
       estado,
       telefono,
     } = req.body;
-    console.log("body:", req.body);
-    
+   
     const orden = await Orden.findByPk(orden_id, {
       include: [{ model: Usuario }],
     });
