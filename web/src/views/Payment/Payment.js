@@ -298,7 +298,7 @@ export default {
               : "0.00"
 
             return {
-              producto_id: item.id,
+              producto_id: item.productId,
               cantidad: item.quantity,
               tipo_precio,
               precio_bs,

@@ -33,38 +33,57 @@ export const usePaymentService = () => {
   };
 
   /**
-   * Get payment by ID
-   * @param {number} id - Payment ID
-   * @param {string} token - Authentication token
-   * @returns {Promise<Object>} - Payment data
+   * Obtener pago por ID
    */
   const getPaymentById = async (id, token) => {
-    return apiService.get(`/pagos/${id}`, token);
-  };
+    try {
+      const response = await apiService.get(`/pagos/${id}`, token)
+      if (!response || response.success === false) {
+        throw new Error(response?.message || 'No se pudo obtener el pago')
+      }
+      return response
+    } catch (error) {
+      console.error('Error en getPaymentById:', error)
+      return { success: false, message: error.message }
+    }
+  }
 
   /**
-   * Get payments by order ID
-   * @param {number} orderId - Order ID
-   * @param {string} token - Authentication token
-   * @returns {Promise<Object>} - Payments for the order
+   * Obtener pagos por ID de orden
    */
   const getPaymentsByOrderId = async (orderId, token) => {
-    return apiService.get(`/pagos/orden/${orderId}`, token);
-  };
+    try {
+      const response = await apiService.get(`/pagos/orden/${orderId}`, token)
+      if (!response || response.success === false) {
+        throw new Error(response?.message || 'No se pudieron obtener los pagos de la orden')
+      }
+      return response
+    } catch (error) {
+      console.error('Error en getPaymentsByOrderId:', error)
+      return { success: false, message: error.message }
+    }
+  }
 
   /**
-   * Get all payments (admin only)
-   * @param {string} token - Authentication token
-   * @returns {Promise<Object>} - All payments
+   * Obtener todos los pagos (solo admin)
    */
   const getAllPayments = async (token) => {
-    return apiService.get('/pagos', token);
-  };
+    try {
+      const response = await apiService.get('/pagos', token)
+      if (!response || response.success === false) {
+        throw new Error(response?.message || 'No se pudieron obtener los pagos')
+      }
+      return response
+    } catch (error) {
+      console.error('Error en getAllPayments:', error)
+      return { success: false, message: error.message }
+    }
+  }
 
   return {
     processPayment,
     getPaymentById,
     getPaymentsByOrderId,
     getAllPayments
-  };
-};
+  }
+}

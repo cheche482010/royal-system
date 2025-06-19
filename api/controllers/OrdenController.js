@@ -101,9 +101,15 @@ export const getOrdenesByUsuario = async (req, res, next) => {
 export const createOrden = async (req, res, next) => {
   const transaction = await sequelize.transaction()
   try {
-    const { usuario_id, monto_total, monto_total_bs, items } = req.body
-    console.log("body:", req.body)
+    const {
+      usuario_id,
+      monto_total,
+      monto_total_bs, 
+      items 
+    } = req.body
+    
     const usuario = await Usuario.findByPk(usuario_id, { transaction })
+    
     if (!usuario) {
       await transaction.rollback()
       return res.status(404).json({ success: false, message: "Usuario not found" })
