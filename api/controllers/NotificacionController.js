@@ -81,7 +81,7 @@ export const crearNotificacionOrdenCreada = async (orden) => {
   try {
     // Obtener todos los usuarios admin
     const admins = await Usuario.findAll({
-      where: { id: orden.usuario_id, is_active: true, is_delete: false },
+      where: { role: "Admin", is_active: true, is_delete: false },
     })
 
     // Crear notificación para cada admin
@@ -101,7 +101,7 @@ export const crearNotificacionOrdenCreada = async (orden) => {
 }
 
 // Crear notificación para cambio de estado de orden
-export const crearNotificacionCambioEstado = async (orden, nuevoEstado) => {
+export const crearNotificacionCambioEstado = async (orden, nuevoEstado, motivo = "") => {
   try {
     let tipo, titulo, mensaje
 
@@ -114,7 +114,7 @@ export const crearNotificacionCambioEstado = async (orden, nuevoEstado) => {
       case "Cancelada":
         tipo = "ORDEN_CANCELADA"
         titulo = "Orden Cancelada"
-        mensaje = `Tu orden #${orden.id} ha sido cancelada. Si tienes dudas, contacta con nuestro equipo de soporte.`
+        mensaje = `Tu orden #${orden.id} ha sido cancelada. Motivo: ${motivo || "No especificado"}. Si tienes dudas, contacta con nuestro equipo de soporte.`
         break
       default:
         return
@@ -127,8 +127,6 @@ export const crearNotificacionCambioEstado = async (orden, nuevoEstado) => {
       titulo,
       mensaje,
     })
-
-    console.log(`Notificación de ${tipo} creada para usuario ${orden.usuario_id}`)
   } catch (error) {
     console.error("Error al crear notificación de cambio de estado:", error)
   }

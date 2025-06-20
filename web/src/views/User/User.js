@@ -23,6 +23,9 @@ import {
   PlusIcon,
   LoaderIcon,
   BellIcon,
+  EyeIcon,
+  CheckCircle2Icon,
+  FileTextIcon,
 } from "lucide-vue-next"
 
 export default {
@@ -40,6 +43,10 @@ export default {
     Header,
     Footer,
     PDF,
+    BellIcon,
+    EyeIcon,
+    CheckCircle2Icon,
+    FileTextIcon,
   },
   props: {
     API_BASE_URL: {
@@ -76,14 +83,18 @@ export default {
       email: userData.value?.correo || auth.user.value?.correo || "",
     }))
 
-    const navItems = ref([
+    // 1. Detectar si el usuario es admin
+    const isAdmin = computed(() => userData.value?.role === "Admin")
+
+    // 2. Cambiar el label de navItems y la carga de pedidos según el rol
+    const navItems = computed(() => [
       { id: "profile", label: "Mi Perfil", icon: UserIcon },
-      { id: "orders", label: "Mis Pedidos", icon: PackageIcon },
+      { id: "orders", label: isAdmin.value ? "Pedidos" : "Mis Pedidos", icon: PackageIcon },
       { id: "notifications", label: "Notificaciones", icon: BellIcon },
     ])
 
-    // Añadir una nueva propiedad para controlar la pestaña activa de pedidos
-    const activeOrdersTab = ref("active")
+    // 3. Añadir pestaña de pedidos cancelados
+    const activeOrdersTab = ref("active") // 'active', 'completed', 'cancelled'
 
     // Usar ref para las órdenes que vendrán de la BD
     const orders = ref([])
@@ -110,18 +121,19 @@ export default {
       },
     )
 
-    // Función para cargar las órdenes del usuario
-    const loadUserOrders = async () => {
-      if (!auth.isAuthenticated.value || !auth.userId.value) {
-        return
-      }
+    // 4. Cargar pedidos según el rol
+    const loadOrders = async () => {
 
       isLoadingOrders.value = true
       ordersError.value = null
-
       try {
         const token = auth.sessionToken.value
-        const response = await ordenService.getOrdenesByUsuario(auth.userId.value, token)
+        let response
+        if (isAdmin.value) {
+          response = await ordenService.getAllOrdenes(token)
+        } else {
+          response = await ordenService.getOrdenesByUsuario(auth.userId.value, token)
+        }
 
         if (response.success && response.data) {
           // Transformar los datos de la API al formato que espera la UI
@@ -224,7 +236,7 @@ export default {
         const token = auth.sessionToken.value
 
         // Si tenemos el ID del usuario, usamos getUserById
-        const response = await userService.getUserById(auth.userId.value, token) 
+        const response = await userService.getUserById(auth.userId.value, token)
 
         if (response.success && response.data) {
           userData.value = response.data
@@ -236,7 +248,7 @@ export default {
           }
 
           // Cargar las órdenes del usuario después de cargar sus datos
-          await loadUserOrders()
+          await loadOrders()
         } else {
           error.value = "No se pudieron cargar los datos del usuario"
         }
@@ -274,16 +286,16 @@ export default {
         return date.toLocaleDateString()
       }
     }
-    
+
     // Cargar notificaciones del usuario
     const loadNotifications = async () => {
       if (!auth.isAuthenticated.value) {
         return
       }
-      
+
       isLoadingNotifications.value = true
       notificationsError.value = null
-      
+
       try {
         const response = await notificacionService.getNotificaciones()
         if (response.success && response.data) {
@@ -299,7 +311,7 @@ export default {
         isLoadingNotifications.value = false
       }
     }
-    
+
     // Marcar notificación como leída
     const markAsRead = async (id) => {
       try {
@@ -316,11 +328,11 @@ export default {
         toast.error("Error al marcar notificación como leída")
       }
     }
-    
+
     // Cargar los datos del usuario cuando el componente se monta
     onMounted(() => {
       loadUserData()
-      
+
       // Cargar notificaciones si estamos en la sección de notificaciones
       if (activeSection.value === "notifications") {
         loadNotifications()
@@ -350,6 +362,11 @@ export default {
 
     const completedOrders = computed(() => {
       return orders.value.filter((order) => order.isCompleted)
+    })
+
+    // 5. Filtrar pedidos cancelados
+    const cancelledOrders = computed(() => {
+      return orders.value.filter((order) => order.status === "cancelled" || order.statusText === "Cancelada")
     })
 
     // Agregar estos computed properties after completedOrders
@@ -695,6 +712,49 @@ export default {
       }
     }
 
+    // 6. Agregar lógica para cambiar estado de orden (solo admin)
+    const showChangeStatusModal = ref(false)
+    const orderToChangeStatus = ref(null)
+    const newStatus = ref("Completa")
+    const motivoCancelacion = ref("")
+    const adminPassword = ref("")
+    const isChangingStatus = ref(false)
+
+    const openChangeStatusModal = (order) => {
+      orderToChangeStatus.value = order
+      newStatus.value = "Completa"
+      motivoCancelacion.value = ""
+      adminPassword.value = ""
+      showChangeStatusModal.value = true
+    }
+
+    const changeOrderStatus = async () => {
+      if (!adminPassword.value) {
+        toast.error("Debes ingresar tu contraseña")
+        return
+      }
+      if (newStatus.value === "Cancelada" && !motivoCancelacion.value) {
+        toast.error("Debes ingresar el motivo de cancelación")
+        return
+      }
+      isChangingStatus.value = true
+      try {
+        const token = auth.sessionToken.value
+        await ordenService.updateOrdenStatus(orderToChangeStatus.value.id, {
+          status: newStatus.value,
+          admin_password: adminPassword.value,
+          motivo_cancelacion: motivoCancelacion.value,
+        }, token)
+        toast.success("Estado de la orden actualizado")
+        showChangeStatusModal.value = false
+        await loadOrders()
+      } catch (e) {
+        toast.error("No se pudo cambiar el estado")
+      } finally {
+        isChangingStatus.value = false
+      }
+    }
+
     // Agregar las nuevas propiedades y métodos al return
     return {
       activeSection,
@@ -705,6 +765,7 @@ export default {
       orders,
       activeOrders,
       completedOrders,
+      cancelledOrders,
       filteredActiveOrders,
       filteredCompletedOrders,
       paginatedActiveOrders,
@@ -734,7 +795,7 @@ export default {
       updateProfile,
       updatePassword,
       loadUserData,
-      loadUserOrders,
+      loadOrders,
       showPDFPopup,
       selectedOrderId,
       selectedOrder,
@@ -748,6 +809,15 @@ export default {
       showComprobantePopup,
       comprobanteImgUrl,
       openComprobantePopup,
+      isAdmin,
+      showChangeStatusModal,
+      orderToChangeStatus,
+      newStatus,
+      motivoCancelacion,
+      adminPassword,
+      isChangingStatus,
+      openChangeStatusModal,
+      changeOrderStatus,
     }
   },
 }
