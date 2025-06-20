@@ -224,7 +224,7 @@ export default {
         const token = auth.sessionToken.value
 
         // Si tenemos el ID del usuario, usamos getUserById
-        const response = await userService.getUserById(auth.userId.value, token)
+        const response = await userService.getUserById(auth.userId.value, token) 
 
         if (response.success && response.data) {
           userData.value = response.data

@@ -12,29 +12,42 @@ import { createSesionInternal } from "./SesionController.js"
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-// Get all usuarios
+// Obtener todos los usuarios (usando ORM)
 export const getAllUsuarios = async (req, res, next) => {
   try {
-    // Using raw SQL query with Sequelize
-    const usuarios = await sequelize.query("SELECT * FROM usuarios WHERE is_delete = false", {
-      type: sequelize.QueryTypes.SELECT,
+    const usuarios = await Usuario.findAll({
+      where: { is_delete: false }
     })
 
     return res.status(200).json({ success: true, data: usuarios })
   } catch (error) {
+    console.error("Error in getAllUsuarios:", error)
     next(error)
   }
 }
 
-// Get usuario by ID
+// Obtener usuario por ID (usando ORM)
 export const getUsuarioById = async (req, res, next) => {
   try {
     const { id } = req.params
 
-    // Using raw SQL query with parameterized query to prevent SQL injection
-    const [usuario] = await sequelize.query("SELECT * FROM usuarios WHERE id = ? AND is_delete = false", {
-      replacements: [id],
-      type: sequelize.QueryTypes.SELECT,
+    const usuario = await Usuario.findOne({
+      where: { id, is_delete: false },
+      attributes: [
+        "id",
+        "documento",
+        "documento_img",
+        "nombre",
+        "direccion",
+        "registro_mercantil_img",
+        "correo",
+        "telefono",
+        "role",
+        "is_active",
+        "is_delete",
+        "created_at",
+        "updated_at"
+      ]
     })
 
     if (!usuario) {
@@ -43,6 +56,7 @@ export const getUsuarioById = async (req, res, next) => {
 
     return res.status(200).json({ success: true, data: usuario })
   } catch (error) {
+    console.error("Error in getUsuarioById:", error)
     next(error)
   }
 }
@@ -310,6 +324,7 @@ export const updateUsuario = async (req, res, next) => {
       },
     })
   } catch (error) {
+    console.error("Error in updateUsuario:", error)
     // Clean up any uploaded files on error
     if (req.files) {
       if (req.files.documento_img && fs.existsSync(req.files.documento_img[0].path)) {
@@ -346,6 +361,7 @@ export const deleteUsuario = async (req, res, next) => {
 
     return res.status(200).json({ success: true, message: "Usuario deleted successfully" })
   } catch (error) {
+    console.error("Error in deleteUsuario:", error)
     next(error)
   }
 }
@@ -385,6 +401,7 @@ export const hardDeleteUsuario = async (req, res, next) => {
 
     return res.status(200).json({ success: true, message: "Usuario permanently deleted" })
   } catch (error) {
+    console.error("Error in hardDeleteUsuario:", error)
     next(error)
   }
 }
@@ -457,7 +474,7 @@ export const loginUsuario = async (req, res, next) => {
       })
     }
   } catch (error) {
-    console.error("Error en login:", error)
+    console.error("Error in loginUsuario:", error)
     next(error)
   }
 }
