@@ -366,23 +366,20 @@ export default {
           try {
             const paymentData = await paymentService.processPayment(formData, getToken())
 
-            if (!paymentData.success) {
+            if (paymentData.success) {
+              await cartService.clearCart()
+              localStorage.removeItem("checkoutData")
+
+              toast.success("Pago procesado correctamente", {
+                title: "¡Éxito!",
+                description: "Tu pedido ha sido registrado",
+              })
+
+              await new Promise(resolve => setTimeout(resolve, 2000))
+              router.push("/user/orders")
+            } else {
               throw new Error(paymentData.message || "Error al procesar el pago")
             }
-
-            // Limpiar el carrito
-            await cartService.clearCart()
-            localStorage.removeItem("checkoutData")
-
-            // Mostrar mensaje de éxito
-            toast.success("Pago procesado correctamente", {
-              title: "¡Éxito!",
-              description: "Tu pedido ha sido registrado",
-            })
-
-            await new Promise(resolve => setTimeout(resolve, 2000))
-            // Redirigir a confirmación
-            router.push("/user/orders")
           } catch (paymentError) {
             console.error("Error al procesar el pago:", paymentError)
             toast.error(
