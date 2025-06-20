@@ -90,7 +90,7 @@ export const crearNotificacionOrdenCreada = async (orden) => {
       orden_id: orden.id,
       tipo: "ORDEN_CREADA",
       titulo: "Nueva Orden Pendiente",
-      mensaje: `Se ha creado una nueva orden #${String(orden.id).padStart(8, "0")} por un monto de $${orden.monto_total}. Requiere verificación de pago.`,
+      mensaje: `Se ha creado una nueva orden #${String(orden.id).padStart(6, "0")} por un monto de $${orden.monto_total}. Requiere verificación de pago.`,
     })) 
     
     await Notificacion.bulkCreate(notificaciones)
@@ -105,16 +105,18 @@ export const crearNotificacionCambioEstado = async (orden, nuevoEstado, motivo =
   try {
     let tipo, titulo, mensaje
 
+    const orden_id = `${orden.id}`.padStart(6, "0");
+
     switch (nuevoEstado) {
       case "Completa":
         tipo = "ORDEN_COMPLETADA"
         titulo = "Orden Completada"
-        mensaje = `Tu orden #${orden.id} ha sido completada exitosamente. El pago ha sido verificado y tu pedido está siendo procesado.`
-        break
+        mensaje = `Tu orden #${orden_id} ha sido completada exitosamente. El pago ha sido verificado y tu pedido está siendo procesado.`
+        break 
       case "Cancelada":
         tipo = "ORDEN_CANCELADA"
         titulo = "Orden Cancelada"
-        mensaje = `Tu orden #${orden.id} ha sido cancelada. Motivo: ${motivo || "No especificado"}. Si tienes dudas, contacta con nuestro equipo de soporte.`
+        mensaje = `Tu orden #${orden_id} ha sido cancelada. Motivo: ${motivo || "No especificado"}. Si tienes dudas, contacta con nuestro equipo de soporte.`
         break
       default:
         return

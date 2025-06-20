@@ -143,8 +143,8 @@ export default {
             let statusText = "En Proceso"
 
             if (orden.status === "Completa") {
-              status = orden.status
-              statusText = "Entregado"
+              status = "delivered"
+              statusText = orden.status
             } else if (orden.status === "Cancelada") {
               status = "cancelled"
               statusText = orden.status
@@ -163,7 +163,7 @@ export default {
 
             return {
               id: orden.id,
-              number: `${orden.id}`.padStart(8, "0"),
+              number: `${orden.id}`.padStart(6, "0"),
               date: fechaFormateada,
               status: status,
               statusText: statusText,
@@ -740,14 +740,19 @@ export default {
       isChangingStatus.value = true
       try {
         const token = auth.sessionToken.value
-        await ordenService.updateOrdenStatus(orderToChangeStatus.value.id, {
+        const response = await ordenService.updateOrdenStatus(orderToChangeStatus.value.id, {
           status: newStatus.value,
           admin_password: adminPassword.value,
           motivo_cancelacion: motivoCancelacion.value,
         }, token)
-        toast.success("Estado de la orden actualizado")
-        showChangeStatusModal.value = false
-        await loadOrders()
+
+        if (response && response.success) {
+          toast.success("Estado de la orden actualizado")
+          showChangeStatusModal.value = false
+          await loadOrders()
+        } else {
+          toast.error(response?.message)
+        }
       } catch (e) {
         toast.error("No se pudo cambiar el estado")
       } finally {

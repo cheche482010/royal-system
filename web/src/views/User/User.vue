@@ -126,12 +126,8 @@
                     class="comprobante-button" @click="openComprobantePopup(order)" style="margin-right: 10px;">
                     <EyeIcon class="icon" /> Comprobante
                   </button>
-                  <button
-                    v-if="isAdmin"
-                    class="change-status-button"
-                    style="margin-right: 10px;"
-                    @click="openChangeStatusModal(order)"
-                  >
+                  <button v-if="isAdmin" class="change-status-button" style="margin-right: 10px;"
+                    @click="openChangeStatusModal(order)">
                     <CheckCircle2Icon class="icon" /> Cambiar estado
                   </button>
                   <button class="details-button" @click="openPDFPopup(order.id)">
@@ -219,7 +215,13 @@
                     <span>{{ order.totalBs }}</span>
                   </div>
                 </div>
-                <button class="details-button" @click="openPDFPopup(order.id)">Ver detalles</button>
+                <div class="button-container">
+                  <button v-if="order.Pagos && order.Pagos[0] && order.Pagos[0].comprobante_img"
+                    class="comprobante-button" @click="openComprobantePopup(order)" style="margin-right: 10px;">
+                    <EyeIcon class="icon" /> Comprobante
+                  </button>
+                  <button class="details-button" @click="openPDFPopup(order.id)">Ver detalles</button>
+                </div>
               </div>
             </div>
 
@@ -310,7 +312,7 @@
                 <div class="button-container">
                   <button v-if="order.Pagos && order.Pagos[0] && order.Pagos[0].comprobante_img"
                     class="comprobante-button" @click="openComprobantePopup(order)" style="margin-right: 10px;">
-                    Ver comprobante
+                    <EyeIcon class="icon" /> Comprobante
                   </button>
                   <button class="details-button" @click="openPDFPopup(order.id)">Ver detalles</button>
                 </div>
@@ -345,7 +347,7 @@
             <div class="notification-body">
               <p>{{ notification.mensaje }}</p>
               <div v-if="notification.Orden" class="notification-order-info">
-                <span class="order-label">Orden #{{ notification.Orden.id }}</span>
+                <span class="order-label">Orden #{{ notification.Orden.id.toString().padStart(6, "0") }}</span>
                 <span class="order-status" :class="notification.Orden.status.toLowerCase()">
                   {{ notification.Orden.status }}
                 </span>
@@ -466,7 +468,8 @@
         </div>
         <div class="form-group" v-if="newStatus === 'Cancelada'">
           <label>Motivo de cancelación:</label>
-          <textarea v-model="motivoCancelacion" rows="2" class="modal-textarea" placeholder="Motivo de la cancelación"></textarea>
+          <textarea v-model="motivoCancelacion" rows="2" class="modal-textarea"
+            placeholder="Motivo de la cancelación"></textarea>
         </div>
         <div class="form-group">
           <label>Contraseña de administrador:</label>

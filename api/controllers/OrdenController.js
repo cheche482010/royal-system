@@ -356,7 +356,7 @@ export const updateOrdenStatus = async (req, res, next) => {
     const admin = await Usuario.findByPk(adminId)
     const isMatch = await admin.comparePassword(admin_password)
     if (!isMatch) {
-      return res.status(401).json({ success: false, message: "Contraseña incorrecta" })
+      return res.status(401).json({ success: false, message: "Credencial inválida" })
     }
 
     if (!["Pendiente", "Completa", "Cancelada"].includes(status)) {
