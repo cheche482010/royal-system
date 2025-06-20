@@ -105,6 +105,19 @@ export default {
       try {
         checkoutData.value = JSON.parse(localStorage.getItem("checkoutData"))
 
+        if (
+          !checkoutData.value ||
+          !checkoutData.value.items ||
+          checkoutData.value.items.length === 0
+        ) {
+          toast.error("No tienes productos para pagar", {
+            title: "Carrito vacío",
+            description: "Agrega productos al carrito antes de pagar",
+          })
+          router.push("/cart")
+          return
+        }
+
         const methodsResponse = await apiService.get("/metodos-pago")
         if (methodsResponse.success && methodsResponse.data) {
           paymentMethods.value = methodsResponse.data
