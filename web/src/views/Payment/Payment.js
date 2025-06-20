@@ -99,6 +99,12 @@ export default {
     // Estado del archivo
     const fileSelected = ref(false)
     const fileName = ref("")
+    const filePreviewUrl = ref("")
+
+    // Modal de imagen
+    const showImageModal = ref(false)
+    const openImageModal = () => { showImageModal.value = true }
+    const closeImageModal = () => { showImageModal.value = false }
 
     // Cargar datos iniciales
     const loadInitialData = async () => {
@@ -228,6 +234,12 @@ export default {
         paymentInfo.value.receipt = file
         fileName.value = file.name
         fileSelected.value = true
+        // Crear URL de vista previa si es imagen
+        if (file.type.startsWith("image/")) {
+          filePreviewUrl.value = URL.createObjectURL(file)
+        } else {
+          filePreviewUrl.value = ""
+        }
       }
     }
 
@@ -235,6 +247,7 @@ export default {
       paymentInfo.value.receipt = null
       fileName.value = ""
       fileSelected.value = false
+      filePreviewUrl.value = ""
       // Resetear el input file
       const fileInput = document.getElementById("receipt")
       if (fileInput) fileInput.value = ""
@@ -435,6 +448,7 @@ export default {
       shippingInfo,
       fileSelected,
       fileName,
+      filePreviewUrl,
       subtotal,
       shipping,
       discount,
@@ -453,6 +467,9 @@ export default {
       dollarRate,
       getToken,
       getUserId,
+      showImageModal,
+      openImageModal,
+      closeImageModal,
     }
   },
 }
