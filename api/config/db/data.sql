@@ -1,8 +1,62 @@
 -- Insertar datos de prueba en la tabla usuarios
-INSERT INTO usuarios (documento, documento_img, nombre, direccion, registro_mercantil_img, correo, telefono, user_password, role, token) VALUES
-('V-12345678', '/uploads/user/doc1.jpg', 'Juan Pérez', 'Calle Principal 123, Caracas', '/uploads/user/reg1.jpg', 'juan@example.com', '+584141234567', '$2b$10$zkei561XvBFKk8bwKiGyLuG797NXZL0zRWx8RY.Ip/R1psEojq6mO', 'Admin', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'),
-('J-87654321', '/uploads/user/doc2.jpg', 'María Rodríguez', 'Avenida Libertador 456, Maracaibo', '/uploads/user/reg2.jpg', 'maria@example.com', '+584261234567', '$2b$10$zkei561XvBFKk8bwKiGyLuG797NXZL0zRWx8RY.Ip/R1psEojq6mO', 'Employee', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ0'),
-('V-98765432', '/uploads/user/doc3.jpg', 'Carlos Gómez', 'Urbanización El Paraíso 789, Valencia', '/uploads/user/reg3.jpg', 'carlos@example.com', '+584161234567', '$2b$10$zkei561XvBFKk8bwKiGyLuG797NXZL0zRWx8RY.Ip/R1psEojq6mO', 'Customer', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ1');
+INSERT INTO `usuarios` 
+VALUES 
+  (
+    1,
+    '1111111',
+    'uploads\\user\\1111111\\documento_img.jpg',
+    'User Amin',
+    'direccion admin 1 ',
+    'uploads\\user\\1111111\\registro_mercantil_img.jpg',
+    'useraAmin@gmail.com',
+    '04161835429',
+    '$2b$10$jb/0BPFmEFyjkgYllpFCDOq8eBrDcWe.aoJFvPBcP32n8aatg0ATC',
+    'Admin',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb3JyZW8iOiJ1c2VyYWRtaW5AZ21haWwuY29tIiwiaWF0IjoxNzUwNDQyNjM4LCJleHAiOjE3NTMwMzQ2Mzh9.jk6l_azK7K3MSF4GfWgXQuDDks7yma1rSCkBkXBT54U',
+    1,
+    0,
+    '2025-06-20 18:03:58',
+    '2025-06-20 18:03:58'
+  ),
+  (
+    2,
+    '2222222',
+    'uploads\\user\\2222222\\documento_img.jpg',
+    'User Employee',
+    'direccion Employee 2',
+    'uploads\\user\\2222222\\registro_mercantil_img.jpg',
+    'userEmployee@gmail.com',
+    '04161835429',
+    '$2b$10$YbApRvCWKC/m4c6n9gkfNukjq3e8vpODGhFPjwfaMJLAeghImChL2',
+    'Employee',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb3JyZW8iOiJ1c2VyRW1wbG95ZWVAZ21haWwuY29tIiwiaWF0IjoxNzUwNDQyNzUwLCJleHAiOjE3NTMwMzQ3NTB9.570QvEkukGlfdzmXyLjzQEzCN5QsFoEsubvF4u2cEtg',
+    1,
+    0,
+    '2025-06-20 18:05:50',
+    '2025-06-20 18:05:50'
+  ),
+  (
+    3,
+    '3333333',
+    'uploads\\user\\3333333\\documento_img.jpg',
+    'User Customer',
+    'direccion Customer 3',
+    'uploads\\user\\3333333\\registro_mercantil_img.jpg',
+    'userCustomer@gmail.com',
+    '04161835429',
+    '$2b$10$A8yIbkCIt2P0HZfrN.xvO.SML3dqrJCoVXvyah6JNR1wVgFLDtCQK',
+    'Customer',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb3JyZW8iOiJ1c2VyQ3VzdG9tZXJAZ21haWwuY29tIiwiaWF0IjoxNzUwNDQyODE1LCJleHAiOjE3NTMwMzQ4MTV9.yN0ilrPAVeDUD78tMzF8kqzkQ5it2ECfksGvieJI9VM',
+    1,
+    0,
+    '2025-06-20 18:06:55',
+    '2025-06-20 18:06:55'
+  );
+
+-- Contraseñas de prueba:
+-- Admin: Contraseña1
+-- Employee: Contraseña2
+-- Customer: Contraseña3
 
 -- Insertar datos de prueba en la tabla sesiones
 INSERT INTO sesiones (usuario_id, token, ip, expiracion, agente_usuario) VALUES
