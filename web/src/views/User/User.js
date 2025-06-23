@@ -332,11 +332,7 @@ export default {
     // Cargar los datos del usuario cuando el componente se monta
     onMounted(() => {
       loadUserData()
-
-      // Cargar notificaciones si estamos en la sección de notificaciones
-      if (activeSection.value === "notifications") {
-        loadNotifications()
-      }
+      loadNotifications() 
     })
 
     const setActiveSection = (section) => {
@@ -760,6 +756,25 @@ export default {
       }
     }
 
+    // Función para extraer el motivo de cancelación de la notificación
+    function getCancelReason(orderId) {
+      const noti = notifications.value.find(
+        n => n.orden_id === orderId && n.tipo === "ORDEN_CANCELADA"
+      )
+      console.log(orderId, notifications.value)
+
+      if (noti && noti.mensaje) {
+        // Captura todo después de "Motivo:" hasta el final o salto de línea
+        const match = noti.mensaje.match(/Motivo:\s*([^\.\n]+)/i)
+        if (match && match[1]) {
+          return match[1].trim()
+        }
+        // Si no hay "Motivo:", intenta devolver todo el mensaje
+        return noti.mensaje
+      }
+      return null
+    }
+
     // Agregar las nuevas propiedades y métodos al return
     return {
       activeSection,
@@ -823,6 +838,7 @@ export default {
       isChangingStatus,
       openChangeStatusModal,
       changeOrderStatus,
+      getCancelReason,
     }
   },
 }

@@ -299,7 +299,10 @@
                   </div>
                 </div>
               </div>
-
+              <div v-if="getCancelReason(order.id)" class="cancel-reason">
+                <strong>Motivo de cancelación:</strong>
+                {{ getCancelReason(order.id) }}
+              </div>
               <div class="order-footer">
                 <div class="order-total">
                   <span>Total:</span>
@@ -314,7 +317,6 @@
                     class="comprobante-button" @click="openComprobantePopup(order)" style="margin-right: 10px;">
                     <EyeIcon class="icon" /> Comprobante
                   </button>
-                  <button class="details-button" @click="openPDFPopup(order.id)">Ver detalles</button>
                 </div>
               </div>
             </div>
