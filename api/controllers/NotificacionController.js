@@ -1,4 +1,4 @@
-import { Notificacion, Usuario, Orden } from "../models/index.js"
+import { Notificacion, Usuario, Orden, Pago } from "../models/index.js"
 
 // Obtener todas las notificaciones de un usuario
 export const getNotificacionesByUsuario = async (req, res, next) => {
@@ -16,7 +16,13 @@ export const getNotificacionesByUsuario = async (req, res, next) => {
       include: [
         {
           model: Orden,
-          attributes: ["id", "status", "is_active", "is_delete"],
+          attributes: ["id", "status", "is_active", "is_delete"], 
+          include: [
+            {
+              model: Pago,
+              attributes: ["monto_total_bs"]
+            }
+          ]
         },
       ],
       order: [["created_at", "DESC"]],

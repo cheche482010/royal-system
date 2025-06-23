@@ -484,18 +484,6 @@
             &:hover {
               background-color: #e5f1ff;
             }
-
-            &::before {
-              content: '';
-              position: absolute;
-              left: 0;
-              top: 50%;
-              transform: translateY(-50%);
-              width: 4px;
-              height: 4px;
-              border-radius: 50%;
-              background-color: #6901ae;
-            }
           }
 
           .notification-content {

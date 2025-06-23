@@ -352,7 +352,9 @@
                 <span class="order-status" :class="notification.Orden.status.toLowerCase()">
                   {{ notification.Orden.status }}
                 </span>
-                <span class="order-amount">${{ notification.Orden.monto_total }}</span>
+                <span class="order-amount">
+                  {{ notification?.Orden?.Pagos?.[0]?.monto_total_bs }} Bs
+                </span>
               </div>
             </div>
             <div class="notification-actions">
