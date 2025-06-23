@@ -199,7 +199,6 @@
                     <div class="product-name">{{ product.name }}</div>
                     <div class="product-price">{{ product.price }}</div>
                     <div class="product-quantity">Cantidad: {{ product.quantity }}</div>
-                    <div class="product-tipo-precio">Tipo de precio: {{ product.tipoPrecio }}</div>
                     <div class="product-total">Total: {{ product.total }}</div>
                     <div class="product-total-pagado">Total pagado: {{ product.totalPagado }}</div>
                   </div>

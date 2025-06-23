@@ -353,7 +353,11 @@ export default {
 
     // Añadir computed properties para filtrar los pedidos
     const activeOrders = computed(() => {
-      return orders.value.filter((order) => !order.isCompleted)
+      return orders.value.filter(
+        (order) =>
+          order.statusText !== "Completa" &&
+          order.statusText !== "Cancelada"
+      )
     })
 
     const completedOrders = computed(() => {
@@ -761,8 +765,7 @@ export default {
       const noti = notifications.value.find(
         n => n.orden_id === orderId && n.tipo === "ORDEN_CANCELADA"
       )
-      console.log(orderId, notifications.value)
-
+      
       if (noti && noti.mensaje) {
         // Captura todo después de "Motivo:" hasta el final o salto de línea
         const match = noti.mensaje.match(/Motivo:\s*([^\.\n]+)/i)
