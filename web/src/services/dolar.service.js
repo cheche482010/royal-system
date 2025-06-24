@@ -9,6 +9,13 @@ export const useDolarService = () => {
         return auth.sessionToken.value
     }
 
+    const getAuthHeaders = () => {
+        return {
+            'Authorization': `Bearer ${auth.userToken.value}`,
+            'X-Session-Token': auth.sessionToken.value
+        }
+    }
+
     // Fetch dollar rate from external API
     const fetchDollarRateFromAPI = async () => {
         try {
@@ -58,12 +65,12 @@ export const useDolarService = () => {
         }
     }
 
-    // Create new exchange rate
+    // Crear nueva tasa de cambio
     const createExchangeRate = async (tasa_cambio) => {
         try {
             const response = await apiService.post(
                 '/dolar-bcv',
-                getToken(),
+                getAuthHeaders(),
                 { tasa_cambio }
             )
             return response.data || null
@@ -73,12 +80,12 @@ export const useDolarService = () => {
         }
     }
 
-    // Update exchange rate
+    // Actualizar tasa de cambio
     const updateExchangeRate = async (id, data) => {
         try {
             const response = await apiService.put(
                 `/dolar-bcv/${id}`,
-                getToken(),
+                getAuthHeaders(),
                 data
             )
             return response.data || null

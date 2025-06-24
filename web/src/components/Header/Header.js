@@ -1,12 +1,13 @@
-import { ref, computed, onMounted, onUnmounted, nextTick  } from "vue"
+import { ref, computed, onMounted, onUnmounted, nextTick } from "vue"
 import { useAuth } from "../../composables/useAuth"
 import { useRouter } from "vue-router"
 import { useCartService } from "../../services/cart.service"
-import { useProductsService } from "../../services/products.service" 
+import { useProductsService } from "../../services/products.service"
 import { useDolarService } from "../../services/dolar.service"
 import { useNotificacionService } from "../../services/notificacion.service"
 import { config } from "../../config/config"
 import { useDolarStore } from '../../stores/dolar'
+import { useToast } from "../../services/toast.service"
 import {
   SearchIcon,
   BellIcon,
@@ -55,7 +56,7 @@ export default {
     const dolarService = useDolarService()
     const dolarStore = useDolarStore()
     const notificacionService = useNotificacionService()
-    
+    const toast = useToast()
     // Estado para los menús desplegables
     const showUserMenu = ref(false)
     const showNotifications = ref(false)
@@ -76,12 +77,13 @@ export default {
     // Notificaciones
     const notifications = ref([])
     const unreadNotifications = ref(0)
-    
+
+    const isAdmin = computed(() => auth.userRole.value === 'Admin')
     // Cargar notificaciones desde la API
     const loadNotifications = async () => {
       try {
         if (!auth.isAuthenticated.value) return
-        
+
         const response = await notificacionService.getNotificaciones()
         if (response.success && response.data) {
           notifications.value = response.data.map(notif => ({
@@ -94,19 +96,19 @@ export default {
             orden: notif.Orden
           }))
         }
-        
+
         // Actualizar contador de no leídas
         await updateUnreadCount()
       } catch (error) {
         console.error('Error al cargar notificaciones:', error)
       }
     }
-    
+
     // Actualizar contador de notificaciones no leídas
     const updateUnreadCount = async () => {
       try {
         if (!auth.isAuthenticated.value) return
-        
+
         const response = await notificacionService.getConteoNoLeidas()
         if (response.success && response.data) {
           unreadNotifications.value = response.data.conteo
@@ -186,18 +188,18 @@ export default {
         showSearchResults.value = false
         return
       }
-    
+
       isSearching.value = true
       try {
         const isNumericSearch = !isNaN(searchQuery.value)
-        
+
         const results = await productsService.searchProducts(
           isNumericSearch ? '' : searchQuery.value, // query
           null, // categoriaId
           null, // marcaId
           isNumericSearch ? searchQuery.value : null // precio
         )
-        
+
         searchResults.value = results.slice(0, 10)
         showSearchResults.value = true
       } catch (error) {
@@ -230,11 +232,11 @@ export default {
       const searchInputEl = document.querySelector(".search-input")
       const dollarMenuEl = document.querySelector(".dollar-menu")
       const dollarRateEl = document.querySelector(".dollar-rate-container")
-    
+
       if (userMenuEl && userInfoEl && !userMenuEl.contains(event.target) && !userInfoEl.contains(event.target)) {
         showUserMenu.value = false
       }
-    
+
       if (
         notificationMenuEl &&
         notificationIconEl &&
@@ -243,7 +245,7 @@ export default {
       ) {
         showNotifications.value = false
       }
-    
+
       if (
         searchResultsEl &&
         searchInputEl &&
@@ -252,7 +254,7 @@ export default {
       ) {
         showSearchResults.value = false
       }
-    
+
       if (
         dollarMenuEl &&
         dollarRateEl &&
@@ -268,11 +270,9 @@ export default {
     const updateCartCount = async () => {
       try {
         if (auth.isAuthenticated.value) {
-          // Si el usuario está autenticado, obtener el carrito desde la API
           const cartItems = await cartService.getCartItems()
           cartCount.value = cartItems.length
         } else {
-          // Si no está autenticado, obtener el carrito desde localStorage
           const count = localStorage.getItem("cartCount")
           if (count) {
             cartCount.value = parseInt(count, 10)
@@ -283,7 +283,6 @@ export default {
         }
       } catch (error) {
         console.error("Error al actualizar contador del carrito:", error)
-        // En caso de error, intentar obtener el contador desde localStorage
         const count = localStorage.getItem("cartCount")
         if (count) {
           cartCount.value = parseInt(count, 10)
@@ -291,9 +290,7 @@ export default {
       }
     }
 
-    // Escuchar evento de actualización del carrito
     const handleCartUpdated = () => {
-      // Actualizar el contador del carrito inmediatamente
       updateCartCount()
     }
 
@@ -302,27 +299,21 @@ export default {
       document.addEventListener("click", closeMenus)
       window.addEventListener("cart-updated", handleCartUpdated)
 
-      // Inicializar contador del carrito
       updateCartCount()
       getCurrentDollarRate()
-      
-      // Cargar notificaciones
       loadNotifications()
-      
-      // Configurar intervalo para actualizar notificaciones cada 5 minutos
+
       const notificationsInterval = setInterval(() => {
         if (auth.isAuthenticated.value) {
           loadNotifications()
         }
       }, 5 * 60 * 1000)
-      
-      // Limpiar intervalo al desmontar
+
       onUnmounted(() => {
         clearInterval(notificationsInterval)
       })
     })
 
-    // Limpiar event listeners
     onUnmounted(() => {
       document.removeEventListener("click", closeMenus)
       window.removeEventListener("cart-updated", handleCartUpdated)
@@ -340,19 +331,17 @@ export default {
         return `$${price.toFixed(2)}`
       }
       if (typeof price === 'string') {
-        // Si ya tiene formato, devolverlo tal cual
         if (price.includes('$')) return price
-        // Si es un número en string, formatearlo
         const num = parseFloat(price)
         if (!isNaN(num)) return `$${num.toFixed(2)}`
       }
-      return price 
+      return price
     }
 
     const getCurrentDollarRate = async () => {
       try {
         const rateData = await dolarService.getMostRecentDollarRate()
-        
+
         if (rateData) {
           dollarRate.value = rateData.rate
           dollarSource.value = rateData.source
@@ -367,6 +356,9 @@ export default {
         }
       } catch (error) {
         console.error('Error getting dollar rate:', error)
+        toast.error("Error al obtener la tasa de cambio del dólar", {
+          title: "Error",
+        })
         dollarRate.value = null
         dollarSource.value = 'Error al obtener tasa'
         dollarLastUpdated.value = null
@@ -377,21 +369,33 @@ export default {
     // Add new rate to DB
     const addNewDollarRate = async () => {
       if (!dollarInputValue.value) return
-      
+
       try {
         const rate = parseFloat(dollarInputValue.value)
         if (isNaN(rate)) {
-          alert('Por favor ingrese un valor numérico válido')
+          toast.error('Por favor ingrese un valor numérico válido', {
+            title: "Error",
+          })
           return
         }
 
-        await dolarService.createExchangeRate(rate)
-        dollarInputValue.value = ''
-        showDollarInput.value = false
-        await getCurrentDollarRate()
+        const response = await dolarService.createExchangeRate(rate)
+        if (response && response.success) {
+          dollarInputValue.value = ''
+          showDollarInput.value = false
+          await getCurrentDollarRate()
+          toast.success("Tasa de dólar agregada correctamente")
+        } else {
+          toast.error("No se pudo agregar la tasa", {
+            title: "Error",
+          })
+          throw new Error('No se pudo agregar la tasa')
+        }
       } catch (error) {
         console.error('Error adding new dollar rate:', error)
-        alert('Error al agregar nueva tasa')
+        toast.error("Error al agregar nueva tasa", {
+          title: "Error",
+        })
       }
     }
 
@@ -435,6 +439,7 @@ export default {
       dollarInputValue,
       showDollarInput,
       loadNotifications,
+      isAdmin,
     }
   },
 }

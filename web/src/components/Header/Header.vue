@@ -34,18 +34,18 @@
 
             <div class="header__actions">
                 <!-- Dolar -->
-                <div class="action-item dollar-rate-container" v-if="dollarRate"
-                    @click.stop="isAuthenticated && !showDollarMenu && (showDollarMenu = true)">
+                <div class="action-item dollar-rate-container"
+                    v-if="dollarRate"
+                    @click.stop="isAdmin && isAuthenticated && !showDollarMenu && (showDollarMenu = true)">
                     <span class="dollar-rate">
                         $ BCV: {{ dollarRate }}
                     </span>
 
-                    <!-- Dollar rate menu for admin/customer -->
-                    <div v-if="isAuthenticated && showDollarMenu" class="dollar-menu" @click.stop>
+                    <!-- Dollar rate menu SOLO para admin -->
+                    <div v-if="isAdmin && isAuthenticated && showDollarMenu" class="dollar-menu" @click.stop>
                         <div v-if="!showDollarInput" class="dollar-menu-item" @click="startAddingNewRate">
                             <span>Agregar nueva tasa</span>
                         </div>
-
                         <div v-else class="dollar-input-container">
                             <input v-model="dollarInputValue" type="number" step="0.01" min="0"
                                 placeholder="Ingrese nueva tasa" class="dollar-input" @click.stop
@@ -54,7 +54,6 @@
                                 Guardar
                             </button>
                         </div>
-
                         <div class="dollar-source">
                             Fuente: {{ dollarSource }} - {{ dollarLastUpdated?.toLocaleDateString() }}
                         </div>
