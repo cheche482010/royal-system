@@ -99,11 +99,30 @@ export default {
     // Estado del archivo
     const fileSelected = ref(false)
     const fileName = ref("")
+    const filePreviewUrl = ref("")
+
+    // Modal de imagen
+    const showImageModal = ref(false)
+    const openImageModal = () => { showImageModal.value = true }
+    const closeImageModal = () => { showImageModal.value = false }
 
     // Cargar datos iniciales
     const loadInitialData = async () => {
       try {
         checkoutData.value = JSON.parse(localStorage.getItem("checkoutData"))
+
+        if (
+          !checkoutData.value ||
+          !checkoutData.value.items ||
+          checkoutData.value.items.length === 0
+        ) {
+          toast.error("No tienes productos para pagar", {
+            title: "Carrito vacío",
+            description: "Agrega productos al carrito antes de pagar",
+          })
+          router.push("/cart")
+          return
+        }
 
         const methodsResponse = await apiService.get("/metodos-pago")
         if (methodsResponse.success && methodsResponse.data) {
@@ -215,6 +234,12 @@ export default {
         paymentInfo.value.receipt = file
         fileName.value = file.name
         fileSelected.value = true
+        // Crear URL de vista previa si es imagen
+        if (file.type.startsWith("image/")) {
+          filePreviewUrl.value = URL.createObjectURL(file)
+        } else {
+          filePreviewUrl.value = ""
+        }
       }
     }
 
@@ -222,6 +247,7 @@ export default {
       paymentInfo.value.receipt = null
       fileName.value = ""
       fileSelected.value = false
+      filePreviewUrl.value = ""
       // Resetear el input file
       const fileInput = document.getElementById("receipt")
       if (fileInput) fileInput.value = ""
@@ -366,23 +392,20 @@ export default {
           try {
             const paymentData = await paymentService.processPayment(formData, getToken())
 
-            if (!paymentData.success) {
+            if (paymentData.success) {
+              await cartService.clearCart()
+              localStorage.removeItem("checkoutData")
+
+              toast.success("Pago procesado correctamente", {
+                title: "¡Éxito!",
+                description: "Tu pedido ha sido registrado",
+              })
+
+              await new Promise(resolve => setTimeout(resolve, 2000))
+              router.push("/user/orders")
+            } else {
               throw new Error(paymentData.message || "Error al procesar el pago")
             }
-
-            // Limpiar el carrito
-            await cartService.clearCart()
-            localStorage.removeItem("checkoutData")
-
-            // Mostrar mensaje de éxito
-            toast.success("Pago procesado correctamente", {
-              title: "¡Éxito!",
-              description: "Tu pedido ha sido registrado",
-            })
-
-            await new Promise(resolve => setTimeout(resolve, 2000))
-            // Redirigir a confirmación
-            router.push("/user/orders")
           } catch (paymentError) {
             console.error("Error al procesar el pago:", paymentError)
             toast.error(
@@ -425,6 +448,7 @@ export default {
       shippingInfo,
       fileSelected,
       fileName,
+      filePreviewUrl,
       subtotal,
       shipping,
       discount,
@@ -443,6 +467,9 @@ export default {
       dollarRate,
       getToken,
       getUserId,
+      showImageModal,
+      openImageModal,
+      closeImageModal,
     }
   },
 }

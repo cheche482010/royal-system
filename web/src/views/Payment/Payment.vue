@@ -82,7 +82,9 @@
           <div class="form-group">
             <label for="reference" class="form-field-required">Referencia</label>
             <input type="text" id="reference" v-model="paymentInfo.reference" class="form-control"
-              :placeholder="paymentInfo.metodo_pago === '1' ? 'Número de referencia bancaria' : 'Número de referencia'" />
+              :placeholder="paymentInfo.metodo_pago === '1' ? 'Número de referencia bancaria' : 'Número de referencia'"
+              maxlength="6" inputmode="numeric" pattern="[0-9]*"
+              @input="paymentInfo.reference = paymentInfo.reference.replace(/[^0-9]/g, '')" />
           </div>
 
           <div class="form-group">
@@ -100,13 +102,23 @@
               </div>
             </div>
             <div v-if="fileSelected" class="file-preview">
+              <div class="image-preview-wrapper">
+                <img
+                  v-if="filePreviewUrl"
+                  :src="filePreviewUrl"
+                  alt="Vista previa comprobante"
+                  class="file-image-preview"
+                  @click="openImageModal"
+                  style="cursor: zoom-in;"
+                />
+                <button class="remove-file" @click="removeFile" title="Quitar archivo">
+                  <XIcon class="remove-icon" />
+                </button>
+              </div>
               <div class="file-info">
                 <FileIcon class="file-icon" />
                 <span class="file-name">{{ fileName }}</span>
               </div>
-              <button class="remove-file" @click="removeFile">
-                <XIcon class="remove-icon" />
-              </button>
             </div>
           </div>
         </div>
@@ -141,7 +153,8 @@
           <div class="form-group">
             <label for="phone" class="form-field-required">Teléfono</label>
             <input type="tel" id="phone" v-model="shippingInfo.phone" class="form-control"
-              placeholder="Tu número de teléfono" />
+              placeholder="Tu número de teléfono" inputmode="numeric" maxlength="20" pattern="[0-9]*"
+              @input="shippingInfo.phone = shippingInfo.phone.replace(/[^0-9]/g, '')" />
           </div>
         </div>
       </div>
@@ -206,6 +219,12 @@
 
     <div v-else class="loading-container">
       Cargando información...
+    </div>
+
+    <!-- Modal de zoom de imagen -->
+    <div v-if="showImageModal" class="image-modal" @click.self="closeImageModal">
+      <span class="close-modal" @click="closeImageModal">&times;</span>
+      <img :src="filePreviewUrl" alt="Comprobante ampliado" class="modal-image" />
     </div>
   </div>
   <Footer />

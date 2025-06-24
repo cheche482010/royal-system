@@ -1,4 +1,4 @@
-import { Notificacion, Usuario, Orden } from "../models/index.js"
+import { Notificacion, Usuario, Orden, Pago } from "../models/index.js"
 
 // Obtener todas las notificaciones de un usuario
 export const getNotificacionesByUsuario = async (req, res, next) => {
@@ -16,7 +16,13 @@ export const getNotificacionesByUsuario = async (req, res, next) => {
       include: [
         {
           model: Orden,
-          attributes: ["id", "status", "is_active", "is_delete"],
+          attributes: ["id", "status", "is_active", "is_delete"], 
+          include: [
+            {
+              model: Pago,
+              attributes: ["monto_total_bs"]
+            }
+          ]
         },
       ],
       order: [["created_at", "DESC"]],
@@ -81,7 +87,7 @@ export const crearNotificacionOrdenCreada = async (orden) => {
   try {
     // Obtener todos los usuarios admin
     const admins = await Usuario.findAll({
-      where: { id: orden.usuario_id, is_active: true, is_delete: false },
+      where: { role: "Admin", is_active: true, is_delete: false },
     })
 
     // Crear notificación para cada admin
@@ -90,7 +96,7 @@ export const crearNotificacionOrdenCreada = async (orden) => {
       orden_id: orden.id,
       tipo: "ORDEN_CREADA",
       titulo: "Nueva Orden Pendiente",
-      mensaje: `Se ha creado una nueva orden #${String(orden.id).padStart(8, "0")} por un monto de $${orden.monto_total}. Requiere verificación de pago.`,
+      mensaje: `Se ha creado una nueva orden #${String(orden.id).padStart(6, "0")} por un monto de $${orden.monto_total}. Requiere verificación de pago.`,
     })) 
     
     await Notificacion.bulkCreate(notificaciones)
@@ -101,20 +107,22 @@ export const crearNotificacionOrdenCreada = async (orden) => {
 }
 
 // Crear notificación para cambio de estado de orden
-export const crearNotificacionCambioEstado = async (orden, nuevoEstado) => {
+export const crearNotificacionCambioEstado = async (orden, nuevoEstado, motivo = "") => {
   try {
     let tipo, titulo, mensaje
+
+    const orden_id = `${orden.id}`.padStart(6, "0");
 
     switch (nuevoEstado) {
       case "Completa":
         tipo = "ORDEN_COMPLETADA"
         titulo = "Orden Completada"
-        mensaje = `Tu orden #${orden.id} ha sido completada exitosamente. El pago ha sido verificado y tu pedido está siendo procesado.`
-        break
+        mensaje = `Tu orden #${orden_id} ha sido completada exitosamente. El pago ha sido verificado y tu pedido está siendo procesado.`
+        break 
       case "Cancelada":
         tipo = "ORDEN_CANCELADA"
         titulo = "Orden Cancelada"
-        mensaje = `Tu orden #${orden.id} ha sido cancelada. Si tienes dudas, contacta con nuestro equipo de soporte.`
+        mensaje = `Tu orden #${orden_id} ha sido cancelada. Motivo: ${motivo || "No especificado"}. Si tienes dudas, contacta con nuestro equipo de soporte.`
         break
       default:
         return
@@ -127,8 +135,6 @@ export const crearNotificacionCambioEstado = async (orden, nuevoEstado) => {
       titulo,
       mensaje,
     })
-
-    console.log(`Notificación de ${tipo} creada para usuario ${orden.usuario_id}`)
   } catch (error) {
     console.error("Error al crear notificación de cambio de estado:", error)
   }

@@ -42,6 +42,10 @@
             @click="setActiveOrdersTab('completed')">
             Pedidos Finalizados
           </button>
+          <button class="tab-button" :class="{ active: activeOrdersTab === 'cancelled' }"
+            @click="setActiveOrdersTab('cancelled')">
+            Pedidos Cancelados
+          </button>
         </div>
 
         <!-- Controles de búsqueda y filtrado -->
@@ -120,9 +124,15 @@
                 <div class="button-container">
                   <button v-if="order.Pagos && order.Pagos[0] && order.Pagos[0].comprobante_img"
                     class="comprobante-button" @click="openComprobantePopup(order)" style="margin-right: 10px;">
-                    Ver comprobante
+                    <EyeIcon class="icon" /> Comprobante
                   </button>
-                  <button class="details-button" @click="openPDFPopup(order.id)">Ver detalles</button>
+                  <button v-if="isAdmin" class="change-status-button" style="margin-right: 10px;"
+                    @click="openChangeStatusModal(order)">
+                    <CheckCircle2Icon class="icon" /> Cambiar estado
+                  </button>
+                  <button class="details-button" @click="openPDFPopup(order.id)">
+                    <FileTextIcon class="icon" />Detalles
+                  </button>
                 </div>
               </div>
             </div>
@@ -189,7 +199,6 @@
                     <div class="product-name">{{ product.name }}</div>
                     <div class="product-price">{{ product.price }}</div>
                     <div class="product-quantity">Cantidad: {{ product.quantity }}</div>
-                    <div class="product-tipo-precio">Tipo de precio: {{ product.tipoPrecio }}</div>
                     <div class="product-total">Total: {{ product.total }}</div>
                     <div class="product-total-pagado">Total pagado: {{ product.totalPagado }}</div>
                   </div>
@@ -205,7 +214,13 @@
                     <span>{{ order.totalBs }}</span>
                   </div>
                 </div>
-                <button class="details-button" @click="openPDFPopup(order.id)">Ver detalles</button>
+                <div class="button-container">
+                  <button v-if="order.Pagos && order.Pagos[0] && order.Pagos[0].comprobante_img"
+                    class="comprobante-button" @click="openComprobantePopup(order)" style="margin-right: 10px;">
+                    <EyeIcon class="icon" /> Comprobante
+                  </button>
+                  <button class="details-button" @click="openPDFPopup(order.id)">Ver detalles</button>
+                </div>
               </div>
             </div>
 
@@ -255,6 +270,63 @@
             <p>Tus pedidos completados aparecerán aquí</p>
           </div>
         </div>
+
+        <!-- Pedidos Cancelados -->
+        <div v-if="activeOrdersTab === 'cancelled'">
+          <div v-if="cancelledOrders.length > 0" class="orders-list">
+            <div v-for="order in cancelledOrders" :key="order.id" class="order-card">
+              <!-- ...igual que los otros order-card... -->
+              <div class="order-header">
+                <div class="order-info">
+                  <div class="order-number">Pedido #{{ order.number }}</div>
+                  <div class="order-date">{{ order.date }}</div>
+                </div>
+                <div class="order-status cancelled">Cancelada</div>
+              </div>
+
+              <div class="order-products">
+                <div v-for="product in order.products" :key="product.id" class="product-item">
+                  <div class="product-image">
+                    <img :src="product.image" :alt="product.name" />
+                  </div>
+                  <div class="product-details">
+                    <div class="product-name">{{ product.name }}</div>
+                    <div class="product-price">{{ product.price }}</div>
+                    <div class="product-quantity">Cantidad: {{ product.quantity }}</div>
+                    <div class="product-total">Total: {{ product.total }}</div>
+                    <div class="product-total-pagado">Total pagado: {{ product.totalPagado }}</div>
+                  </div>
+                </div>
+              </div>
+              <div v-if="getCancelReason(order.id)" class="cancel-reason">
+                <strong>Motivo de cancelación:</strong>
+                {{ getCancelReason(order.id) }}
+              </div>
+              <div class="order-footer">
+                <div class="order-total">
+                  <span>Total:</span>
+                  <span class="total-amount">{{ order.total }}</span>
+                  <div class="total-amount-bs">
+                    <span>Monto pagado:</span>
+                    <span class="total-amount">{{ order.totalBs }}</span>
+                  </div>
+                </div>
+                <div class="button-container">
+                  <button v-if="order.Pagos && order.Pagos[0] && order.Pagos[0].comprobante_img"
+                    class="comprobante-button" @click="openComprobantePopup(order)" style="margin-right: 10px;">
+                    <EyeIcon class="icon" /> Comprobante
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div v-else class="empty-state">
+            <PackageIcon class="empty-icon" />
+            <h3>No tienes pedidos cancelados</h3>
+            <p>Tus pedidos cancelados aparecerán aquí</p>
+          </div>
+        </div>
       </div>
 
       <!-- Sección de Notificaciones -->
@@ -276,11 +348,13 @@
             <div class="notification-body">
               <p>{{ notification.mensaje }}</p>
               <div v-if="notification.Orden" class="notification-order-info">
-                <span class="order-label">Orden #{{ notification.Orden.id }}</span>
+                <span class="order-label">Orden #{{ notification.Orden.id.toString().padStart(6, "0") }}</span>
                 <span class="order-status" :class="notification.Orden.status.toLowerCase()">
                   {{ notification.Orden.status }}
                 </span>
-                <span class="order-amount">${{ notification.Orden.monto_total }}</span>
+                <span class="order-amount">
+                  {{ notification?.Orden?.Pagos?.[0]?.monto_total_bs }} Bs
+                </span>
               </div>
             </div>
             <div class="notification-actions">
@@ -379,6 +453,36 @@
       <button class="close-button" @click="showComprobantePopup = false">&times;</button>
       <img :src="comprobanteImgUrl" alt="Comprobante de pago"
         style="max-width:100%;max-height:70vh;display:block;margin:auto;" />
+    </div>
+  </div>
+
+  <!-- Modal para cambiar estado de orden (solo admin) -->
+  <div v-if="showChangeStatusModal" class="change-status-overlay" @click="showChangeStatusModal = false">
+    <div class="change-status-modal" @click.stop>
+      <button class="close-button" @click="showChangeStatusModal = false">&times;</button>
+      <h3 class="modal-title">Cambiar estado de la orden</h3>
+      <form @submit.prevent="changeOrderStatus">
+        <div class="form-group">
+          <label>Nuevo estado:</label>
+          <select v-model="newStatus" class="modal-select">
+            <option value="Completa">Completa</option>
+            <option value="Cancelada">Cancelada</option>
+          </select>
+        </div>
+        <div class="form-group" v-if="newStatus === 'Cancelada'">
+          <label>Motivo de cancelación:</label>
+          <textarea v-model="motivoCancelacion" rows="2" class="modal-textarea"
+            placeholder="Motivo de la cancelación"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Contraseña de administrador:</label>
+          <input type="password" v-model="adminPassword" class="modal-input" placeholder="Tu contraseña" />
+        </div>
+        <button class="modal-save-button" :disabled="isChangingStatus">
+          <LoaderIcon v-if="isChangingStatus" class="spinner" />
+          <span v-else>Confirmar</span>
+        </button>
+      </form>
     </div>
   </div>
 </template>

@@ -16,11 +16,62 @@ import { crearNotificacionOrdenCreada, crearNotificacionCambioEstado } from "./N
 export const getAllOrdenes = async (req, res, next) => {
   try {
     const ordenes = await Orden.findAll({
+      attributes: ["id", "status", "is_active", "is_delete", "created_at"],
       include: [
         {
           model: Usuario,
-          attributes: ["id", "nombre", "correo"],
+          attributes: ["id", "nombre", "documento"],
         },
+        {
+          model: DetalleOrden,
+          attributes: [
+            "id",
+            "producto_id",
+            "cantidad",
+            "tipo_precio",
+            "precio_bs",
+            "created_at",
+          ],
+          include: [
+            {
+              model: Producto,
+              attributes: [
+                "id",
+                "codigo",
+                "nombre",
+                "descripcion",
+                "producto_img",
+                "precio_unidad",
+                "precio_tienda",
+                "precio_distribuidor"
+              ],
+            },
+          ],
+        },
+        {
+          model: Envio,
+          attributes: ["id", "nombre_receptor", "direccion", "ciudad", "estado", "telefono"],
+        },
+        {
+          model: Pago,
+          attributes: [
+            "id",
+            "fecha",
+            "comprobante_img",
+            "numero_referencia",
+            "monto_total",
+            "monto_total_bs",
+            "is_active",
+            "is_delete",
+            "created_at",
+          ],
+          include: [
+            {
+              model: MetodoPago,
+              attributes: ["nombre", "descripcion"]
+            }
+          ]
+        }
       ],
       order: [["created_at", "DESC"]],
     })
@@ -296,12 +347,16 @@ export const createOrden = async (req, res, next) => {
 export const updateOrdenStatus = async (req, res, next) => {
   try {
     const { id } = req.params
-    const { status } = req.body
-
+    const { status, admin_password, motivo_cancelacion } = req.body
     const orden = await Orden.findByPk(id)
+    if (!orden) return res.status(404).json({ success: false, message: "Orden not found" })
 
-    if (!orden) {
-      return res.status(404).json({ success: false, message: "Orden not found" })
+    // Validar contraseña del admin
+    const adminId = req.user.id // Asumiendo que el middleware auth pone el usuario en req.user
+    const admin = await Usuario.findByPk(adminId)
+    const isMatch = await admin.comparePassword(admin_password)
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: "Credencial inválida" })
     }
 
     if (!["Pendiente", "Completa", "Cancelada"].includes(status)) {
@@ -313,8 +368,10 @@ export const updateOrdenStatus = async (req, res, next) => {
 
     await orden.update({ status })
 
-    // Crear notificación solo si el estado cambió y no es "Pendiente"
-    if (estadoAnterior !== status && status !== "Pendiente") {
+    // Notificación con motivo si es cancelada
+    if (status === "Cancelada") {
+      await crearNotificacionCambioEstado(orden, status, motivo_cancelacion)
+    } else if (status === "Completa") {
       await crearNotificacionCambioEstado(orden, status)
     }
 
