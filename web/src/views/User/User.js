@@ -234,7 +234,7 @@ export default {
         isLoading.value = false
         return
       }
-
+      
       isLoading.value = true
       error.value = null
 
@@ -637,6 +637,7 @@ export default {
         const response = await userService.updateUserProfile(formData, token)
 
         if (response.success) {
+          auth.setUser(response.data)
           await loadUserData()
           toast.success("Perfil actualizado correctamente", { title: "Éxito" })
         } else {
