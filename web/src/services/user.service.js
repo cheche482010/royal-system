@@ -47,7 +47,7 @@ export const userService = {
       if (!userId) {
         throw new Error("No se pudo obtener el ID del usuario desde el token")
       }
-      return await apiService.put(`/usuarios/${userId}`, token, userData)
+      return await apiService.put(`/usuarios/update/${userId}`, token, userData) 
     } catch (error) {
       console.error("Error al actualizar perfil de usuario:", error)
       throw error

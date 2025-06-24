@@ -377,11 +377,31 @@
         <h2 class="section-title">Mi Perfil</h2>
 
         <form @submit.prevent="updateProfile" class="profile-form">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="profileName">Nombre</label>
-              <input type="text" id="profileName" v-model="profileForm.name" placeholder="Tu nombre" />
+
+          <div class="form-group documento-img-group">
+            <label>Imagen de cédula</label>
+            <div class="documento-img-preview">
+              <img v-if="profileForm.documento_img" :src="previewDocumentoImg" alt="Documento seleccionado" />
+              <img v-else-if="userData?.documento_img"
+                :src="API_BASE_URL + '/' + userData.documento_img.replace(/\\/g, '/')" alt="Documento actual" />
             </div>
+            <div class="documento-img-actions">
+              <input type="file" @change="onDocumentoImgChange" accept="image/*" />
+              <button v-if="profileForm.documento_img" type="button" class="remove-file" @click="removeDocumentoImg"
+                aria-label="Quitar imagen seleccionada">
+                <XIcon class="remove-icon" />
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="profileDocumento">Cédula</label>
+            <input type="text" id="profileDocumento" v-model="profileForm.documento" placeholder="Tu cédula" disabled />
+          </div>
+
+          <div class="form-group">
+            <label for="profileName">Nombre</label>
+            <input type="text" id="profileName" v-model="profileForm.name" placeholder="Tu nombre" />
           </div>
 
           <div class="form-group">

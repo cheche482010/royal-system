@@ -19,24 +19,28 @@ export const apiService = {
       const options = {
         method,
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': token ? `Bearer ${token}` : ''
         }
       }
 
+      // Solo agrega Content-Type si NO es FormData
       if (data && (method === 'POST' || method === 'PUT')) {
-        options.body = JSON.stringify(data)
+        if (data instanceof FormData) {
+          options.body = data
+          // No agregues Content-Type, el navegador lo pone automáticamente
+        } else {
+          options.headers['Content-Type'] = 'application/json'
+          options.body = JSON.stringify(data)
+        }
       }
 
       const response = await fetch(`${config.API_URL}${endpoint}`, options)
       const responseData = await response.json()
 
-      // Si la respuesta tiene success: false, no es un error técnico
       if (responseData.success === false) {
         return responseData
       }
 
-      // Solo lanzar error para respuestas HTTP no exitosas (excepto 400 que puede ser validación)
       if (!response.ok && response.status !== 400) {
         throw new Error(responseData.message || `Error en petición ${method} a ${endpoint}`)
       }

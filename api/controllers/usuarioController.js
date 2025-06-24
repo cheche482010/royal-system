@@ -255,7 +255,7 @@ export const updateUsuario = async (req, res, next) => {
         });
       }
     }
-
+    
     // Using ORM method for update
     await usuario.update({
       documento: documento || usuario.documento,

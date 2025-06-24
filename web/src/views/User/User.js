@@ -26,6 +26,7 @@ import {
   EyeIcon,
   CheckCircle2Icon,
   FileTextIcon,
+  XIcon,
 } from "lucide-vue-next"
 
 export default {
@@ -47,6 +48,7 @@ export default {
     EyeIcon,
     CheckCircle2Icon,
     FileTextIcon,
+    XIcon,
   },
   props: {
     API_BASE_URL: {
@@ -216,6 +218,8 @@ export default {
       email: "",
       phone: "",
       newsletter: false,
+      documento: "",
+      documento_img: null,
     })
 
     const passwordForm = ref({
@@ -248,8 +252,11 @@ export default {
             name: userData.value.nombre,
             email: userData.value.correo || "",
             phone: userData.value.telefono || "",
+            documento: userData.value.documento || "",
+            newsletter: false,
+            documento_img: null,
           }
-
+          previewDocumentoImg.value = null
           // Cargar las órdenes del usuario después de cargar sus datos
           await loadOrders()
         } else {
@@ -618,28 +625,22 @@ export default {
       isUpdating.value = true
 
       try {
-        // Construir el objeto de datos del usuario para la actualización
-        const userUpdateData = {
-          nombre: profileForm.value.name,
-          telefono: profileForm.value.phone,
+        const formData = new FormData()
+        formData.append("nombre", profileForm.value.name)
+        formData.append("telefono", profileForm.value.phone)
+        
+        if (profileForm.value.documento_img) {
+          formData.append("documento_img", profileForm.value.documento_img)
         }
 
         const token = auth.sessionToken.value
-        const response = await userService.updateUserProfile(userUpdateData, token)
+        const response = await userService.updateUserProfile(formData, token)
 
         if (response.success) {
-          // Actualizar los datos locales
-          userData.value = {
-            ...userData.value,
-            ...userUpdateData,
-          }
-          toast.success("Perfil actualizado correctamente", {
-            title: "Éxito",
-          })
+          await loadUserData()
+          toast.success("Perfil actualizado correctamente", { title: "Éxito" })
         } else {
-          toast.error("Error al actualizar el perfil", {
-            title: "Error",
-          })
+          toast.error("Error al actualizar el perfil", { title: "Error" })
         }
       } catch (error) {
         console.error("Error al actualizar el perfil:", error)
@@ -781,6 +782,21 @@ export default {
       return null
     }
 
+    const previewDocumentoImg = ref(null)
+
+    const onDocumentoImgChange = (event) => {
+      const file = event.target.files[0]
+      if (file) {
+        profileForm.value.documento_img = file
+        previewDocumentoImg.value = URL.createObjectURL(file)
+      }
+    }
+
+    const removeDocumentoImg = () => {
+      profileForm.value.documento_img = null
+      previewDocumentoImg.value = null
+    }
+
     // Agregar las nuevas propiedades y métodos al return
     return {
       activeSection,
@@ -845,6 +861,9 @@ export default {
       openChangeStatusModal,
       changeOrderStatus,
       getCancelReason,
+      previewDocumentoImg,
+      onDocumentoImgChange,
+      removeDocumentoImg,
     }
   },
 }

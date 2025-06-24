@@ -182,7 +182,7 @@ router.post("/login", loginUsuario)
 
 /**
  * @swagger
- * /usuarios/{id}:
+ * /usuarios/update/{id}:
  *   put:
  *     summary: Update a usuario
  *     description: Update usuario details
@@ -231,7 +231,7 @@ router.post("/login", loginUsuario)
  *         description: Unauthorized
  */
 router.put(
-  "/:id",
+  "/update/:id",
   protect,
   upload.fields([
       { name: "documento_img", maxCount: 1 },
