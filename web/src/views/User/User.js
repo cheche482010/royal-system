@@ -158,6 +158,8 @@ export default {
               total: `${parseFloat(montoTotal).toFixed(2)}$`,
               totalBs: formatBs(montoTotalBs),
               isCompleted: orden.status === "Completa",
+              envio: orden.Envio,
+              documento: orden.Usuario.documento,
               products:
                 orden.DetalleOrdens?.map((detalle) => {
                   const price = Number.parseFloat(detalle.Producto?.precio_producto || "0")
