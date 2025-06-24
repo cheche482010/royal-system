@@ -443,7 +443,6 @@ CREATE TABLE `usuarios` (
   `documento_img` varchar(255) NOT NULL COMMENT 'Ruta de la imagen del RIF o Cédula',
   `nombre` varchar(100) NOT NULL COMMENT 'Nombre completo del usuario',
   `direccion` varchar(200) NOT NULL COMMENT 'Dirección física del usuario',
-  `registro_mercantil_img` varchar(255) NOT NULL COMMENT 'Ruta de la imagen del registro mercantil',
   `correo` varchar(100) NOT NULL COMMENT 'Correo electrónico (único)',
   `telefono` varchar(20) NOT NULL COMMENT 'Número de teléfono',
   `user_password` varchar(255) NOT NULL COMMENT 'Hash de la contraseña',

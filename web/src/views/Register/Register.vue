@@ -139,36 +139,7 @@
                   <img :src="documentoImgPreview" alt="Vista previa del documento" />
                 </div>
               </div>
-  
-              <div class="form-group">
-                <label for="registro_mercantil_img">Registro Mercantil (Imagen)</label>
-                <div class="file-upload">
-                  <input 
-                    type="file" 
-                    id="registro_mercantil_img" 
-                    @change="handleFileUpload('registro_mercantil_img', $event)" 
-                    class="file-input"
-                    accept="image/*" 
-                  />
-                  <div class="upload-button">
-                    <UploadIcon class="upload-icon" />
-                    <span>{{ registroMercantilImgSelected ? 'Archivo seleccionado' : 'Subir imagen del Registro Mercantil' }}</span>
-                  </div>
-                </div>
-                <div v-if="registroMercantilImgSelected" class="file-preview">
-                  <div class="file-info">
-                    <FileIcon class="file-icon" />
-                    <span class="file-name">{{ registroMercantilImgName }}</span>
-                  </div>
-                  <button type="button" class="remove-file" @click="removeFile('registro_mercantil_img')">
-                    <XIcon class="remove-icon" />
-                  </button>
-                </div>
-                <div v-if="registroMercantilImgPreview" class="image-preview">
-                  <img :src="registroMercantilImgPreview" alt="Vista previa del Registro Mercantil" />
-                </div>
-              </div>
-  
+
               <div class="form-group checkbox">
                 <input type="checkbox" id="terms" v-model="acceptTerms" required />
                 <label for="terms">

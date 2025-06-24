@@ -30,11 +30,6 @@ const Usuario = sequelize.define(
       allowNull: false,
       comment: "Dirección física del usuario",
     },
-    registro_mercantil_img: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      comment: "Ruta de la imagen del registro mercantil",
-    },
     correo: {
       type: DataTypes.STRING(100),
       allowNull: false,

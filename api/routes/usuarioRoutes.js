@@ -83,9 +83,6 @@ router.get("/:id", protect, getUsuarioById)
  *                 type: string
  *               direccion:
  *                 type: string
- *               registro_mercantil_img:
- *                 type: string
- *                 format: binary
  *               correo:
  *                 type: string
  *               telefono:
@@ -108,7 +105,6 @@ router.post(
   protect,
   upload.fields([
     { name: "documento_img", maxCount: 1 },
-    { name: "registro_mercantil_img", maxCount: 1 },
   ]),
   createUsuario,
 )
@@ -137,9 +133,6 @@ router.post(
  *                 type: string
  *               direccion:
  *                 type: string
- *               registro_mercantil_img:
- *                 type: string
- *                 format: binary
  *               correo:
  *                 type: string
  *               telefono:
@@ -156,7 +149,6 @@ router.post(
   "/register",
   upload.fields([
     { name: "documento_img", maxCount: 1 },
-    { name: "registro_mercantil_img", maxCount: 1 },
   ]),
   createUsuario,
 )
@@ -219,9 +211,6 @@ router.post("/login", loginUsuario)
  *                 type: string
  *               direccion:
  *                 type: string
- *               registro_mercantil_img:
- *                 type: string
- *                 format: binary
  *               correo:
  *                 type: string
  *               telefono:
@@ -245,8 +234,7 @@ router.put(
   "/:id",
   protect,
   upload.fields([
-    { name: "documento_img", maxCount: 1 },
-    { name: "registro_mercantil_img", maxCount: 1 },
+      { name: "documento_img", maxCount: 1 },
   ]),
   updateUsuario,
 )

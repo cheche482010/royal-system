@@ -106,10 +106,6 @@ const swaggerOptions = {
               type: "string",
               example: "/uploads/user/12345/documento-12345.jpg",
             },
-            registro_mercantil_img: {
-              type: "string",
-              example: "/uploads/user/12345/registro-12345.jpg",
-            },
             role: {
               type: "string",
               enum: ["admin", "cliente", "vendedor"],

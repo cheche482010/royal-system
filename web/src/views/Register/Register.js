@@ -46,7 +46,6 @@ export default {
       documento_img: null,
       nombre: '',
       direccion: '',
-      registro_mercantil_img: null,
       correo: '',
       telefono: '',
     });
@@ -59,10 +58,6 @@ export default {
     const documentoImgSelected = ref(false);
     const documentoImgName = ref('');
     const documentoImgPreview = ref('');
-    
-    const registroMercantilImgSelected = ref(false);
-    const registroMercantilImgName = ref('');
-    const registroMercantilImgPreview = ref('');
     
     // Estado del formulario
     const acceptTerms = ref(false);
@@ -184,17 +179,6 @@ export default {
           documentoImgPreview.value = e.target.result;
         };
         reader.readAsDataURL(file);
-      } else if (fileType === 'registro_mercantil_img') {
-        formData.value.registro_mercantil_img = file;
-        registroMercantilImgName.value = file.name;
-        registroMercantilImgSelected.value = true;
-        
-        // Crear vista previa
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          registroMercantilImgPreview.value = e.target.result;
-        };
-        reader.readAsDataURL(file);
       }
     };
     
@@ -207,15 +191,6 @@ export default {
         
         // Resetear el input file
         const fileInput = document.getElementById('documento_img');
-        if (fileInput) fileInput.value = '';
-      } else if (fileType === 'registro_mercantil_img') {
-        formData.value.registro_mercantil_img = null;
-        registroMercantilImgName.value = '';
-        registroMercantilImgSelected.value = false;
-        registroMercantilImgPreview.value = '';
-        
-        // Resetear el input file
-        const fileInput = document.getElementById('registro_mercantil_img');
         if (fileInput) fileInput.value = '';
       }
     };
@@ -232,12 +207,6 @@ export default {
         // Validar que se hayan subido los archivos requeridos
         if (!formData.value.documento_img) {
           errorMessage.value = 'Debe subir una imagen del documento';
-          isLoading.value = false;
-          return;
-        }
-        
-        if (!formData.value.registro_mercantil_img) {
-          errorMessage.value = 'Debe subir una imagen del Registro Mercantil';
           isLoading.value = false;
           return;
         }
@@ -303,9 +272,6 @@ export default {
       documentoImgSelected,
       documentoImgName,
       documentoImgPreview,
-      registroMercantilImgSelected,
-      registroMercantilImgName,
-      registroMercantilImgPreview,
       acceptTerms,
       isLoading,
       errorMessage,
