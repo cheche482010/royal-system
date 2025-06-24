@@ -39,7 +39,6 @@ export const getUsuarioById = async (req, res, next) => {
         "documento_img",
         "nombre",
         "direccion",
-        "registro_mercantil_img",
         "correo",
         "telefono",
         "role",
@@ -86,13 +85,8 @@ export const createUsuario = async (req, res, next) => {
 
     if (existingUsuario) {
       // If files were uploaded, delete them since we're not creating the user
-      if (req.files) {
-        if (req.files.documento_img) {
-          fs.unlinkSync(req.files.documento_img[0].path)
-        }
-        if (req.files.registro_mercantil_img) {
-          fs.unlinkSync(req.files.registro_mercantil_img[0].path)
-        }
+      if (req.files && req.files.documento_img) {
+        fs.unlinkSync(req.files.documento_img[0].path)
       }
 
       // Clean up empty directory if it was created
@@ -109,16 +103,11 @@ export const createUsuario = async (req, res, next) => {
 
     // Get file paths from multer
     const documento_img = req.files && req.files.documento_img ? req.files.documento_img[0].path : null
-    const registro_mercantil_img =
-      req.files && req.files.registro_mercantil_img ? req.files.registro_mercantil_img[0].path : null
 
-    if (!documento_img || !registro_mercantil_img) {
+    if (!documento_img) {
       // Clean up any uploaded files
       if (documento_img && fs.existsSync(documento_img)) {
         fs.unlinkSync(documento_img)
-      }
-      if (registro_mercantil_img && fs.existsSync(registro_mercantil_img)) {
-        fs.unlinkSync(registro_mercantil_img)
       }
 
       // Clean up empty directory if it was created
@@ -129,7 +118,7 @@ export const createUsuario = async (req, res, next) => {
 
       return res.status(400).json({
         success: false,
-        message: "Both documento_img and registro_mercantil_img files are required",
+        message: "El archivo documento_img es requerido",
       })
     }
 
@@ -144,7 +133,6 @@ export const createUsuario = async (req, res, next) => {
       documento_img: path.relative(path.join(__dirname, ".."), documento_img),
       nombre,
       direccion,
-      registro_mercantil_img: path.relative(path.join(__dirname, ".."), registro_mercantil_img),
       correo,
       telefono,
       user_password,
@@ -169,13 +157,8 @@ export const createUsuario = async (req, res, next) => {
     console.error("Error in createUsuario:", error)
 
     // If files were uploaded, delete them on error
-    if (req.files) {
-      if (req.files.documento_img && fs.existsSync(req.files.documento_img[0].path)) {
-        fs.unlinkSync(req.files.documento_img[0].path)
-      }
-      if (req.files.registro_mercantil_img && fs.existsSync(req.files.registro_mercantil_img[0].path)) {
-        fs.unlinkSync(req.files.registro_mercantil_img[0].path)
-      }
+    if (req.files && req.files.documento_img && fs.existsSync(req.files.documento_img[0].path)) {
+      fs.unlinkSync(req.files.documento_img[0].path)
     }
 
     // Clean up empty directory if it was created
@@ -198,13 +181,8 @@ export const updateUsuario = async (req, res, next) => {
 
     if (!usuario || usuario.is_delete) {
       // Clean up any uploaded files
-      if (req.files) {
-        if (req.files.documento_img && fs.existsSync(req.files.documento_img[0].path)) {
-          fs.unlinkSync(req.files.documento_img[0].path)
-        }
-        if (req.files.registro_mercantil_img && fs.existsSync(req.files.registro_mercantil_img[0].path)) {
-          fs.unlinkSync(req.files.registro_mercantil_img[0].path)
-        }
+      if (req.files && req.files.documento_img && fs.existsSync(req.files.documento_img[0].path)) {
+        fs.unlinkSync(req.files.documento_img[0].path)
       }
 
       // Clean up empty directory if it was created
@@ -228,13 +206,8 @@ export const updateUsuario = async (req, res, next) => {
 
       if (existingUsuario) {
         // Clean up any uploaded files
-        if (req.files) {
-          if (req.files.documento_img && fs.existsSync(req.files.documento_img[0].path)) {
-            fs.unlinkSync(req.files.documento_img[0].path)
-          }
-          if (req.files.registro_mercantil_img && fs.existsSync(req.files.registro_mercantil_img[0].path)) {
-            fs.unlinkSync(req.files.registro_mercantil_img[0].path)
-          }
+        if (req.files && req.files.documento_img && fs.existsSync(req.files.documento_img[0].path)) {
+          fs.unlinkSync(req.files.documento_img[0].path)
         }
 
         // Clean up empty directory if it was created
@@ -252,31 +225,14 @@ export const updateUsuario = async (req, res, next) => {
 
     // Handle file updates if provided
     let documento_img_path = usuario.documento_img
-    let registro_mercantil_img_path = usuario.registro_mercantil_img
 
-    if (req.files) {
-      // Update documento_img if provided
-      if (req.files.documento_img) {
-        // Delete old file if it exists
-        const oldPath = path.join(__dirname, "..", usuario.documento_img)
-        if (fs.existsSync(oldPath)) {
-          fs.unlinkSync(oldPath)
-        }
-        documento_img_path = path.relative(path.join(__dirname, ".."), req.files.documento_img[0].path)
+    if (req.files && req.files.documento_img) {
+      // Delete old file if it exists
+      const oldPath = path.join(__dirname, "..", usuario.documento_img)
+      if (fs.existsSync(oldPath)) {
+        fs.unlinkSync(oldPath)
       }
-
-      // Update registro_mercantil_img if provided
-      if (req.files.registro_mercantil_img) {
-        // Delete old file if it exists
-        const oldPath = path.join(__dirname, "..", usuario.registro_mercantil_img)
-        if (fs.existsSync(oldPath)) {
-          fs.unlinkSync(oldPath)
-        }
-        registro_mercantil_img_path = path.relative(
-          path.join(__dirname, ".."),
-          req.files.registro_mercantil_img[0].path,
-        )
-      }
+      documento_img_path = path.relative(path.join(__dirname, ".."), req.files.documento_img[0].path)
     }
 
     if (user_password) {
@@ -306,7 +262,6 @@ export const updateUsuario = async (req, res, next) => {
       nombre: nombre || usuario.nombre,
       direccion: direccion || usuario.direccion,
       documento_img: documento_img_path,
-      registro_mercantil_img: registro_mercantil_img_path,
       correo: correo || usuario.correo,
       telefono: telefono || usuario.telefono,
       user_password: user_password || usuario.user_password,
@@ -326,13 +281,8 @@ export const updateUsuario = async (req, res, next) => {
   } catch (error) {
     console.error("Error in updateUsuario:", error)
     // Clean up any uploaded files on error
-    if (req.files) {
-      if (req.files.documento_img && fs.existsSync(req.files.documento_img[0].path)) {
-        fs.unlinkSync(req.files.documento_img[0].path)
-      }
-      if (req.files.registro_mercantil_img && fs.existsSync(req.files.registro_mercantil_img[0].path)) {
-        fs.unlinkSync(req.files.registro_mercantil_img[0].path)
-      }
+    if (req.files && req.files.documento_img && fs.existsSync(req.files.documento_img[0].path)) {
+      fs.unlinkSync(req.files.documento_img[0].path)
     }
 
     // Clean up empty directory if it was created
@@ -379,14 +329,9 @@ export const hardDeleteUsuario = async (req, res, next) => {
 
     // Delete associated files
     const documento_img_path = path.join(__dirname, "..", usuario.documento_img)
-    const registro_mercantil_img_path = path.join(__dirname, "..", usuario.registro_mercantil_img)
 
     if (fs.existsSync(documento_img_path)) {
       fs.unlinkSync(documento_img_path)
-    }
-
-    if (fs.existsSync(registro_mercantil_img_path)) {
-      fs.unlinkSync(registro_mercantil_img_path)
     }
 
     // Using raw SQL query with parameterized query to prevent SQL injection
