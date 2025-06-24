@@ -15,9 +15,9 @@ if %errorlevel% neq 0 (
 timeout /t 2 >nul
 
 :: Abre la primera ventana de comando para el backend
-start cmd /k "cd /d C:\xampp\htdocs\www\proyectos\royal-system\api && echo Instalando dependencias del backend... && npm install && cls && echo Ejecutando Backend royal-system... && npm run dev || pause"
+start cmd /k "cd /d C:\xampp\htdocs\dashboard\www\royal-system\api && echo Instalando dependencias del backend... && npm install && cls && echo Ejecutando Backend royal-system... && npm run dev || pause"
 
 :: Abre la segunda ventana de comando para el frontend
-start cmd /k "cd /d C:\xampp\htdocs\www\proyectos\royal-system\web && echo Instalando dependencias del frontend... && npm install && cls && echo Ejecutando Frontend royal-system... && npm run dev || pause"
+start cmd /k "cd /d C:\xampp\htdocs\dashboard\www\royal-system\web && echo Instalando dependencias del frontend... && npm install && cls && echo Ejecutando Frontend royal-system... && npm run dev || pause"
 
 endlocal

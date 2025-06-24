@@ -182,6 +182,7 @@ export default {
                     id: detalle.producto_id,
                     name: detalle.Producto?.nombre || "Producto",
                     price: `${price.toFixed(2)}$`,
+                    priceBs: precioBs,
                     quantity: quantity,
                     tipoPrecio: detalle.tipo_precio,
                     total: `${total}$`,
