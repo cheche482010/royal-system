@@ -201,11 +201,14 @@ export const validateCoupon = async (req, res, next) => {
 }
 
 // Aplicar un cupón a una orden
-export const applyCoupon = async (req, res, next) => {
+export const applyCoupon = async (req, res, next) => { 
   try {
-    const { codigo, orden_id } = req.body
-    const userId = req.user.id
-
+    const { codigo, orden_id, usuario_id } = req.body
+    // Usar el usuario_id del body si viene, si no, usar el del token
+    const userId = usuario_id || (req.user && req.user.id)
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Usuario no autenticado" })
+    }
     // Verificar si la orden existe y pertenece al usuario
     const orden = await Orden.findOne({
       where: { id: orden_id, usuario_id: userId },

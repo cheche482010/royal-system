@@ -50,7 +50,7 @@ export const useCouponService = () => {
     }
   }
 
-  const applyCoupon = async (code, orderId) => {
+  const applyCoupon = async (data) => {
     try {
       const token = getToken()
       if (!token) {
@@ -58,10 +58,7 @@ export const useCouponService = () => {
         return { success: false, message: "Authentication required" }
       }
   
-      const response = await apiService.post("/coupons/apply", token, {
-        codigo: code,
-        orden_id: orderId
-      })
+      const response = await apiService.post("/coupons/apply", token, data)
   
       if (!response.success) {
         throw new Error(response.message || "Error al aplicar cupón")

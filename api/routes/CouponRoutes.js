@@ -7,6 +7,7 @@ import {
   updateCoupon,
   deactivateCoupon,
   validateCoupon,
+  applyCoupon,
 } from "../controllers/CouponController.js"
 import { protect } from "../middleware/auth.js"
 
@@ -222,6 +223,37 @@ router.delete("/:id", protect, deactivateCoupon)
  *         description: Unauthorized
  */
 router.post("/validate", protect, validateCoupon)
+
+/**
+ * @swagger
+ * /coupons/apply:
+ *   post:
+ *     summary: Apply a coupon to an order
+ *     description: Apply a coupon to a specific order for the authenticated user
+ *     security:
+ *       - bearerAuth: []
+ *     tags:
+ *       - Coupons
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               codigo:
+ *                 type: string
+ *               orden_id:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Coupon applied successfully
+ *       404:
+ *         description: Invalid or expired coupon, or order not found
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/apply", protect, applyCoupon)
 
 export default router
 

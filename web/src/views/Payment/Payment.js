@@ -356,10 +356,17 @@ export default {
           // Si hay cupón aplicado, registrarlo
           if (checkoutData?.coupon) {
             try {
-              const couponResponse = await couponService.applyCoupon(checkoutData.coupon.code, orderId)
+              const couponResponse = await couponService.applyCoupon({
+                codigo: checkoutData.coupon.code,
+                orden_id: orderId,
+                usuario_id: getUserId()
+              })
 
               if (!couponResponse.success) {
                 console.error("Error al aplicar cupón:", couponResponse.message)
+                return toast.error(couponResponse.message , {
+                  title: "Error en el cupón",
+                })
               }
             } catch (couponError) {
               console.error("Error al aplicar cupón:", couponError)
