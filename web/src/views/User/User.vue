@@ -87,7 +87,12 @@
         <!-- Pedidos Activos -->
         <div v-if="activeOrdersTab === 'active'">
           <div v-if="paginatedActiveOrders.length > 0" class="orders-list">
-            <div v-for="order in paginatedActiveOrders" :key="order.id" class="order-card">
+            <div
+              v-for="order in paginatedActiveOrders"
+              :key="order.id"
+              class="order-card"
+              :data-order-id="order.id"
+            >
               <!-- El contenido del order-card permanece igual -->
               <div class="order-header">
                 <div class="order-info">
@@ -180,7 +185,12 @@
         <!-- Pedidos Finalizados -->
         <div v-if="activeOrdersTab === 'completed'">
           <div v-if="paginatedCompletedOrders.length > 0" class="orders-list">
-            <div v-for="order in paginatedCompletedOrders" :key="order.id" class="order-card">
+            <div
+              v-for="order in paginatedCompletedOrders"
+              :key="order.id"
+              class="order-card"
+              :data-order-id="order.id"
+            >
               <!-- El contenido del order-card permanece igual -->
               <div class="order-header">
                 <div class="order-info">
@@ -274,7 +284,12 @@
         <!-- Pedidos Cancelados -->
         <div v-if="activeOrdersTab === 'cancelled'">
           <div v-if="cancelledOrders.length > 0" class="orders-list">
-            <div v-for="order in cancelledOrders" :key="order.id" class="order-card">
+            <div
+              v-for="order in cancelledOrders"
+              :key="order.id"
+              class="order-card"
+              :data-order-id="order.id"
+            >
               <!-- ...igual que los otros order-card... -->
               <div class="order-header">
                 <div class="order-info">

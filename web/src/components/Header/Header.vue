@@ -77,7 +77,7 @@
 
                         <div class="notification-list">
                             <div v-for="notification in notifications" :key="notification.id" class="notification-item"
-                                :class="{ 'unread': !notification.read }" @click="markAsRead(notification.id)">
+                                :class="{ 'unread': !notification.read }" @click="handleNotificationClick(notification)">
                                 <div class="notification-content">
                                     <h4>{{ notification.title }}</h4>
                                     <p>{{ notification.message }}</p>

@@ -96,7 +96,7 @@ export default {
             orden: notif.Orden
           }))
         }
-
+        
         // Actualizar contador de no leídas
         await updateUnreadCount()
       } catch (error) {
@@ -409,6 +409,12 @@ export default {
       })
     }
 
+    const handleNotificationClick = async (notification) => {
+      await markAsRead(notification.id)
+      router.push({ path: '/user/orders', query: { focusOrder: notification.ordenId } })
+      showNotifications.value = false
+    }
+
     return {
       cartCount,
       categories,
@@ -440,6 +446,7 @@ export default {
       showDollarInput,
       loadNotifications,
       isAdmin,
+      handleNotificationClick,
     }
   },
 }

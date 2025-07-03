@@ -1,6 +1,6 @@
 "use client"
 
-import { ref, computed, onMounted, watch } from "vue"
+import { ref, computed, onMounted, watch, nextTick } from "vue"
 import Header from "../../components/Header/Header.vue"
 import Footer from "../../components/Footer/Footer.vue"
 import PDF from "../../components/PDF/PDF.vue"
@@ -339,10 +339,29 @@ export default {
       }
     }
 
-    // Cargar los datos del usuario cuando el componente se monta
-    onMounted(() => {
-      loadUserData()
-      loadNotifications() 
+    const focusOrder = async (orderId) => {
+      await nextTick()
+      const el = document.querySelector(`[data-order-id="${orderId}"]`)
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" })
+        el.classList.add("highlight-order")
+        setTimeout(() => el.classList.remove("highlight-order"), 2000)
+      }
+    }
+
+    watch([orders, () => route.query.focusOrder], async ([ordersVal, focusOrderId]) => {
+      if (focusOrderId && ordersVal.length > 0) {
+        focusOrder(focusOrderId)
+      }
+    })
+
+    onMounted(async () => {
+      await loadUserData()
+      loadNotifications()
+      
+      if (route.query.focusOrder) {
+        focusOrder(route.query.focusOrder)
+      }
     })
 
     const setActiveSection = (section) => {
@@ -865,6 +884,7 @@ export default {
       previewDocumentoImg,
       onDocumentoImgChange,
       removeDocumentoImg,
+      focusOrder,
     }
   },
 }
