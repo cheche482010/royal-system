@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { cleanupEmptyDir } from "../middleware/upload.js";
+import { crearNotificacionOrdenCreada } from "./NotificacionController.js";
 
 // Get current directory name (for ES modules)
 const __filename = fileURLToPath(import.meta.url);
@@ -217,7 +218,8 @@ export const createPago = async (req, res, next) => {
 
     // Actualizar el estado de la orden si es necesario
     await orden.update({ status: "Pendiente" });
-
+    await crearNotificacionOrdenCreada(orden);
+    
     // Guardar información de envío si se proporcionó
     let envio = null;
     if (nombre_receptor && direccion && ciudad && estado && telefono) {

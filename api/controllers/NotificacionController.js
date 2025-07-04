@@ -3,7 +3,7 @@ import { Notificacion, Usuario, Orden, Pago } from "../models/index.js"
 export const getAllNotificaciones = async (req, res, next) => {
   try {
     const bancos = await Notificacion.findAll({
-      order: [["id", "ASC"]], 
+      order: [["id", "ASC"]],
     })
 
     return res.status(200).json({ success: true, data: bancos })
@@ -28,7 +28,7 @@ export const getNotificacionesByUsuario = async (req, res, next) => {
       include: [
         {
           model: Orden,
-          attributes: ["id", "status", "is_active", "is_delete"], 
+          attributes: ["id", "status", "is_active", "is_delete"],
           include: [
             {
               model: Pago,
@@ -107,7 +107,7 @@ export const crearNotificacionOrdenCreada = async (orden) => {
       where: { orden_id: orden.id, is_delete: false },
       order: [["created_at", "DESC"]],
     })
-    
+
     const monto_total = pago ? pago.monto_total : 0
     const monto_total_bs = pago ? pago.monto_total_bs : 0
 
@@ -117,8 +117,8 @@ export const crearNotificacionOrdenCreada = async (orden) => {
       tipo: "ORDEN_CREADA",
       titulo: "Nueva Orden Pendiente",
       mensaje: `Se ha creado una nueva orden #${String(orden.id).padStart(6, "0")} por un monto de $${monto_total} USD, monto pagado: ${monto_total_bs} Bs (a tasa BCV). Requiere verificación de pago.`,
-    })) 
-    
+    }))
+
     await Notificacion.bulkCreate(notificaciones)
     console.log(`Notificaciones creadas para ${admins.length} administradores`)
   } catch (error) {
@@ -138,61 +138,53 @@ export const crearNotificacionCambioEstado = async (orden, nuevoEstado, motivo =
         tipo = "ORDEN_COMPLETADA"
         titulo = "Orden Completada"
         mensaje = `Tu orden #${orden_id} ha sido completada exitosamente. El pago ha sido verificado y tu pedido está siendo procesado.`
-        // Notificación solo para el usuario dueño
-        await Notificacion.create({
-          usuario_id: orden.usuario_id,
-          orden_id: orden.id,
-          tipo,
-          titulo,
-          mensaje,
-        })
-        break 
+        break
       case "Cancelada":
         tipo = "ORDEN_CANCELADA"
         titulo = "Orden Cancelada"
         mensaje = `Tu orden #${orden_id} ha sido cancelada. Motivo: ${motivo || "No especificado"}. Si tienes dudas, contacta con nuestro equipo de soporte.`
+        break
+      default:
+        return
+    }
 
+    await Notificacion.create({
+      usuario_id: orden.usuario_id,
+      orden_id: orden.id,
+      tipo,
+      titulo,
+      mensaje,
+    })
+
+    const admins = await Usuario.findAll({
+      where: { role: "Admin", is_active: true, is_delete: false },
+    })
+
+    for (const admin of admins) {
+      const noti = await Notificacion.findOne({
+        where: {
+          usuario_id: admin.id,
+          orden_id: orden.id,
+          tipo: "ORDEN_CREADA"
+        }
+      })
+      if (noti) {
+        await noti.update({
+          tipo,
+          titulo,
+          mensaje,
+          leida: false
+        })
+      } else {
         await Notificacion.create({
-          usuario_id: orden.usuario_id,
+          usuario_id: admin.id,
           orden_id: orden.id,
           tipo,
           titulo,
           mensaje,
+          leida: false
         })
-
-        const admins = await Usuario.findAll({
-          where: { role: "Admin", is_active: true, is_delete: false },
-        })
-
-        for (const admin of admins) {
-          const noti = await Notificacion.findOne({
-            where: {
-              usuario_id: admin.id,
-              orden_id: orden.id,
-              tipo: "ORDEN_CREADA"
-            }
-          })
-          if (noti) {
-            await noti.update({
-              tipo,
-              titulo,
-              mensaje,
-              leida: false 
-            })
-          } else {
-            await Notificacion.create({
-              usuario_id: admin.id,
-              orden_id: orden.id,
-              tipo,
-              titulo,
-              mensaje,
-              leida: false
-            })
-          }
-        }
-        break
-      default:
-        return
+      }
     }
   } catch (error) {
     console.error("Error al crear notificación de cambio de estado:", error)

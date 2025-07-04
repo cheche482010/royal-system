@@ -193,7 +193,18 @@ export default {
               documento: orden.Usuario.documento,
               products:
                 orden.DetalleOrdens?.map((detalle) => {
-                  const price = Number.parseFloat(detalle.Producto?.precio_producto || "0")
+                  
+                  let price = 0
+                  if (detalle.Producto?.precio_producto !== undefined) {
+                    price = Number.parseFloat(detalle.Producto.precio_producto || "0")
+                  } else if (detalle.tipo_precio === "unidad") {
+                    price = Number.parseFloat(detalle.Producto?.precio_unidad || "0")
+                  } else if (detalle.tipo_precio === "tienda") {
+                    price = Number.parseFloat(detalle.Producto?.precio_tienda || "0")
+                  } else if (detalle.tipo_precio === "distribuidor") {
+                    price = Number.parseFloat(detalle.Producto?.precio_distribuidor || "0")
+                  }
+                  
                   const quantity = detalle.cantidad
                   const total = (price * quantity).toFixed(2)
                   const precioBs = detalle.precio_bs || "0.00"
@@ -218,6 +229,7 @@ export default {
             title: "Error",
           })
         }
+        console.log(orders.value)
       } catch (err) {
         console.error("Error al cargar órdenes:", err)
         ordersError.value = "Error al cargar las órdenes"
