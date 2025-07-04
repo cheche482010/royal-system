@@ -96,7 +96,11 @@ export default {
     ])
 
     // 3. Añadir pestaña de pedidos cancelados
-    const activeOrdersTab = ref("active") // 'active', 'completed', 'cancelled'
+    const activeOrdersTab = ref(
+      ["active", "completed", "cancelled"].includes(route.query.tab)
+        ? route.query.tab
+        : "active"
+    ) 
 
     // Usar ref para las órdenes que vendrán de la BD
     const orders = ref([])
@@ -114,6 +118,9 @@ export default {
       (newPath) => {
         if (newPath.includes("orders")) {
           activeSection.value = "orders"
+          if (route.query.tab && ["active", "completed", "cancelled"].includes(route.query.tab)) {
+            activeOrdersTab.value = route.query.tab
+          }
         } else if (newPath.includes("notifications")) {
           activeSection.value = "notifications"
           loadNotifications()
@@ -121,6 +128,16 @@ export default {
           activeSection.value = "profile"
         }
       },
+    )
+
+    // Watcher para cambiar de tab cuando cambia la query 'tab'
+    watch(
+      () => route.query.tab,
+      (newTab) => {
+        if (["active", "completed", "cancelled"].includes(newTab)) {
+          activeOrdersTab.value = newTab
+        }
+      }
     )
 
     // 4. Cargar pedidos según el rol
@@ -234,7 +251,7 @@ export default {
         isLoading.value = false
         return
       }
-      
+
       isLoading.value = true
       error.value = null
 
@@ -358,7 +375,7 @@ export default {
     onMounted(async () => {
       await loadUserData()
       loadNotifications()
-      
+
       if (route.query.focusOrder) {
         focusOrder(route.query.focusOrder)
       }
@@ -647,7 +664,7 @@ export default {
         const formData = new FormData()
         formData.append("nombre", profileForm.value.name)
         formData.append("telefono", profileForm.value.phone)
-        
+
         if (profileForm.value.documento_img) {
           formData.append("documento_img", profileForm.value.documento_img)
         }
@@ -789,7 +806,7 @@ export default {
       const noti = notifications.value.find(
         n => n.orden_id === orderId && n.tipo === "ORDEN_CANCELADA"
       )
-  
+
       if (noti && noti.mensaje) {
         const match = noti.mensaje.match(/Motivo:\s*([^\.\n]+)/i)
         if (match && match[1]) {

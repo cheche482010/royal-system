@@ -411,7 +411,14 @@ export default {
 
     const handleNotificationClick = async (notification) => {
       await markAsRead(notification.id)
-      router.push({ path: '/user/orders', query: { focusOrder: notification.ordenId } })
+      // Determinar el tab según el estado de la orden
+      let tab = "active"
+      if (notification.orden?.status === "Completa") {
+        tab = "completed"
+      } else if (notification.orden?.status === "Cancelada") {
+        tab = "cancelled"
+      }
+      router.push({ path: '/user/orders', query: { focusOrder: notification.ordenId, tab } })
       showNotifications.value = false
     }
 
