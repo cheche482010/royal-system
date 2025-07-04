@@ -102,13 +102,21 @@ export const crearNotificacionOrdenCreada = async (orden) => {
       where: { role: "Admin", is_active: true, is_delete: false },
     })
 
-    // Crear notificación para cada admin
+
+    const pago = await Pago.findOne({
+      where: { orden_id: orden.id, is_delete: false },
+      order: [["created_at", "DESC"]],
+    })
+    
+    const monto_total = pago ? pago.monto_total : 0
+    const monto_total_bs = pago ? pago.monto_total_bs : 0
+
     const notificaciones = admins.map((admin) => ({
       usuario_id: admin.id,
       orden_id: orden.id,
       tipo: "ORDEN_CREADA",
       titulo: "Nueva Orden Pendiente",
-      mensaje: `Se ha creado una nueva orden #${String(orden.id).padStart(6, "0")} por un monto de $${orden.monto_total}. Requiere verificación de pago.`,
+      mensaje: `Se ha creado una nueva orden #${String(orden.id).padStart(6, "0")} por un monto de $${monto_total} USD, monto pagado: ${monto_total_bs} Bs (a tasa BCV). Requiere verificación de pago.`,
     })) 
     
     await Notificacion.bulkCreate(notificaciones)

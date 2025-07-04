@@ -10,7 +10,7 @@ import {
   MetodoPago
 } from "../models/index.js"
 import { sequelize } from "../config/database.js"
-import { crearNotificacionOrdenCreada, crearNotificacionCambioEstado } from "./NotificacionController.js"
+import { crearNotificacionCambioEstado } from "./NotificacionController.js"
 
 // Obtener todas las órdenes
 export const getAllOrdenes = async (req, res, next) => {
@@ -264,8 +264,6 @@ export const createOrden = async (req, res, next) => {
     const orden = await Orden.create(
       {
         usuario_id,
-        monto_total,
-        monto_total_bs,
         status: "Pendiente",
         is_active: true,
         is_delete: false,
@@ -331,9 +329,6 @@ export const createOrden = async (req, res, next) => {
     )
 
     await transaction.commit()
-
-    // Crear notificaciones para administradores después de confirmar la transacción
-    await crearNotificacionOrdenCreada(orden)
 
     return res.status(201).json({ success: true, data: orden })
   } catch (error) {
