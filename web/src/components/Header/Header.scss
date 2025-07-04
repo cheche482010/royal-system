@@ -172,7 +172,7 @@
         display: flex;
         padding: 8px;
         gap: 8px;
-      
+
         .dollar-input {
           flex: 1;
           padding: 8px;
@@ -180,7 +180,7 @@
           border-radius: 4px;
           font-size: 14px;
         }
-      
+
         .dollar-save-btn {
           padding: 8px 12px;
           background-color: #6901ae;
@@ -190,7 +190,7 @@
           cursor: pointer;
           font-size: 14px;
           transition: background-color 0.2s;
-      
+
           &:hover {
             background-color: #5a0095;
           }
@@ -504,6 +504,27 @@
               display: block;
               font-size: 0.75rem;
               color: #999;
+            }
+          }
+
+          .order-status {
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-right: 0.5em;
+
+            &.pendiente {
+              background-color: #fff3cd;
+              color: #856404;
+            }
+
+            &.completa {
+              background-color: #d4edda;
+              color: #155724;
+            }
+
+            &.cancelada {
+              background-color: #f8d7da;
+              color: #721c24;
             }
           }
         }
