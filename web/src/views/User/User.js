@@ -789,14 +789,12 @@ export default {
       const noti = notifications.value.find(
         n => n.orden_id === orderId && n.tipo === "ORDEN_CANCELADA"
       )
-      
+  
       if (noti && noti.mensaje) {
-        // Captura todo después de "Motivo:" hasta el final o salto de línea
         const match = noti.mensaje.match(/Motivo:\s*([^\.\n]+)/i)
         if (match && match[1]) {
           return match[1].trim()
         }
-        // Si no hay "Motivo:", intenta devolver todo el mensaje
         return noti.mensaje
       }
       return null
