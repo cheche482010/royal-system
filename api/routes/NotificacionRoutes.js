@@ -1,5 +1,6 @@
 import express from "express"
 import {
+  getAllNotificaciones,
   getNotificacionesByUsuario,
   marcarComoLeida,
   marcarTodasComoLeidas,
@@ -9,6 +10,30 @@ import {
 import { protect } from "../middleware/auth.js"
 
 const router = express.Router()
+/**
+ * @swagger
+ * tags:
+ *   name: Notificaciones
+ *   description: API for managing notifications
+ */
+
+/**
+ * @swagger
+ * /notificaciones/GetAll:
+ *   get:
+ *     summary: Get all notifications
+ *     description: Retrieve all notifications for the authenticated user
+ *     security:
+ *       - bearerAuth: []
+ *     tags:
+ *       - Notificaciones
+ *     responses:
+ *       200:
+ *         description: List of all notifications
+ *       401:
+ *         description: Unauthorized
+ */
+router.get("/GetAll", protect, getAllNotificaciones)
 
 /**
  * @swagger

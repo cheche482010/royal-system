@@ -1,5 +1,17 @@
 import { Notificacion, Usuario, Orden, Pago } from "../models/index.js"
 
+export const getAllNotificaciones = async (req, res, next) => {
+  try {
+    const bancos = await Notificacion.findAll({
+      order: [["id", "ASC"]], 
+    })
+
+    return res.status(200).json({ success: true, data: bancos })
+  } catch (error) {
+    next(error)
+  }
+}
+
 // Obtener todas las notificaciones de un usuario
 export const getNotificacionesByUsuario = async (req, res, next) => {
   try {
@@ -118,23 +130,62 @@ export const crearNotificacionCambioEstado = async (orden, nuevoEstado, motivo =
         tipo = "ORDEN_COMPLETADA"
         titulo = "Orden Completada"
         mensaje = `Tu orden #${orden_id} ha sido completada exitosamente. El pago ha sido verificado y tu pedido está siendo procesado.`
+        // Notificación solo para el usuario dueño
+        await Notificacion.create({
+          usuario_id: orden.usuario_id,
+          orden_id: orden.id,
+          tipo,
+          titulo,
+          mensaje,
+        })
         break 
       case "Cancelada":
         tipo = "ORDEN_CANCELADA"
         titulo = "Orden Cancelada"
         mensaje = `Tu orden #${orden_id} ha sido cancelada. Motivo: ${motivo || "No especificado"}. Si tienes dudas, contacta con nuestro equipo de soporte.`
+
+        await Notificacion.create({
+          usuario_id: orden.usuario_id,
+          orden_id: orden.id,
+          tipo,
+          titulo,
+          mensaje,
+        })
+
+        const admins = await Usuario.findAll({
+          where: { role: "Admin", is_active: true, is_delete: false },
+        })
+
+        for (const admin of admins) {
+          const noti = await Notificacion.findOne({
+            where: {
+              usuario_id: admin.id,
+              orden_id: orden.id,
+              tipo: "ORDEN_CREADA"
+            }
+          })
+          if (noti) {
+            await noti.update({
+              tipo,
+              titulo,
+              mensaje,
+              leida: false 
+            })
+          } else {
+            await Notificacion.create({
+              usuario_id: admin.id,
+              orden_id: orden.id,
+              tipo,
+              titulo,
+              mensaje,
+              leida: false
+            })
+          }
+        }
         break
       default:
         return
     }
-
-    await Notificacion.create({
-      usuario_id: orden.usuario_id,
-      orden_id: orden.id,
-      tipo,
-      titulo,
-      mensaje,
-    })
   } catch (error) {
     console.error("Error al crear notificación de cambio de estado:", error)
   }
