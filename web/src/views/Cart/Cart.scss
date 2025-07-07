@@ -87,8 +87,27 @@
           }
 
           .item-price {
-            font-weight: 600;
-            margin-bottom: 1rem;
+            .old-price {
+              text-decoration: line-through;
+              color: #888;
+              margin-right: 8px;
+              font-weight: 400;
+            }
+            .bulk-price {
+              color: #00b2e3;
+              font-weight: 700;
+              margin-right: 6px;
+            }
+            .bulk-label {
+              font-size: 0.85em;
+              color: #28a745;
+              margin-left: 2px;
+              font-weight: 500;
+            }
+            .normal-price {
+              color: #212529;
+              font-weight: 600;
+            }
           }
 
           .item-actions {

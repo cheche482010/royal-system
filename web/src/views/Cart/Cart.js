@@ -57,37 +57,65 @@ export default {
     const appliedPromo = ref(null)
     const couponError = ref("")
 
+    // NUEVO: Calcular el total de unidades en el carrito
+    const totalQuantity = computed(() =>
+      cartItems.value.reduce((sum, item) => sum + item.quantity, 0)
+    )
+
+    // NUEVO: ¿Se aplica precio mayorista?
+    const isBulkDiscount = computed(() => totalQuantity.value >= 20)
+
+    // NUEVO: Obtener el precio a mostrar según el descuento
+    const getItemPrice = (item) => {
+      if (isBulkDiscount.value) {
+        return Number(item.priceStore)
+      }
+      return Number(item.price)
+    }
+
+    // NUEVO: Para mostrar el precio original (unitario)
+    const getOriginalPrice = (item) => Number(item.price)
+
+    // Modificar subtotal, total, etc. para usar el precio correcto
     const subtotal = computed(() => {
-      const total = cartItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
+      const total = cartItems.value.reduce(
+        (sum, item) => sum + getItemPrice(item) * item.quantity,
+        0
+      )
       return formatPrice(total)
     })
 
     const shipping = computed(() => {
-      const subtotalValue = cartItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
+      const subtotalValue = cartItems.value.reduce(
+        (sum, item) => sum + getItemPrice(item) * item.quantity,
+        0
+      )
       return subtotalValue >= 59 ? "Gratis" : formatPrice(4.99)
     })
 
     const discount = computed(() => {
       if (!appliedPromo.value) return null
-
-      const subtotalValue = cartItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
+      const subtotalValue = cartItems.value.reduce(
+        (sum, item) => sum + getItemPrice(item) * item.quantity,
+        0
+      )
       const discountAmount = subtotalValue * (appliedPromo.value.percentage / 100)
       return formatPrice(discountAmount)
     })
 
     const totalBs = computed(() => {
-      const rate = dollarRate.value?._value || dollarRate.value 
+      const rate = dollarRate.value?._value || dollarRate.value
       if (!rate) return '--.-- BS'
-      
-      let totalValue = cartItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
-      
+      let totalValue = cartItems.value.reduce(
+        (sum, item) => sum + getItemPrice(item) * item.quantity,
+        0
+      )
       if (appliedPromo.value) {
         totalValue -= totalValue * (appliedPromo.value.percentage / 100)
       }
       if (totalValue < 59) {
         totalValue += 4.99
       }
-      
       return (totalValue * rate.toFixed(2))
         .toFixed(2)
         .replace('.', ',')
@@ -95,16 +123,16 @@ export default {
     })
 
     const total = computed(() => {
-      let totalValue = cartItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
-
+      let totalValue = cartItems.value.reduce(
+        (sum, item) => sum + getItemPrice(item) * item.quantity,
+        0
+      )
       if (appliedPromo.value) {
         totalValue -= totalValue * (appliedPromo.value.percentage / 100)
       }
-
       if (totalValue < 59) {
         totalValue += 4.99
       }
-
       return formatPrice(totalValue)
     })
 
@@ -176,10 +204,18 @@ export default {
       }
     }
 
+    // checkoutData debe llevar el precio correcto y la bandera de descuento mayorista
     const checkout = () => {
-
       const checkoutData = {
-        items: cartItems.value,
+        items: cartItems.value.map(item => ({
+          ...item,
+          price: getItemPrice(item),
+          originalPrice: getOriginalPrice(item),
+          isBulkDiscount: isBulkDiscount.value,
+          priceStore: item.priceStore,
+          priceUnit: item.price,
+          quantity: item.quantity,
+        })),
         subtotal: subtotal.value,
         shipping: shipping.value,
         discount: discount.value,
@@ -188,9 +224,9 @@ export default {
           code: appliedPromo.value.code,
           percentage: appliedPromo.value.percentage,
           type: appliedPromo.value.type
-        } : null
+        } : null,
+        isBulkDiscount: isBulkDiscount.value
       }
-    
       localStorage.setItem('checkoutData', JSON.stringify(checkoutData))
       router.push("/payment")
     }
@@ -312,7 +348,11 @@ export default {
       applyPromoCode,
       removePromoCode,
       totalBs,
-      dollarRate
+      dollarRate,
+      getItemPrice,
+      getOriginalPrice,
+      isBulkDiscount,
+      totalQuantity
     }
   },
 }

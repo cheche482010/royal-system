@@ -171,7 +171,16 @@
               </div>
               <div class="item-info">
                 <div class="item-name">{{ item.name }}</div>
-                <div class="item-price">{{ formatPrice(item.price * item.quantity) }}</div>
+                <div class="item-price">
+                  <template v-if="isBulkDiscount">
+                    <span class="old-price">{{ formatPrice(getOriginalPrice(item)) }}</span>
+                    <span class="bulk-price">{{ formatPrice(getItemPrice(item)) }}</span>
+                    <span class="bulk-label">Precio mayorista</span>
+                  </template>
+                  <template v-else>
+                    <span class="normal-price">{{ formatPrice(getItemPrice(item)) }}</span>
+                  </template>
+                </div>
                 <div class="item-price-bs" v-if="dollarRate">{{ formatPriceBs(item.price * item.quantity) }}</div>
               </div>
             </div>

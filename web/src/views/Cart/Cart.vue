@@ -16,7 +16,16 @@
           <div class="item-details">
             <div class="item-brand">{{ item.brand }}</div>
             <div class="item-name">{{ item.name }}</div>
-            <div class="item-price">${{ typeof item.price === 'number' ? item.price.toFixed(2) : item.price }}</div>
+            <div class="item-price">
+              <template v-if="isBulkDiscount">
+                <span class="old-price">{{ formatPrice(getOriginalPrice(item)) }}</span>
+                <span class="bulk-price">{{ formatPrice(getItemPrice(item)) }}</span>
+                <span class="bulk-label">Precio mayorista</span>
+              </template>
+              <template v-else>
+                <span class="normal-price">{{ formatPrice(getItemPrice(item)) }}</span>
+              </template>
+            </div>
 
             <div class="item-actions">
               <div class="quantity-selector">

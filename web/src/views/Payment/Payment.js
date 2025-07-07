@@ -208,6 +208,11 @@ export default {
       )
     })
 
+    
+    const isBulkDiscount = computed(() => checkoutData.value?.isBulkDiscount || false)
+    const getItemPrice = (item) => Number(item.price)
+    const getOriginalPrice = (item) => Number(item.originalPrice || item.priceUnit || item.price)
+
     // Funciones
     const formatPrice = (price) => {
       if (typeof price === "string") return price
@@ -477,6 +482,9 @@ export default {
       showImageModal,
       openImageModal,
       closeImageModal,
+      getItemPrice,
+      getOriginalPrice,
+      isBulkDiscount,
     }
   },
 }
